@@ -10,6 +10,7 @@ import Yesod
 import Homepage
 
 import Handlers.Root as X
+import Handlers.Impressum as X
 
 getFaviconR :: Handler ()
 getFaviconR = sendFile "image/x-icon" "favicon.ico"

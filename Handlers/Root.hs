@@ -1,3 +1,4 @@
+{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE OverloadedStrings #-}
 
@@ -7,9 +8,12 @@ module Handlers.Root
        ) where
 
 import Homepage
+import qualified Settings
 import Yesod
+import Text.Hamlet
+import Text.Cassius
 
 getRootR :: Handler RepHtml
 getRootR = defaultLayout $ do
-  setTitle "Test"
-  addHamlet [hamlet|Test|]
+           setTitle "Startseite"
+           $(Settings.hamletFile "homepage")
