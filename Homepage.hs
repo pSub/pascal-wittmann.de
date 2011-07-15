@@ -29,7 +29,6 @@ instance Yesod Homepage where
   defaultLayout widget = do
     (title, bcs) <- breadcrumbs
     pc <- widgetToPageContent $ do
-      setTitleI title
       addCassius $(Settings.cassiusFile "default-layout")
       addWidget widget
     hamletToRepHtml $(Settings.hamletFile "default-layout")

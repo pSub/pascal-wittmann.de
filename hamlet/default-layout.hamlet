@@ -1,0 +1,24 @@
+!!!
+<head
+        <title>#{title}
+        <meta charset="utf8">
+        ^{pageHead pc}
+<body
+        <div #container
+             <div #title
+                  <a href=@{RootR}> Pascal Wittmann
+             <ul #navigation
+                <li
+                        Linux
+                <li
+                        Log
+                <li
+                        Referate
+             <div #content
+                  <ul #categories
+                      <li
+                  ^{pageBody pc}
+             <div #footer
+                  Dieser Inhalt steht unter einer
+                  \ <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/de/" title="Lizenz">Creative Commons Lizenz</a>
+                  \ | <a href=@{ImpressumR} title="Impressum">Impressum</a>
