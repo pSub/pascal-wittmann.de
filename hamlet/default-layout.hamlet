@@ -8,12 +8,9 @@
              <div #title
                   <a href=@{RootR}> Pascal Wittmann
              <ul #navigation
-                <li
-                        Linux
-                <li
-                        Log
-                <li
-                        Referate
+                 $forall link <- section
+                         <li>
+                                <a href="@{snd link}">#{fst link}
              <div #content
                   <ul #categories
                       <li

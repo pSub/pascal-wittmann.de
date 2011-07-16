@@ -18,4 +18,5 @@ getImpressumR = defaultLayout $ do
   setTitle "Impressum"
   $(Settings.hamletFile "impressum")
   
+-- TODO: Protect mail from spam
 encodeMail mail = show mail
