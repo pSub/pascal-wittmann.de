@@ -10,6 +10,7 @@ module Handlers.Root
 import Homepage
 import qualified Settings
 import Yesod
+import Yesod.Auth
 import Text.Hamlet
 import Text.Cassius
 

@@ -6,6 +6,7 @@
 module Controller where
 
 import Yesod
+import Yesod.Auth
 import Homepage
 import Model
 import qualified Settings
