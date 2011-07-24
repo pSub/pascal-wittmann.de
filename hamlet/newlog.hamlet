@@ -1,0 +1,7 @@
+<h2 Neuer Log-Eintrag
+<form enctype="#{enctype}"
+      <table>
+        ^{form}
+        <tr>
+            <td colspan="2">
+                <input type="submit" value="Veröffentlichen">

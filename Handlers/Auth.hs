@@ -17,4 +17,4 @@ getAuthR :: Handler RepHtml
 getAuthR = do 
   mu <- maybeAuth
   defaultLayout $ do
-  $(Settings.hamletFile "auth")
+    $(Settings.hamletFile "auth")

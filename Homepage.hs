@@ -36,8 +36,9 @@ mkYesodData "Homepage" [parseRoutes|
                     / RootR GET
                     /robots.txt RobotsR GET
                     /impressum.html ImpressumR GET
-                    /linux.hmtml LinuxR GET
+                    /linux.html LinuxR GET
                     /log.html LogR GET
+                    /newlog.html NewLogR GET
                     /referate.html ReferateR GET
                     /login.html AuthR Auth getAuth
                                    |]
@@ -45,6 +46,7 @@ mkYesodData "Homepage" [parseRoutes|
 instance Yesod Homepage where
   approot _ =  Settings.approot
   defaultLayout widget = do
+    mu <- maybeAuth
     (title, bcs) <- breadcrumbs
     pc <- widgetToPageContent $ do
       addCassius $(Settings.cassiusFile "default-layout")

@@ -17,7 +17,10 @@
                   ^{pageBody pc}
              <div #footer
                   <div #left
-                       <a href="@{AuthR LoginR}">Login
+                       $maybe u <- mu
+                           <a href="@{AuthR LogoutR}">Logout
+                       $nothing
+                           <a href="@{AuthR LoginR}">Login
                   <div #right
                        Dieser Inhalt steht unter einer
                        \ <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/de/" title="Lizenz">Creative Commons Lizenz</a>
