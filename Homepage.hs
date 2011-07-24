@@ -38,7 +38,7 @@ mkYesodData "Homepage" [parseRoutes|
                     /impressum.html ImpressumR GET
                     /linux.html LinuxR GET
                     /log.html LogR GET
-                    /newlog.html NewLogR GET
+                    /newlog.html NewLogR GET POST
                     /referate.html ReferateR GET
                     /login.html AuthR Auth getAuth
                                    |]

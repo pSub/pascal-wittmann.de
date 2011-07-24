@@ -4,10 +4,12 @@
 
 module Handlers.NewLog
        (
-         getNewLogR
+         getNewLogR,
+         postNewLogR
          ) where
 
 import Homepage
+import Model
 import qualified Settings
 import Yesod
 import Yesod.Auth
@@ -15,6 +17,7 @@ import Control.Applicative
 import Text.Hamlet
 import Text.Cassius
 import Data.Text (Text)
+import Data.Time
 
 data Params = Params
      { title :: Text
@@ -29,6 +32,21 @@ paramsFormlet mparams = fieldsToTable $ Params
 getNewLogR :: Handler RepHtml
 getNewLogR = do
   requireAuth
-  (res, form, enctype) <- runFormGet $ paramsFormlet Nothing
+  (_, form, enctype) <- runFormGet $ paramsFormlet Nothing
   defaultLayout $ do
     $(Settings.hamletFile "newlog")
+
+
+postNewLogR :: Handler ()
+postNewLogR = do
+  (uid, _) <- requireAuth
+  (res, _, _) <- runFormPostNoNonce $ paramsFormlet Nothing
+  case res of
+    FormSuccess (Params title text) -> do
+      now <- liftIO getCurrentTime
+      runDB $ insert $ Article title text "" now
+      redirect RedirectTemporary LogR
+      return ()
+    _ -> do
+      redirect RedirectTemporary NewLogR
+      return ()

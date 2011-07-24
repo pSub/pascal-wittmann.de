@@ -24,11 +24,10 @@ Module
   name String
 
 Article
-  title String Eq
+  title Text Eq
   content Text
   meta_descr String
   date UTCTime Desc
-  module ModuleId
   
 Tag
   name String

@@ -1,5 +1,5 @@
 <h2 Neuer Log-Eintrag
-<form enctype="#{enctype}"
+<form enctype="#{enctype}" method="post"
       <table>
         ^{form}
         <tr>
