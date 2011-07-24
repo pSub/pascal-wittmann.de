@@ -10,7 +10,7 @@
              <ul #navigation
                  $forall link <- section
                          <li>
-                                <a href="@{snd link}">#{fst link}
+                                <a :isCurrent (snd link):id=active href="@{snd link}">#{fst link}
              <div #content
                   <ul #categories
                       <li

@@ -86,7 +86,7 @@ img
     border-right: 0.1em solid #fff
 
 
-#active 
+#navigation #active 
     border-bottom: 0.1em solid #fff
 
 

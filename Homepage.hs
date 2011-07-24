@@ -45,9 +45,14 @@ mkYesodData "Homepage" [parseRoutes|
 
 instance Yesod Homepage where
   approot _ =  Settings.approot
+  
   defaultLayout widget = do
     mu <- maybeAuth
-    (title, bcs) <- breadcrumbs
+    current <- getCurrentRoute
+    toMaster <- getRouteToMaster
+    (title, parents) <- breadcrumbs
+    let isCurrent x = fmap toMaster current == Just x ||
+                      x `elem` map fst parents
     pc <- widgetToPageContent $ do
       addCassius $(Settings.cassiusFile "default-layout")
       addWidget widget
