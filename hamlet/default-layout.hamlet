@@ -7,10 +7,9 @@
         <div #container
              <div #title
                   <a href=@{RootR}> Pascal Wittmann
-             <ul #navigation
+             <div  #navigation
                  $forall link <- section
-                         <li>
-                                <a :isCurrent (snd link):id=active href="@{snd link}">#{fst link}
+                    <a :isCurrent (snd link):id=active href="@{snd link}">#{fst link}
              <div #content
                   <ul #categories
                       <li
