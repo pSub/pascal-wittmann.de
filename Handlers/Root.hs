@@ -8,6 +8,7 @@ module Handlers.Root
        ) where
 
 import Homepage
+import Model
 import qualified Settings
 import Yesod
 import Yesod.Auth
@@ -15,6 +16,8 @@ import Text.Hamlet
 import Text.Cassius
 
 getRootR :: Handler RepHtml
-getRootR = defaultLayout $ do
-           setTitle "Startseite"
-           $(Settings.hamletFile "homepage")
+getRootR = do
+  articles <- runDB $ selectList [] [ArticleDateDesc] 3 0
+  defaultLayout $ do
+    setTitle "Startseite"
+    $(Settings.hamletFile "root")

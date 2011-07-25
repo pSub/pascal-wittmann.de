@@ -12,6 +12,7 @@ import Homepage
 import Model
 import qualified Settings
 import Yesod
+import Yesod.Form.Nic
 import Yesod.Auth
 import Control.Applicative
 import Text.Hamlet

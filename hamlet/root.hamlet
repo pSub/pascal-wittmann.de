@@ -1,0 +1,5 @@
+<p> Dies ist die Startseite
+
+$forall article <- articles
+        <h2>#{articleTitle $ snd article}
+        <p>#{articleContent $ snd article}
