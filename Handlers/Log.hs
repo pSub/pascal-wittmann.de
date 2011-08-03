@@ -56,10 +56,8 @@ postNewLogR = do
       now <- liftIO getCurrentTime
       runDB $ insert $ Article title text "" now
       redirect RedirectTemporary LogR
-      return ()
     _ -> do
       redirect RedirectTemporary NewLogR
-      return ()
 
 getEditLogR :: ArticleId -> Handler RepHtml
 getEditLogR id = do

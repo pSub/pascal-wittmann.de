@@ -21,10 +21,6 @@ import qualified Data.Text.Lazy
 import qualified Data.Text.Lazy.Encoding
 import qualified Settings
 import Model
-
---import Text.Hamlet
-import Text.Hamlet.NonPoly (IHamlet, ihamletFile)
-import Text.Cassius
 import Database.Persist.GenericSql
 
 data Homepage = Homepage
@@ -46,6 +42,14 @@ mkYesodData "Homepage" [parseRoutes|
                     /referate.html ReferateR GET
                     /login.html AuthR Auth getAuth
                                    |]
+  
+-- Sections displayed in menu
+section :: [(String, HomepageRoute)]
+section = 
+  [ ( "Linux", LinuxR )
+  , ( "Log"  , LogR )
+  , ( "Referate", ReferateR)
+  ]
 
 instance Yesod Homepage where
   approot _ =  Settings.approot
@@ -69,6 +73,8 @@ instance YesodBreadcrumbs Homepage where
   breadcrumb LogR = return ("Log", Nothing)
   breadcrumb ReferateR = return ("Referate", Nothing)
   breadcrumb (AuthR _) = return("Login", Nothing)
+  breadcrumb NewLogR = return ("Neuer Eintrag", Nothing)
+  breadcrumb (EditLogR _) = return ("Eintrag bearbeiten", Nothing)
   breadcrumb _     = return ("404", Nothing)
   
 instance YesodAuth Homepage where
@@ -170,10 +176,3 @@ instance ToHtml Markdown where
 
 instance ToHtml UTCTime where
   toHtml = toHtml . show
-
-section :: [(String, HomepageRoute)]
-section = 
-  [ ( "Linux", LinuxR )
-  , ( "Log"  , LogR )
-  , ( "Referate", ReferateR)
-  ]
