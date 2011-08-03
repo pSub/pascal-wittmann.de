@@ -1,5 +1,9 @@
 $forall article <- articles
-        <h2>#{articleTitle $ snd article}
-        #{markdownToHtml $ articleContent $ snd article}
+        <div .article
+             <div .text
+                  <h2>#{articleTitle $ snd article}
+                  <div .date>#{articleDate $ snd article}
+                  #{markdownToHtml $ articleContent $ snd article}
+             <div .info
+                  Tags: …
         <hr
-        

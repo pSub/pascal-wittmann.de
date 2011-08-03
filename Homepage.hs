@@ -14,6 +14,7 @@ import Yesod.Auth.Email
 import Yesod.Goodies.Markdown
 import Network.Mail.Mime
 import Data.Maybe (isJust)
+import Data.Time.Clock
 import Control.Monad (join, unless)
 import Text.Blaze
 import qualified Data.Text.Lazy
@@ -165,6 +166,9 @@ instance YesodPersist Homepage where
 
 instance ToHtml Markdown where
   toHtml (Markdown s) = toHtml s
+
+instance ToHtml UTCTime where
+  toHtml = toHtml . show
 
 section :: [(String, HomepageRoute)]
 section = 

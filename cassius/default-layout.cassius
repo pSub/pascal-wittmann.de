@@ -164,6 +164,13 @@ hr
     text-decoration: none
     border-bottom: 0px
 
+.article .text .date
+    font-size: 0.8em
+    color: #808080
+    
+.article .info
+    font-size: 0.8em
+
 
 .comment-odd, .comment-even
     margin-bottom: 1em
