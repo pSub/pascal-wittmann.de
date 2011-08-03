@@ -132,6 +132,7 @@ hr
 
 
 #content h2
+    display: inline
     font-size: 1.2em
     color: #000
     margin-bottom: 0em
@@ -164,6 +165,10 @@ hr
     text-decoration: none
     border-bottom: 0px
 
+.article .text .edit
+    font-size: 0.8em
+    float: right
+    
 .article .text .date
     font-size: 0.8em
     color: #808080

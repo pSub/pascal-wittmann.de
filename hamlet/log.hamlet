@@ -4,6 +4,8 @@ $forall article <- articles
         <div .article
              <div .text
                   <h2>#{articleTitle $ snd article}
+                  $maybe u <- mu
+                      <a .edit href="@{EditLogR $ fst article}">Bearbeiten
                   <div .date>#{articleDate $ snd article}
                   #{markdownToHtml $ articleContent $ snd article}
              <div .info

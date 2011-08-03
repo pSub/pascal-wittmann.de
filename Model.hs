@@ -25,8 +25,8 @@ Module
   name String
 
 Article
-  title Text Eq
-  content Markdown
+  title Text Eq Update
+  content Markdown Update
   meta_descr String
   date UTCTime Desc
   

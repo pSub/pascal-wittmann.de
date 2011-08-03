@@ -6,6 +6,8 @@ module Handlers.Log
        ( getLogR
        , getNewLogR
        , postNewLogR
+       , getEditLogR
+       , postEditLogR
        ) where
 
 import Homepage
@@ -58,3 +60,27 @@ postNewLogR = do
     _ -> do
       redirect RedirectTemporary NewLogR
       return ()
+
+getEditLogR :: ArticleId -> Handler RepHtml
+getEditLogR id = do
+  requireAuth
+  ma <- runDB $ get id
+  case ma of
+    Just a ->
+      do (_, form, enctype) <- runFormGet $ paramsFormlet $ Just $ Params (articleTitle a) (articleContent a)
+         defaultLayout $ do
+         $(Settings.hamletFile "newlog")
+    Nothing -> do
+      redirect RedirectTemporary NewLogR
+    
+postEditLogR :: ArticleId -> Handler ()
+postEditLogR id = do
+  (uid, _ ) <- requireAuth
+  (res, _, _) <- runFormPostNoNonce $ paramsFormlet Nothing
+  case res of
+    FormSuccess (Params title text) -> do
+      runDB $ update id [ArticleTitle title, ArticleContent text]
+      redirect RedirectTemporary LogR
+    _ -> do
+      redirect RedirectTemporary (EditLogR id)
+
