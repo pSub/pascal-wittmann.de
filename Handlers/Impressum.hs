@@ -10,8 +10,6 @@ module Handlers.Impressum
 import Homepage
 import qualified Settings
 import Yesod
-import Text.Hamlet
-import Text.Cassius
 
 getImpressumR :: Handler RepHtml
 getImpressumR = defaultLayout $ do
@@ -19,4 +17,5 @@ getImpressumR = defaultLayout $ do
   $(Settings.hamletFile "impressum")
   
 -- TODO: Protect mail from spam
-encodeMail mail = show mail
+encodeMail :: String -> Html
+encodeMail = toHtml

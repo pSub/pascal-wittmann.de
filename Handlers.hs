@@ -8,7 +8,6 @@ module Handlers
   
 import Yesod
 import Homepage
-import Model
 
 import Handlers.Root as X
 import Handlers.Impressum as X

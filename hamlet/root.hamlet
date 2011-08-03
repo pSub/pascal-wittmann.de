@@ -2,4 +2,4 @@
 
 $forall article <- articles
         <h2>#{articleTitle $ snd article}
-        <p>#{articleContent $ snd article}
+        <p>#{markdownToHtml $ articleContent $ snd article}

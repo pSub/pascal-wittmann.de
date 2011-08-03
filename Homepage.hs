@@ -15,7 +15,7 @@ import Yesod.Goodies.Markdown
 import Network.Mail.Mime
 import Data.Maybe (isJust)
 import Data.Time.Clock
-import Control.Monad (join, unless)
+import Control.Monad (join)
 import Text.Blaze
 import qualified Data.Text.Lazy
 import qualified Data.Text.Lazy.Encoding

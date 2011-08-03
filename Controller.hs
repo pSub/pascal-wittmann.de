@@ -13,7 +13,6 @@ import qualified Settings
 import Handlers
 import Network.Wai.Handler.Warp (run)
 import Database.Persist.GenericSql
-import Data.Time.Clock
 
 mkYesodDispatch "Homepage" resourcesHomepage
 

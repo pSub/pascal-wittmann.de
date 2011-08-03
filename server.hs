@@ -1,4 +1,3 @@
-import Yesod
 import Controller
 
 main :: IO ()
