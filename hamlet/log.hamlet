@@ -1,3 +1,5 @@
+$maybe u <- mu
+       <a href="@{NewLogR}">Neuen Eintrag hinzufügen
 $forall article <- articles
         <div .article
              <div .text

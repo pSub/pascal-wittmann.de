@@ -25,7 +25,8 @@ data Params = Params
      }
 
 getLogR :: Handler RepHtml
-getLogR = do 
+getLogR = do
+  mu <- maybeAuth
   articles <- runDB $ selectList [] [ArticleDateDesc] 0 0 
   defaultLayout $ do
   setTitle "Log"
