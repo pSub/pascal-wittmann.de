@@ -3,6 +3,7 @@
 module Model where
 
 import Yesod
+import Yesod.Goodies.Markdown
 import Database.Persist.Base
 
 import Data.Time
@@ -25,7 +26,7 @@ Module
 
 Article
   title Text Eq
-  content Text
+  content Markdown
   meta_descr String
   date UTCTime Desc
   

@@ -11,9 +11,11 @@ import Yesod
 import Yesod.Form
 import Yesod.Auth
 import Yesod.Auth.Email
+import Yesod.Goodies.Markdown
 import Network.Mail.Mime
 import Data.Maybe (isJust)
 import Control.Monad (join, unless)
+import Text.Blaze
 import qualified Data.Text.Lazy
 import qualified Data.Text.Lazy.Encoding
 import qualified Settings
@@ -160,6 +162,9 @@ instance YesodAuthEmail Homepage where
 instance YesodPersist Homepage where
     type YesodDB Homepage = SqlPersist
     runDB db = liftIOHandler $ fmap connPool getYesod >>= Settings.runConnectionPool db
+
+instance ToHtml Markdown where
+  toHtml (Markdown s) = toHtml s
 
 section :: [(String, HomepageRoute)]
 section = 

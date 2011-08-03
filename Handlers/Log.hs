@@ -11,6 +11,7 @@ import Homepage
 import qualified Settings
 import Model
 import Yesod
+import Yesod.Goodies.Markdown
 
 getLogR :: Handler RepHtml
 getLogR = do 

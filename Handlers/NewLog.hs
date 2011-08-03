@@ -12,7 +12,7 @@ import Homepage
 import Model
 import qualified Settings
 import Yesod
-import Yesod.Form.Nic
+import Yesod.Goodies.Markdown
 import Yesod.Auth
 import Control.Applicative
 import Text.Hamlet
@@ -22,13 +22,13 @@ import Data.Time
 
 data Params = Params
      { title :: Text
-     , text :: Text
+     , text :: Markdown
      }
      
 paramsFormlet :: Maybe Params -> Form s m Params
 paramsFormlet mparams = fieldsToTable $ Params
     <$> stringField "Title" (fmap title mparams)
-    <*> stringField "Text" (fmap text mparams)
+    <*> markdownField "Text" (fmap text mparams)
 
 getNewLogR :: Handler RepHtml
 getNewLogR = do
