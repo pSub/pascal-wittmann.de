@@ -24,12 +24,16 @@ Email
 Module
   name String
 
+Tag
+  name String
+  
+Category
+  name String Asc
+  
 Article
   title Text Eq Update
   content Markdown Update
+  cat CategoryId Update
   meta_descr String
   date UTCTime Desc
-  
-Tag
-  name String
 |]

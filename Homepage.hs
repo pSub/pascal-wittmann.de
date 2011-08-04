@@ -15,6 +15,7 @@ import Yesod.Goodies.Markdown
 import Network.Mail.Mime
 import Data.Maybe (isJust)
 import Data.Time.Clock
+import Data.Text (pack)
 import Control.Monad (join)
 import Text.Blaze
 import qualified Data.Text.Lazy
@@ -43,6 +44,7 @@ mkYesodData "Homepage" [parseRoutes|
                     /login.html AuthR Auth getAuth
                                    |]
   
+
 -- Sections displayed in menu
 section :: [(String, HomepageRoute)]
 section = 
