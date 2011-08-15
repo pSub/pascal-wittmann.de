@@ -25,7 +25,7 @@ Module
   name String
 
 Tag
-  name String
+  name String Asc
 
 Category
   name String Asc
@@ -35,6 +35,7 @@ Article
   title Text Eq Update
   content Markdown Update
   cat CategoryId Update Eq
+  tag TagId Update Eq
   meta_descr String
   date UTCTime Desc
 |]

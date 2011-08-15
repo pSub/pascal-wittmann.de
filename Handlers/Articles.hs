@@ -26,7 +26,8 @@ import Data.Maybe
 
 data Params = Params
      { title :: Text
-     , cat :: Key Category
+     , cat :: CategoryId
+     , tag :: TagId
      , text :: Markdown
      }
 
@@ -39,17 +40,19 @@ getArticlesR cat = do
   setTitle "Log"
   $(Settings.hamletFile "articles")
      
-paramsFormlet :: Maybe Params -> [(Key Category, Text)] -> Form s m Params
-paramsFormlet mparams opts = fieldsToTable $ Params
+paramsFormlet :: Maybe Params -> [(CategoryId, Text)] -> [(TagId, Text)] -> Form s m Params
+paramsFormlet mparams cats tags = fieldsToTable $ Params
     <$> stringField "Title" (fmap title mparams)
-    <*> selectField opts "Kategorie" (fmap cat mparams)
+    <*> selectField cats "Kategorie" (fmap cat mparams)
+    <*> selectField tags "Tags" (fmap tag mparams)
     <*> markdownField "Text" (fmap text mparams)
 
 getNewArticleR :: Handler RepHtml
 getNewArticleR = do
   requireAuth
   catOpt <- categories
-  (_, form, enctype) <- runFormGet $ paramsFormlet Nothing catOpt
+  tagOpt <- tags
+  (_, form, enctype) <- runFormGet $ paramsFormlet Nothing catOpt tagOpt
   defaultLayout $ do
     $(Settings.hamletFile "new-article")
 
@@ -58,11 +61,12 @@ postNewArticleR :: Handler ()
 postNewArticleR = do
   (uid, _) <- requireAuth
   catOpt <- categories
-  (res, _, _) <- runFormPostNoNonce $ paramsFormlet Nothing catOpt
+  tagOpt <- tags
+  (res, _, _) <- runFormPostNoNonce $ paramsFormlet Nothing catOpt tagOpt
   case res of
-    FormSuccess (Params title cat text) -> do
+    FormSuccess (Params title cat tag text) -> do
       now <- liftIO getCurrentTime
-      runDB $ insert $ Article title text cat "" now
+      runDB $ insert $ Article title text cat tag "" now
       redirect RedirectTemporary $ ArticlesR $ category cat catOpt
     _ -> do
       redirect RedirectTemporary NewArticleR
@@ -72,9 +76,10 @@ getEditArticleR id = do
   requireAuth
   ma <- runDB $ get id
   catOpt <- categories
+  tagOpt <- tags
   case ma of
     Just a ->
-      do (_, form, enctype) <- runFormGet $ paramsFormlet (Just $ Params (articleTitle a) (articleCat a) (articleContent a)) catOpt
+      do (_, form, enctype) <- runFormGet $ paramsFormlet (Just $ Params (articleTitle a) (articleCat a) (articleTag a) (articleContent a)) catOpt tagOpt
          defaultLayout $ do
          $(Settings.hamletFile "new-article")
     Nothing -> do
@@ -84,10 +89,11 @@ postEditArticleR :: ArticleId -> Handler ()
 postEditArticleR id = do
   (uid, _ ) <- requireAuth
   catOpt <- categories
-  (res, _, _) <- runFormPostNoNonce $ paramsFormlet Nothing catOpt
+  tagOpt <- tags
+  (res, _, _) <- runFormPostNoNonce $ paramsFormlet Nothing catOpt tagOpt
   case res of
-    FormSuccess (Params title cat text) -> do
-      runDB $ update id [ArticleTitle title, ArticleCat cat, ArticleContent text]
+    FormSuccess (Params title cat tag text) -> do
+      runDB $ update id [ArticleTitle title, ArticleCat cat, ArticleTag tag, ArticleContent text]
       redirect RedirectTemporary $ ArticlesR $ category cat catOpt
 
     _ -> do
@@ -99,3 +105,7 @@ categories = do
   return $ map (\ c -> (fst c, pack $ categoryName $ snd c)) cas
   
 category cat = unpack . snd . fromJust . find ((== cat) . fst)
+
+tags = do
+  tags <- runDB $ selectList [] [TagNameAsc] 0 0
+  return $ map (\ t -> (fst t, pack $ tagName $ snd t)) tags
