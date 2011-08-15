@@ -8,7 +8,7 @@
              <div #title
                   <a href=@{RootR}> Pascal Wittmann
              <div  #navigation
-                 $forall link <- section
+                 $forall link <- categories
                     <a :isCurrent (snd link):id=active href="@{snd link}">#{fst link}
              <div #content
                   <ul #categories

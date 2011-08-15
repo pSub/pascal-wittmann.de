@@ -41,15 +41,6 @@ mkYesodData "Homepage" [parseRoutes|
                     /new-article NewArticleR GET POST
                     /edit-article/#ArticleId EditArticleR GET POST
                                    |]
-  
-
--- Sections displayed in menu
-section :: [(String, HomepageRoute)]
-section = 
-  [ ( "Linux", ArticlesR "Linux" )
-  , ( "Log"  , ArticlesR "Log" )
-  , ( "Referate", ArticlesR "Referate")
-  ]
 
 instance Yesod Homepage where
   approot _ =  Settings.approot
@@ -58,13 +49,16 @@ instance Yesod Homepage where
     mu <- maybeAuth
     current <- getCurrentRoute
     toMaster <- getRouteToMaster
+    cats <- runDB $ selectList [] [CategoryNameAsc] 0 0
     (title, parents) <- breadcrumbs
     let isCurrent x = fmap toMaster current == Just x ||
                       x `elem` map fst parents
+    let categories = map (\ c -> (name c, ArticlesR $ name c)) cats
     pc <- widgetToPageContent $ do
       addCassius $(Settings.cassiusFile "default-layout")
       addWidget widget
     hamletToRepHtml $(Settings.hamletFile "default-layout")
+    where name = categoryName . snd
     
 instance YesodBreadcrumbs Homepage where
   breadcrumb RootR = return ("Home", Nothing)
