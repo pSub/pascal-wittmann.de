@@ -70,6 +70,7 @@ instance YesodBreadcrumbs Homepage where
   breadcrumb RootR = return ("Home", Nothing)
   breadcrumb ImpressumR = return ("Impressum", Nothing)
   breadcrumb (AuthR _) = return("Login", Nothing)
+  breadcrumb (ArticlesR cat) = return(pack cat, Nothing)
   breadcrumb NewArticleR = return ("Neuer Eintrag", Nothing)
   breadcrumb (EditArticleR _) = return ("Eintrag bearbeiten", Nothing)
   breadcrumb _     = return ("404", Nothing)
