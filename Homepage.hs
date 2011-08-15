@@ -35,22 +35,20 @@ type Widget = GWidget Homepage Homepage
 mkYesodData "Homepage" [parseRoutes|
                     / RootR GET
                     /robots.txt RobotsR GET
-                    /impressum.html ImpressumR GET
-                    /linux.html LinuxR GET
-                    /log.html LogR GET
-                    /newlog.html NewLogR GET POST
-                    /editlog/#ArticleId EditLogR GET POST
-                    /referate.html ReferateR GET
-                    /login.html AuthR Auth getAuth
+                    /impressum ImpressumR GET
+                    /login AuthR Auth getAuth
+                    /articles/#String ArticlesR GET
+                    /new-article NewLogR GET POST
+                    /edit-article/#ArticleId EditLogR GET POST
                                    |]
   
 
 -- Sections displayed in menu
 section :: [(String, HomepageRoute)]
 section = 
-  [ ( "Linux", LinuxR )
-  , ( "Log"  , LogR )
-  , ( "Referate", ReferateR)
+  [ ( "Linux", ArticlesR "Linux" )
+  , ( "Log"  , ArticlesR "Log" )
+  , ( "Referate", ArticlesR "Referate")
   ]
 
 instance Yesod Homepage where
@@ -71,9 +69,6 @@ instance Yesod Homepage where
 instance YesodBreadcrumbs Homepage where
   breadcrumb RootR = return ("Home", Nothing)
   breadcrumb ImpressumR = return ("Impressum", Nothing)
-  breadcrumb LinuxR = return ("Linux", Nothing)
-  breadcrumb LogR = return ("Log", Nothing)
-  breadcrumb ReferateR = return ("Referate", Nothing)
   breadcrumb (AuthR _) = return("Login", Nothing)
   breadcrumb NewLogR = return ("Neuer Eintrag", Nothing)
   breadcrumb (EditLogR _) = return ("Eintrag bearbeiten", Nothing)
