@@ -15,7 +15,7 @@ import Yesod.Goodies.Markdown
 import Network.Mail.Mime
 import Data.Maybe (isJust)
 import Data.Time.Clock
-import Data.Text (pack)
+import Data.Text (Text, pack)
 import Control.Monad (join)
 import Text.Blaze
 import qualified Data.Text.Lazy
@@ -37,7 +37,8 @@ mkYesodData "Homepage" [parseRoutes|
                     /robots.txt RobotsR GET
                     /impressum ImpressumR GET
                     /login AuthR Auth getAuth
-                    /articles/#String ArticlesR GET
+                    /admin AdminR GET POST
+                    /articles/#Text ArticlesR GET
                     /new-article NewArticleR GET POST
                     /edit-article/#ArticleId EditArticleR GET POST
                                    |]
@@ -64,7 +65,7 @@ instance YesodBreadcrumbs Homepage where
   breadcrumb RootR = return ("Home", Nothing)
   breadcrumb ImpressumR = return ("Impressum", Nothing)
   breadcrumb (AuthR _) = return("Login", Nothing)
-  breadcrumb (ArticlesR cat) = return(pack cat, Nothing)
+  breadcrumb (ArticlesR cat) = return(cat, Nothing)
   breadcrumb NewArticleR = return ("Neuer Eintrag", Nothing)
   breadcrumb (EditArticleR _) = return ("Eintrag bearbeiten", Nothing)
   breadcrumb _     = return ("404", Nothing)

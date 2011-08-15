@@ -17,7 +17,8 @@
              <div #footer
                   <div #left
                        $maybe u <- mu
-                           <a href="@{AuthR LogoutR}">Logout
+                           <a href="@{AdminR}">Admin
+                           \ | <a href="@{AuthR LogoutR}">Logout
                        $nothing
                            <a href="@{AuthR LoginR}">Login
                   <div #right

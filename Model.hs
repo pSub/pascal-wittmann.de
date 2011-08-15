@@ -25,10 +25,10 @@ Module
   name String
 
 Tag
-  name String Asc
+  name Text Asc
 
 Category
-  name String Asc
+  name Text Asc
   CategoryUniq name
   
 Article

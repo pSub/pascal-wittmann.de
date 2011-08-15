@@ -18,10 +18,9 @@ import Yesod.Auth
 import Yesod.Goodies.Markdown
 
 import Control.Applicative
-import Data.Text (Text)
 import Data.List (find)
 import Data.Time
-import Data.Text (pack, unpack)
+import Data.Text (Text, pack, unpack)
 import Data.Maybe
 
 data Params = Params
@@ -31,7 +30,7 @@ data Params = Params
      , text :: Markdown
      }
 
-getArticlesR :: String -> Handler RepHtml
+getArticlesR :: Text -> Handler RepHtml
 getArticlesR cat = do
   mu <- maybeAuth
   mcat <- runDB $ getBy $ CategoryUniq cat
@@ -102,10 +101,10 @@ postEditArticleR id = do
 -- Helper functions
 categories = do
   cas <- runDB $ selectList [] [CategoryNameAsc] 0 0
-  return $ map (\ c -> (fst c, pack $ categoryName $ snd c)) cas
+  return $ map (\ c -> (fst c, categoryName $ snd c)) cas
   
-category cat = unpack . snd . fromJust . find ((== cat) . fst)
+category cat = snd . fromJust . find ((== cat) . fst)
 
 tags = do
   tags <- runDB $ selectList [] [TagNameAsc] 0 0
-  return $ map (\ t -> (fst t, pack $ tagName $ snd t)) tags
+  return $ map (\ t -> (fst t, tagName $ snd t)) tags

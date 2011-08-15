@@ -1,0 +1,15 @@
+<h2 Admin
+<form enctype="#{tagEnctype}" method="post"
+      <table>
+        ^{tagForm}
+        <tr>
+            <td colspan="2">
+                <input type="submit" value="hinzufügen">
+<form enctype="#{catEnctype}" method="post"
+      <table>
+        ^{catForm}
+        <tr>
+            <td colspan="2">
+                <input type="submit" value="hinzufügen">
+
+                
