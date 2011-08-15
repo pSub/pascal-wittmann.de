@@ -38,8 +38,8 @@ mkYesodData "Homepage" [parseRoutes|
                     /impressum ImpressumR GET
                     /login AuthR Auth getAuth
                     /articles/#String ArticlesR GET
-                    /new-article NewLogR GET POST
-                    /edit-article/#ArticleId EditLogR GET POST
+                    /new-article NewArticleR GET POST
+                    /edit-article/#ArticleId EditArticleR GET POST
                                    |]
   
 
@@ -70,8 +70,8 @@ instance YesodBreadcrumbs Homepage where
   breadcrumb RootR = return ("Home", Nothing)
   breadcrumb ImpressumR = return ("Impressum", Nothing)
   breadcrumb (AuthR _) = return("Login", Nothing)
-  breadcrumb NewLogR = return ("Neuer Eintrag", Nothing)
-  breadcrumb (EditLogR _) = return ("Eintrag bearbeiten", Nothing)
+  breadcrumb NewArticleR = return ("Neuer Eintrag", Nothing)
+  breadcrumb (EditArticleR _) = return ("Eintrag bearbeiten", Nothing)
   breadcrumb _     = return ("404", Nothing)
   
 instance YesodAuth Homepage where

@@ -1,11 +1,11 @@
 $maybe u <- mu
-       <a href="@{NewLogR}">Neuen Eintrag hinzufügen
+       <a href="@{NewArticleR}">Neuen Eintrag hinzufügen
 $forall article <- articles
         <div .article
              <div .text
                   <h2>#{articleTitle $ snd article}
                   $maybe u <- mu
-                      <a .edit href="@{EditLogR $ fst article}">Bearbeiten
+                      <a .edit href="@{EditArticleR $ fst article}">Bearbeiten
                   <div .date>#{articleDate $ snd article}
                   #{markdownToHtml $ articleContent $ snd article}
              <div .info

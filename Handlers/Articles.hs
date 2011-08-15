@@ -4,10 +4,10 @@
 
 module Handlers.Articles
        ( getArticlesR
-       , getNewLogR
-       , postNewLogR
-       , getEditLogR
-       , postEditLogR
+       , getNewArticleR
+       , postNewArticleR
+       , getEditArticleR
+       , postEditArticleR
        ) where
 
 import Homepage
@@ -45,8 +45,8 @@ paramsFormlet mparams opts = fieldsToTable $ Params
     <*> selectField opts "Kategorie" (fmap cat mparams)
     <*> markdownField "Text" (fmap text mparams)
 
-getNewLogR :: Handler RepHtml
-getNewLogR = do
+getNewArticleR :: Handler RepHtml
+getNewArticleR = do
   requireAuth
   catOpt <- categories
   (_, form, enctype) <- runFormGet $ paramsFormlet Nothing catOpt
@@ -54,8 +54,8 @@ getNewLogR = do
     $(Settings.hamletFile "new-article")
 
 
-postNewLogR :: Handler ()
-postNewLogR = do
+postNewArticleR :: Handler ()
+postNewArticleR = do
   (uid, _) <- requireAuth
   catOpt <- categories
   (res, _, _) <- runFormPostNoNonce $ paramsFormlet Nothing catOpt
@@ -65,10 +65,10 @@ postNewLogR = do
       runDB $ insert $ Article title text cat "" now
       redirect RedirectTemporary $ ArticlesR $ category cat catOpt
     _ -> do
-      redirect RedirectTemporary NewLogR
+      redirect RedirectTemporary NewArticleR
 
-getEditLogR :: ArticleId -> Handler RepHtml
-getEditLogR id = do
+getEditArticleR :: ArticleId -> Handler RepHtml
+getEditArticleR id = do
   requireAuth
   ma <- runDB $ get id
   catOpt <- categories
@@ -78,10 +78,10 @@ getEditLogR id = do
          defaultLayout $ do
          $(Settings.hamletFile "new-article")
     Nothing -> do
-      redirect RedirectTemporary NewLogR
+      redirect RedirectTemporary NewArticleR
     
-postEditLogR :: ArticleId -> Handler ()
-postEditLogR id = do
+postEditArticleR :: ArticleId -> Handler ()
+postEditArticleR id = do
   (uid, _ ) <- requireAuth
   catOpt <- categories
   (res, _, _) <- runFormPostNoNonce $ paramsFormlet Nothing catOpt
@@ -91,10 +91,9 @@ postEditLogR id = do
       redirect RedirectTemporary $ ArticlesR $ category cat catOpt
 
     _ -> do
-      redirect RedirectTemporary (EditLogR id)
+      redirect RedirectTemporary (EditArticleR id)
 
 -- Helper functions
-
 categories = do
   cas <- runDB $ selectList [] [CategoryNameAsc] 0 0
   return $ map (\ c -> (fst c, pack $ categoryName $ snd c)) cas
