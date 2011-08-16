@@ -24,9 +24,6 @@ Email
 Module
   name String
 
-Tag
-  name Text Asc
-
 Category
   name Text Asc
   CategoryUniq name
@@ -35,7 +32,10 @@ Article
   title Text Eq Update
   content Markdown Update
   cat CategoryId Update Eq
-  tag TagId Update Eq
   meta_descr String
   date UTCTime Desc
+
+Tag
+  name Text Eq Asc Update
+  article ArticleId Update
 |]

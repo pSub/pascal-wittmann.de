@@ -9,5 +9,7 @@ $forall article <- articles
                   <div .date>#{articleDate $ snd article}
                   #{markdownToHtml $ articleContent $ snd article}
              <div .info
-                  Tags: …
+                  Tags:
+                  $forall tag <- tagsForArticle (fst article) tags
+                      #{tag}
         <hr

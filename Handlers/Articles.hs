@@ -10,6 +10,8 @@ module Handlers.Articles
        , postEditArticleR
        ) where
 
+import Debug.Trace
+
 import Homepage
 import qualified Settings
 import Model
@@ -18,7 +20,7 @@ import Yesod.Auth
 import Yesod.Goodies.Markdown
 
 import Control.Applicative
-import Data.List (find)
+import Data.List (find, intersperse)
 import Data.Time
 import Data.Text (Text, pack, unpack)
 import Data.Maybe
@@ -26,7 +28,7 @@ import Data.Maybe
 data Params = Params
      { title :: Text
      , cat :: CategoryId
-     , tag :: TagId
+     , tag :: Text
      , text :: Markdown
      }
 
@@ -34,24 +36,24 @@ getArticlesR :: Text -> Handler RepHtml
 getArticlesR cat = do
   mu <- maybeAuth
   mcat <- runDB $ getBy $ CategoryUniq cat
-  articles <- runDB $ selectList [ArticleCatEq $ fst $ fromJust mcat] [ArticleDateDesc] 0 0 
+  articles <- runDB $ selectList [ArticleCatEq $ fst $ fromJust mcat] [ArticleDateDesc] 0 0
+  tags <- runDB $ selectList [] [TagNameAsc] 0 0
   defaultLayout $ do
   setTitle "Log"
   $(Settings.hamletFile "articles")
      
-paramsFormlet :: Maybe Params -> [(CategoryId, Text)] -> [(TagId, Text)] -> Form s m Params
-paramsFormlet mparams cats tags = fieldsToTable $ Params
+paramsFormlet :: Maybe Params -> [(CategoryId, Text)] -> Form s m Params
+paramsFormlet mparams cats = fieldsToTable $ Params
     <$> stringField "Title" (fmap title mparams)
     <*> selectField cats "Kategorie" (fmap cat mparams)
-    <*> selectField tags "Tags" (fmap tag mparams)
+    <*> stringField "Tags" (fmap tag mparams)
     <*> markdownField "Text" (fmap text mparams)
 
 getNewArticleR :: Handler RepHtml
 getNewArticleR = do
   requireAuth
   catOpt <- categories
-  tagOpt <- tags
-  (_, form, enctype) <- runFormGet $ paramsFormlet Nothing catOpt tagOpt
+  (_, form, enctype) <- runFormGet $ paramsFormlet Nothing catOpt
   defaultLayout $ do
     $(Settings.hamletFile "new-article")
 
@@ -60,12 +62,12 @@ postNewArticleR :: Handler ()
 postNewArticleR = do
   (uid, _) <- requireAuth
   catOpt <- categories
-  tagOpt <- tags
-  (res, _, _) <- runFormPostNoNonce $ paramsFormlet Nothing catOpt tagOpt
+  (res, _, _) <- runFormPostNoNonce $ paramsFormlet Nothing catOpt
   case res of
     FormSuccess (Params title cat tag text) -> do
       now <- liftIO getCurrentTime
-      runDB $ insert $ Article title text cat tag "" now
+      id <- runDB $ insert $ Article title text cat "" now
+      runDB $ insert $ Tag tag id
       redirect RedirectTemporary $ ArticlesR $ category cat catOpt
     _ -> do
       redirect RedirectTemporary NewArticleR
@@ -75,10 +77,9 @@ getEditArticleR id = do
   requireAuth
   ma <- runDB $ get id
   catOpt <- categories
-  tagOpt <- tags
   case ma of
     Just a ->
-      do (_, form, enctype) <- runFormGet $ paramsFormlet (Just $ Params (articleTitle a) (articleCat a) (articleTag a) (articleContent a)) catOpt tagOpt
+      do (_, form, enctype) <- runFormGet $ paramsFormlet (Just $ Params (articleTitle a) (articleCat a) "" (articleContent a)) catOpt
          defaultLayout $ do
          $(Settings.hamletFile "new-article")
     Nothing -> do
@@ -88,13 +89,12 @@ postEditArticleR :: ArticleId -> Handler ()
 postEditArticleR id = do
   (uid, _ ) <- requireAuth
   catOpt <- categories
-  tagOpt <- tags
-  (res, _, _) <- runFormPostNoNonce $ paramsFormlet Nothing catOpt tagOpt
+  (res, _, _) <- runFormPostNoNonce $ paramsFormlet Nothing catOpt
   case res of
     FormSuccess (Params title cat tag text) -> do
-      runDB $ update id [ArticleTitle title, ArticleCat cat, ArticleTag tag, ArticleContent text]
+      runDB $ update id [ArticleTitle title, ArticleCat cat, ArticleContent text]
+      runDB $ insert $ Tag tag id
       redirect RedirectTemporary $ ArticlesR $ category cat catOpt
-
     _ -> do
       redirect RedirectTemporary (EditArticleR id)
 
@@ -105,6 +105,4 @@ categories = do
   
 category cat = snd . fromJust . find ((== cat) . fst)
 
-tags = do
-  tags <- runDB $ selectList [] [TagNameAsc] 0 0
-  return $ map (\ t -> (fst t, tagName $ snd t)) tags
+tagsForArticle id = (intersperse ", ") . map (tagName . snd) . filter ((== id) . tagArticle . snd)
