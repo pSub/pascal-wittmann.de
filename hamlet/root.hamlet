@@ -1,5 +1,14 @@
-<p> Dies ist die Startseite
+<p>Auf dieser Webseite gibt es eine Art Logbuch, auf der ich einige meiner Erfahrungen zu unterschiedlichen Themen dokumentiere.
+Außerdem werden hier einige Referate (nahe zu alle aus meiner Schulzeit) veröffentlicht.
+<p>Ich unterstütze folgende Organisationen als Mitglied:
+       <ul
+        <li>Free Software Foundation
+        <li>Free Software Foundation Europe
+        <li>SOS Kinderdörfer
+        <li>WWF
 
+<h2>Neue Beiträge:
+<br
 $forall article <- articles
         <h2>#{articleTitle $ snd article}
         <p>#{markdownToHtml $ articleContent $ snd article}
