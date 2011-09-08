@@ -34,9 +34,9 @@ paramsFormlet mparams cats html = (flip renderDivs) html $ Params
     <*> areq markdownField "Text" (text <$> mparams)
 
 getArticlesR :: Text -> Handler RepHtml
-getArticlesR cat = do
+getArticlesR catName = do
   mu <- maybeAuth
-  mcat <- runDB $ getBy $ CategoryUniq cat
+  mcat <- runDB $ getBy $ CategoryUniq catName
   articles <- runDB $ selectList [ArticleCat ==. (fst $ fromJust mcat) ] [Desc ArticleDate]
   tags <- runDB $ selectList [] [Asc TagName]
   defaultLayout $ do
@@ -45,7 +45,7 @@ getArticlesR cat = do
 
 getNewArticleR :: Handler RepHtml
 getNewArticleR = do
-  requireAuth
+  _ <- requireAuth
   catOpt <- categories
   ((_, form), enctype) <- runFormGet $ paramsFormlet Nothing catOpt
   defaultLayout $ do
@@ -54,22 +54,22 @@ getNewArticleR = do
 
 postNewArticleR :: Handler ()
 postNewArticleR = do
-  (uid, _) <- requireAuth
+  _ <- requireAuth
   catOpt <- categories
   ((res, _), _) <- runFormPostNoNonce $ paramsFormlet Nothing catOpt
   case res of
-    FormSuccess (Params title cat tag text) -> do
+    FormSuccess p -> do
       now <- liftIO getCurrentTime
-      id <- runDB $ insert $ Article title text cat "" now
-      runDB $ insert $ Tag tag id
-      redirect RedirectTemporary $ ArticlesR $ category cat catOpt
+      aid <- runDB $ insert $ Article (title p) (text p) (cat p) "" now
+      _ <- runDB $ insert $ Tag (tag p) aid
+      redirect RedirectTemporary $ ArticlesR $ category (cat p) catOpt
     _ -> do
       redirect RedirectTemporary NewArticleR
 
 getEditArticleR :: ArticleId -> Handler RepHtml
-getEditArticleR id = do
-  requireAuth
-  ma <- runDB $ get id
+getEditArticleR aid = do
+  _ <- requireAuth
+  ma <- runDB $ get aid
   catOpt <- categories
   case ma of
     Just a ->
@@ -80,23 +80,23 @@ getEditArticleR id = do
       redirect RedirectTemporary NewArticleR
     
 postEditArticleR :: ArticleId -> Handler ()
-postEditArticleR id = do
-  (uid, _ ) <- requireAuth
+postEditArticleR aid = do
+  _ <- requireAuth
   catOpt <- categories
   ((res, _), _) <- runFormPostNoNonce $ paramsFormlet Nothing catOpt
   case res of
-    FormSuccess (Params title cat tag text) -> do
-      runDB $ update id [ArticleTitle =. title, ArticleCat =. cat, ArticleContent =. text]
-      runDB $ insert $ Tag tag id
-      redirect RedirectTemporary $ ArticlesR $ category cat catOpt
+    FormSuccess p -> do
+      runDB $ update aid [ArticleTitle =. (title p), ArticleCat =. (cat p), ArticleContent =. (text p)]
+      _ <- runDB $ insert $ Tag (tag p) aid
+      redirect RedirectTemporary $ ArticlesR $ category (cat p) catOpt
     _ -> do
-      redirect RedirectTemporary (EditArticleR id)
+      redirect RedirectTemporary (EditArticleR aid)
 
 -- Helper functions
 categories = do
   cas <- runDB $ selectList [] [Asc CategoryName]
   return $ map (\ c -> (categoryName $ snd c, fst c)) cas
-  
-category cat = fst . fromJust . find ((== cat) . snd)
 
-tagsForArticle id = (intersperse ", ") . map (tagName . snd) . filter ((== id) . tagArticle . snd)
+category c = fst . fromJust . find ((== c) . snd)
+
+tagsForArticle aid = (intersperse ", ") . map (tagName . snd) . filter ((== aid) . tagArticle . snd)
