@@ -10,8 +10,9 @@
                  $forall link <- categories
                     <a :isCurrent (snd link):id=active href="@{snd link}">#{fst link}
              <div #content
-                  <ul #categories
-                      <li
+                  <ul #tags
+                      $forall tag <- tags
+                         <li>#{tagName $ snd tag}
                   ^{pageBody pc}
              <div #footer
                   <div #left

@@ -96,7 +96,7 @@ hr
     border-bottom: 0.1em solid #fff
 
 
-#categories
+#tags
     margin-left: 50%
     margin-top: 0em
     padding-left: 0em
@@ -105,17 +105,17 @@ hr
     list-style: none
 
 
-#categories li 
+#tags li 
     display: inline
     padding-right: 0.3em
 
 
 
-#categories a:link, #categories a:visited, #categories a:active 
+#tags a:link, #categories a:visited, #categories a:active 
     color: #000
 
 
-#categories a:hover
+#tags a:hover
     text-decoration: underline
 
 
