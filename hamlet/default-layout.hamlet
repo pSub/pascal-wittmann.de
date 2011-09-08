@@ -1,6 +1,5 @@
 !!!
 <head
-        <title>#{title}
         <meta charset="utf8">
         ^{pageHead pc}
 <body

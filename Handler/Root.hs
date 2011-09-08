@@ -2,20 +2,17 @@
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Handlers.Root 
+module Handler.Root 
        (
          getRootR
        ) where
 
-import Homepage
-import Model
-import qualified Settings
-import Yesod
+import Foundation
 import Yesod.Goodies.Markdown
 
 getRootR :: Handler RepHtml
 getRootR = do
-  articles <- runDB $ selectList [] [ArticleDateDesc] 3 0
+  articles <- runDB $ selectList [] [Desc ArticleDate, OffsetBy 3]
   defaultLayout $ do
     setTitle "Startseite"
-    $(Settings.hamletFile "root")
+    addWidget $(widgetFile "root")

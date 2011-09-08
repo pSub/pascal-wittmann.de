@@ -1,0 +1,20 @@
+Default: &defaults
+  user: homepage
+  password: homepage
+  host: localhost
+  port: 5432
+  database: homepage
+
+Development:
+  <<: *defaults
+
+Test:
+  database: homepage_test
+  <<: *defaults
+
+Staging:
+  database: homepage_staging
+
+Production:
+  database: homepage_production
+  <<: *defaults

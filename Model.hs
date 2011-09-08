@@ -1,41 +1,14 @@
-{-# LANGUAGE QuasiQuotes, TypeFamilies, GeneralizedNewtypeDeriving, TemplateHaskell, OverloadedStrings #-}
-
+{-# LANGUAGE QuasiQuotes, TypeFamilies, GeneralizedNewtypeDeriving, TemplateHaskell, GADTs #-}
 module Model where
 
 import Yesod
-import Yesod.Goodies.Markdown
-import Database.Persist.Base
-
-import Data.Time
 import Data.Text (Text)
+import Data.Time
+import Yesod.Goodies.Markdown
 
-share2 mkPersist (mkMigrate "migrateAll") [persist|
-User
-  ident Text
-  password Text Maybe Update
-  UniqueUser ident
 
-Email
-  email Text
-  user UserId Maybe Update
-  verkey Text Maybe Update
-  UniqueEmail email
-
-Module
-  name String
-
-Category
-  name Text Asc
-  CategoryUniq name
-  
-Article
-  title Text Eq Update
-  content Markdown Update
-  cat CategoryId Update Eq
-  meta_descr String
-  date UTCTime Desc
-
-Tag
-  name Text Eq Asc Update
-  article ArticleId Update
-|]
+-- You can define all of your database entities in the entities file.
+-- You can find more information on persistent and how to declare entities
+-- at:
+-- http://www.yesodweb.com/book/persistent/
+share [mkPersist sqlSettings, mkMigrate "migrateAll"] $(persistFile "config/models")

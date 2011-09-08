@@ -2,19 +2,17 @@
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Handlers.Impressum
+module Handler.Impressum
        (
          getImpressumR
          ) where
 
-import Homepage
-import qualified Settings
-import Yesod
+import Foundation
 
 getImpressumR :: Handler RepHtml
 getImpressumR = defaultLayout $ do
   setTitle "Impressum"
-  $(Settings.hamletFile "impressum")
+  addWidget $(widgetFile "impressum")
   
 -- TODO: Protect mail from spam
 encodeMail :: String -> Html

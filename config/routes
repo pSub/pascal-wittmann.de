@@ -1,0 +1,13 @@
+/static StaticR Static getStatic
+
+/favicon.ico FaviconR GET
+/robots.txt RobotsR GET
+
+/ RootR GET
+
+/impressum ImpressumR GET
+/login AuthR Auth getAuth
+/admin AdminR GET
+/articles/#Text ArticlesR GET
+/new-article NewArticleR GET POST
+/edit-article/#ArticleId EditArticleR GET POST
