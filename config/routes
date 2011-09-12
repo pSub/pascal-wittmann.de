@@ -13,3 +13,4 @@
 /new-article NewArticleR GET POST
 /edit-article/#ArticleId EditArticleR GET POST
 /delete-tag/#Text/#TagId DeleteTagR GET
+/delete-article/#Text/#ArticleId DeleteArticleR GET

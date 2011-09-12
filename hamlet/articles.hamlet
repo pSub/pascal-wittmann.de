@@ -10,7 +10,9 @@ $forall article <- articles
              <div .text
                   <h2>#{articleTitle $ snd article}
                   $maybe u <- mu
-                      <a .edit href="@{EditArticleR $ fst article}">Bearbeiten
+                      <div .edit
+                         <a href="@{DeleteArticleR catName (fst article)}">Löschen</a> #
+                         <a href="@{EditArticleR $ fst article}">Bearbeiten</a>
                   <div .date>#{articleDate $ snd article}
                   #{markdownToHtml $ articleContent $ snd article}
              <div .info

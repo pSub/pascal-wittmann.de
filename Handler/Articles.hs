@@ -6,6 +6,7 @@ module Handler.Articles
        ( getArticlesR
        , getNewArticleR
        , getDeleteTagR
+       , getDeleteArticleR
        , postNewArticleR
        , getEditArticleR
        , postEditArticleR
@@ -101,6 +102,13 @@ postEditArticleR aid = do
       redirect RedirectTemporary $ ArticlesR $ category (cat p) catOpt
     _ -> do
       redirect RedirectTemporary (EditArticleR aid)
+      
+getDeleteArticleR :: Text -> ArticleId -> Handler ()
+getDeleteArticleR category aid = do
+  _ <- requireAuth
+  runDB $ deleteWhere [TagArticle ==. aid]
+  runDB $ delete aid
+  redirect RedirectTemporary $ ArticlesR category
 
 -- Helper functions
 categories = do
