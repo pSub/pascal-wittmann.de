@@ -4,6 +4,7 @@
 
 module Handler.Admin
        ( getAdminR
+       , getDeleteCategoryR
        , postAdminR
        ) where
 
@@ -17,9 +18,16 @@ formletCat mparams html = (flip renderDivs) html $ Category
 getAdminR :: Handler RepHtml
 getAdminR = do
   _ <- requireAuth
+  cats <- runDB $ selectList [] [Asc CategoryName]
   ((_, catForm), catEnctype) <- runFormGet $ formletCat Nothing
   defaultLayout $ do
    addWidget $(widgetFile "admin")
+   
+getDeleteCategoryR :: CategoryId -> Handler ()
+getDeleteCategoryR cid = do
+  _ <- requireAuth
+  runDB $ delete cid
+  redirect RedirectTemporary AdminR
 
 postAdminR :: Handler ()
 postAdminR = do
@@ -30,3 +38,4 @@ postAdminR = do
       _ <- runDB $ insert cat
       redirect RedirectTemporary AdminR
     _ -> do redirect RedirectTemporary AdminR
+

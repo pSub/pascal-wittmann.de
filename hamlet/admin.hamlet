@@ -6,4 +6,7 @@
             <td colspan="2">
                 <input type="submit" value="hinzufügen">
 
-                
+<p>Kategorien löschen
+
+$forall cat <- cats
+    <a href=@{DeleteCategoryR (fst cat)}>#{categoryName (snd cat)}</a> #

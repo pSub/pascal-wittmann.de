@@ -8,6 +8,7 @@
 /impressum ImpressumR GET
 /login AuthR Auth getAuth
 /admin AdminR GET POST
+/admin/delete/#CategoryId DeleteCategoryR GET
 /articles/#Text ArticlesR GET
 /new-article NewArticleR GET POST
 /edit-article/#ArticleId EditArticleR GET POST
