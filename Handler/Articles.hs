@@ -37,8 +37,8 @@ getArticlesR :: Text -> Handler RepHtml
 getArticlesR catName = do
   mu <- maybeAuth
   mcat <- runDB $ getBy $ CategoryUniq catName
-  articles <- runDB $ selectList [ArticleCat ==. (fst $ fromJust mcat) ] [Desc ArticleDate]
-  tags <- runDB $ selectList [] [Asc TagName]
+  tags <- runDB $ selectList [TagCategory ==. (fst $ fromJust mcat)] [Asc TagName]
+  articles <- runDB $ selectList [ArticleCat ==. (fst $ fromJust mcat)] [Desc ArticleDate]
   defaultLayout $ do
   setTitle "Log"
   addWidget $(widgetFile "articles")
@@ -61,7 +61,7 @@ postNewArticleR = do
     FormSuccess p -> do
       now <- liftIO getCurrentTime
       aid <- runDB $ insert $ Article (title p) (text p) (cat p) "" now
-      _ <- runDB $ insert $ Tag (tag p) aid
+      _ <- runDB $ insert $ Tag (tag p) aid (cat p)
       redirect RedirectTemporary $ ArticlesR $ category (cat p) catOpt
     _ -> do
       redirect RedirectTemporary NewArticleR
@@ -87,7 +87,7 @@ postEditArticleR aid = do
   case res of
     FormSuccess p -> do
       runDB $ update aid [ArticleTitle =. (title p), ArticleCat =. (cat p), ArticleContent =. (text p)]
-      _ <- runDB $ insert $ Tag (tag p) aid
+      _ <- runDB $ insert $ Tag (tag p) aid (cat p)
       redirect RedirectTemporary $ ArticlesR $ category (cat p) catOpt
     _ -> do
       redirect RedirectTemporary (EditArticleR aid)

@@ -1,3 +1,6 @@
+<ul #tags
+  $forall tag <- tags
+    <li>#{tagName $ snd tag}
 $maybe u <- mu
        <a href="@{NewArticleR}">Neuen Eintrag hinzufügen
 $forall article <- articles

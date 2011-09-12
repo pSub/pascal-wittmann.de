@@ -90,7 +90,6 @@ instance Yesod Homepage where
         current <- getCurrentRoute
         toMaster <- getRouteToMaster
         cats <- runDB $ selectList [] [Asc CategoryName]
-        tags <- runDB $ selectList [] [Asc TagName]
         let isCurrent x = fmap toMaster current == Just x
         let categories = map (\c -> (name c, ArticlesR $ name c)) cats
         pc <- widgetToPageContent $ do

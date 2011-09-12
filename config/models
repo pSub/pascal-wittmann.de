@@ -21,10 +21,6 @@ Article
   cat CategoryId
   meta_descr String
   date UTCTime
-
-TagArticle
-  tag TagId
-  
   
 Tag
   name Text
