@@ -8,8 +8,8 @@ module Handler.Admin
        ) where
 
 import Foundation
-
 import Control.Applicative
+
 formletCat :: Maybe Category -> Html -> Form Homepage Homepage (FormResult Category, Widget)
 formletCat mparams html = (flip renderDivs) html $ Category
     <$> areq textField "Kategorie" (fmap categoryName mparams)

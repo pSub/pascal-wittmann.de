@@ -7,7 +7,7 @@
 
 /impressum ImpressumR GET
 /login AuthR Auth getAuth
-/admin AdminR GET
+/admin AdminR GET POST
 /articles/#Text ArticlesR GET
 /new-article NewArticleR GET POST
 /edit-article/#ArticleId EditArticleR GET POST
