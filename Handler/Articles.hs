@@ -41,6 +41,7 @@ getArticlesR catName = do
   articles <- runDB $ selectList [ArticleCat ==. (fst $ fromJust mcat)] [Desc ArticleDate]
   defaultLayout $ do
   setTitle "Log"
+  addCassius $(cassiusFile "articles")
   addWidget $(widgetFile "articles")
 
 getNewArticleR :: Handler RepHtml
