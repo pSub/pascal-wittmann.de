@@ -36,6 +36,9 @@ library
                      Settings
                      Settings.StaticFiles
                      Handler.Root
+                     Handler.Impressum
+                     Handler.Articles
+                     Handler.Admin
 
 executable         homepage
     if flag(devel)
