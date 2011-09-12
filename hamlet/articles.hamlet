@@ -17,6 +17,6 @@ $forall article <- articles
                   Tags: #
                   $forall tag <- tagsForArticle (fst article) tags
                       $maybe u <- mu
-                         <a href=@{DeleteTagR catName (fst tag)}>#{tagName (snd tag)}</a>
+                         <a href=@{DeleteTagR catName (fst tag)}>#{tagName (snd tag)}</a> #
                       $nothing
-                         #{tagName (snd tag)}
+                         #{tagName (snd tag)} #

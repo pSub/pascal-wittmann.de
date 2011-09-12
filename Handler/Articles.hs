@@ -17,8 +17,9 @@ import Yesod.Goodies.Markdown
 import Control.Applicative
 import Data.List (find, intersperse)
 import Data.Time
-import Data.Text (Text)
+import Data.Text (Text, unpack, pack)
 import Data.Maybe
+import Data.List.Split (splitOn)
 
 data Params = Params
      { title :: Text
@@ -96,7 +97,7 @@ postEditArticleR aid = do
   case res of
     FormSuccess p -> do
       runDB $ update aid [ArticleTitle =. (title p), ArticleCat =. (cat p), ArticleContent =. (text p)]
-      _ <- runDB $ insert $ Tag (tag p) aid (cat p)
+      insertTags (cat p) aid $ splitOn "," $ filter (/= ' ') (unpack $ tag p)
       redirect RedirectTemporary $ ArticlesR $ category (cat p) catOpt
     _ -> do
       redirect RedirectTemporary (EditArticleR aid)
@@ -109,3 +110,8 @@ categories = do
 category c = fst . fromJust . find ((== c) . snd)
 
 tagsForArticle aid = filter ((== aid) . tagArticle . snd)
+
+insertTags category aid (t:tags) = do
+  _ <- runDB $ insert $ Tag (pack t) aid category
+  insertTags category aid tags
+insertTags _ _ [] = return ()

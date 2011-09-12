@@ -71,6 +71,7 @@ executable         homepage
                  , bytestring
                  , text
                  , time
+                 , split
                  , persistent
                  , persistent-template
                  , persistent-postgresql >= 0.6 && < 0.7
