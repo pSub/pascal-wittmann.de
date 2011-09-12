@@ -71,7 +71,7 @@ postNewArticleR = do
     FormSuccess p -> do
       now <- liftIO getCurrentTime
       aid <- runDB $ insert $ Article (title p) (text p) (cat p) "" now
-      _ <- runDB $ insert $ Tag (tag p) aid (cat p)
+      insertTags (cat p) aid $ splitOn "," $ filter (/= ' ') (unpack $ tag p)
       redirect RedirectTemporary $ ArticlesR $ category (cat p) catOpt
     _ -> do
       redirect RedirectTemporary NewArticleR
