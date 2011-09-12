@@ -5,6 +5,7 @@
 module Handler.Articles
        ( getArticlesR
        , getNewArticleR
+       , getDeleteTagR
        , postNewArticleR
        , getEditArticleR
        , postEditArticleR
@@ -43,11 +44,18 @@ getArticlesR catName = do
   setTitle "Log"
   addCassius $(cassiusFile "articles")
   addWidget $(widgetFile "articles")
+  
+getDeleteTagR :: Text -> TagId -> Handler ()
+getDeleteTagR category tid = do
+  _ <- requireAuth
+  runDB $ delete tid
+  redirect RedirectTemporary $ ArticlesR category
 
 getNewArticleR :: Handler RepHtml
 getNewArticleR = do
   _ <- requireAuth
   catOpt <- categories
+  tags <- return []
   ((_, form), enctype) <- runFormGet $ paramsFormlet Nothing catOpt
   defaultLayout $ do
     addWidget $(widgetFile "new-article")
@@ -100,4 +108,4 @@ categories = do
 
 category c = fst . fromJust . find ((== c) . snd)
 
-tagsForArticle aid = (intersperse ", ") . map (tagName . snd) . filter ((== aid) . tagArticle . snd)
+tagsForArticle aid = filter ((== aid) . tagArticle . snd)

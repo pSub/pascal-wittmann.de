@@ -3,7 +3,9 @@
     <li>#{tagName $ snd tag}
 $maybe u <- mu
        <a href="@{NewArticleR}">Neuen Eintrag hinzufügen
+
 $forall article <- articles
+        <hr
         <div .article
              <div .text
                   <h2>#{articleTitle $ snd article}
@@ -12,7 +14,9 @@ $forall article <- articles
                   <div .date>#{articleDate $ snd article}
                   #{markdownToHtml $ articleContent $ snd article}
              <div .info
-                  Tags:
+                  Tags: #
                   $forall tag <- tagsForArticle (fst article) tags
-                      #{tag}
-        <hr
+                      $maybe u <- mu
+                         <a href=@{DeleteTagR catName (fst tag)}>#{tagName (snd tag)}</a>
+                      $nothing
+                         #{tagName (snd tag)}
