@@ -9,7 +9,8 @@
 /login AuthR Auth getAuth
 /admin AdminR GET POST
 /admin/delete/#CategoryId DeleteCategoryR GET
-/articles/#Text ArticlesR GET
+/category/#Text ArticlesR GET
+/category/#Text/article/#Text ArticleR GET
 /new-article NewArticleR GET POST
 /edit-article/#ArticleId EditArticleR GET POST
 /delete-tag/#Text/#TagId DeleteTagR GET

@@ -4,6 +4,7 @@
 
 module Handler.Articles
        ( getArticlesR
+       , getArticleR
        , getNewArticleR
        , getDeleteTagR
        , getDeleteArticleR
@@ -24,6 +25,7 @@ import Data.List.Split (splitOn)
 
 data Params = Params
      { title :: Text
+     , ident :: Text
      , cat :: CategoryId
      , tag :: Text
      , text :: Markdown
@@ -32,6 +34,7 @@ data Params = Params
 paramsFormlet ::  Maybe Params -> [(Text, CategoryId)] -> Html -> Form Homepage Homepage (FormResult Params, Widget)
 paramsFormlet mparams cats html = (flip renderDivs) html $ Params
     <$> areq textField "Title" (title <$> mparams)
+    <*> areq textField "Ident" (ident <$> mparams)
     <*> areq (selectField cats) "Kategorie" (cat <$> mparams)
     <*> areq textField "Tags" (tag <$> mparams)
     <*> areq markdownField "Text" (text <$> mparams)
@@ -43,10 +46,19 @@ getArticlesR catName = do
   tags <- runDB $ selectList [TagCategory ==. (fst $ fromJust mcat)] [Asc TagName]
   articles <- runDB $ selectList [ArticleCat ==. (fst $ fromJust mcat)] [Desc ArticleDate]
   defaultLayout $ do
-  setTitle "Log"
-  addCassius $(cassiusFile "articles")
-  addWidget $(widgetFile "articles")
-  
+    setTitle "Log"
+    addCassius $(cassiusFile "articles")
+    addWidget $(widgetFile "articles")
+
+getArticleR :: Text -> Text -> Handler RepHtml
+getArticleR catName ident = do
+  mu <- maybeAuth
+  marticle <- runDB $ getBy $ ArticleUniq ident
+  tags <- runDB $ selectList [TagArticle ==. (fst $ fromJust marticle)] [Asc TagName]
+  defaultLayout $ do
+    addCassius $(cassiusFile "article")
+    addWidget $(widgetFile "article")
+    
 getDeleteTagR :: Text -> TagId -> Handler ()
 getDeleteTagR category tid = do
   _ <- requireAuth
@@ -62,7 +74,6 @@ getNewArticleR = do
   defaultLayout $ do
     addWidget $(widgetFile "new-article")
 
-
 postNewArticleR :: Handler ()
 postNewArticleR = do
   _ <- requireAuth
@@ -71,7 +82,7 @@ postNewArticleR = do
   case res of
     FormSuccess p -> do
       now <- liftIO getCurrentTime
-      aid <- runDB $ insert $ Article (title p) (text p) (cat p) "" now
+      aid <- runDB $ insert $ Article (title p) (ident p) (text p) (cat p) "" now
       insertTags (cat p) aid $ splitOn "," $ filter (/= ' ') (unpack $ tag p)
       redirect RedirectTemporary $ ArticlesR $ category (cat p) catOpt
     _ -> do
@@ -84,7 +95,7 @@ getEditArticleR aid = do
   catOpt <- categories
   case ma of
     Just a ->
-      do ((_, form), enctype) <- runFormGet $ paramsFormlet (Just $ Params (articleTitle a) (articleCat a) "" (articleContent a)) catOpt
+      do ((_, form), enctype) <- runFormGet $ paramsFormlet (Just $ Params (articleTitle a) (articleIdent a) (articleCat a) "" (articleContent a)) catOpt
          defaultLayout $ do
          addWidget $(widgetFile "new-article")
     Nothing -> do
@@ -97,7 +108,7 @@ postEditArticleR aid = do
   ((res, _), _) <- runFormPostNoNonce $ paramsFormlet Nothing catOpt
   case res of
     FormSuccess p -> do
-      runDB $ update aid [ArticleTitle =. (title p), ArticleCat =. (cat p), ArticleContent =. (text p)]
+      runDB $ update aid [ArticleTitle =. (title p), ArticleIdent =. (ident p), ArticleCat =. (cat p), ArticleContent =. (text p)]
       insertTags (cat p) aid $ splitOn "," $ filter (/= ' ') (unpack $ tag p)
       redirect RedirectTemporary $ ArticlesR $ category (cat p) catOpt
     _ -> do

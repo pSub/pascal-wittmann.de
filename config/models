@@ -17,12 +17,19 @@ Category
   
 Article
   title Text
+  ident Text
   content Markdown
   cat CategoryId
   meta_descr String
   date UTCTime
+  ArticleUniq ident
   
 Tag
   name Text
   article ArticleId
   category CategoryId
+
+Comment
+  author Text
+  content Text
+  date UTCTime

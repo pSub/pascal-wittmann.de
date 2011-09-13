@@ -1,4 +1,4 @@
-#tags
+#tag-list
     margin-left: 50%
     margin-top: 0em
     padding-left: 0em
@@ -6,24 +6,52 @@
     font-size: 0.9em
     list-style: none
 
-#tags li 
+#tag-list li 
     display: inline
     padding-right: 0.3em
 
-#tags a:link, #categories a:visited, #categories a:active 
+#tag-list a:link, #categories a:visited, #categories a:active 
     color: #000
 
-#tags a:hover
+#tag-list a:hover
     text-decoration: underline
 
-.article .text .edit
-    font-size: 0.8em
-    float: right
+#content
+    padding-left: 0 !important
+    padding-right: 0 !important
     
-.article .text .date
+.article
+    display: block
+    padding-top: 0.25em
+    padding-bottom: 0.25em
+    padding-left: 1em
+    padding-right: 1em
+
+.article:hover
+    background-color: #eeeeee
+
+.article:nth-child(even)
+    background-color: #ddd
+
+.article:nth-child(even):hover
+    background-color: #eeeeee
+
+.article .right
+    float: right
+
+.article .right .date
     font-size: 0.8em
     color: #808080
-    
-.article .info
+
+.article .right .comment-count
     font-size: 0.8em
 
+.article .right .tags
+    font-size: 0.8em
+
+.article .left .title
+    font-size: 1.2em
+
+.article .left .recap
+    font-size: 0.9em
+    color: #000000
