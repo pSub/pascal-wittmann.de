@@ -28,13 +28,13 @@
     padding-right: 1em
 
 .article:hover
-    background-color: #F3F781
+    background-color: #F2F5A9
 
 .article:nth-child(even)
     background-color: #eeeeee
 
 .article:nth-child(even):hover
-    background-color: #F3F781
+    background-color: #F2F5A9
 
 .article .right
     float: right
