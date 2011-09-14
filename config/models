@@ -23,10 +23,13 @@ Article
   meta_descr String
   date UTCTime
   ArticleUniq ident
+
+TagMap
+  article ArticleId
+  tag TagId
   
 Tag
   name Text
-  article ArticleId
   category CategoryId
 
 Comment
