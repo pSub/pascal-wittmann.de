@@ -15,22 +15,22 @@ Category
   name Text
   CategoryUniq name
   
-Article
+Entry
   title Text
   ident Text
   content Markdown
   cat CategoryId
   meta_descr String
   date UTCTime
-  ArticleUniq ident
-
-TagMap
-  article ArticleId
-  tag TagId
+  EntryUniq ident
   
 Tag
   name Text
   category CategoryId
+
+Tagged
+  tag TagId
+  entry EntryId
 
 Comment
   author Text

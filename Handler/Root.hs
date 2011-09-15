@@ -12,7 +12,7 @@ import Yesod.Goodies.Markdown
 
 getRootR :: Handler RepHtml
 getRootR = do
-  articles <- runDB $ selectList [] [Desc ArticleDate, OffsetBy 3]
+  articles <- runDB $ selectList [] [Desc EntryDate, OffsetBy 3]
   defaultLayout $ do
     setTitle "Startseite"
     addWidget $(widgetFile "root")

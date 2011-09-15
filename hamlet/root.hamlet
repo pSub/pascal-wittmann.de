@@ -11,5 +11,5 @@ Außerdem werden hier einige Referate (nahe zu alle aus meiner Schulzeit) veröf
 <h2>Neue Beiträge:
 <br
 $forall article <- articles
-        <h2>#{articleTitle $ snd article}
-        <p>#{markdownToHtml $ articleContent $ snd article}
+        <h2>#{entryTitle $ snd article}
+        <p>#{markdownToHtml $ entryContent $ snd article}

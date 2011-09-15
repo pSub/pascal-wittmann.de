@@ -91,7 +91,7 @@ instance Yesod Homepage where
         toMaster <- getRouteToMaster
         cats <- runDB $ selectList [] [Asc CategoryName]
         let isCurrent x = fmap toMaster current == Just x
-        let categories = map (\c -> (name c, ArticlesR $ name c)) cats
+        let categories = map (\c -> (name c, EntriesR $ name c)) cats
         pc <- widgetToPageContent $ do
             widget
             addCassius $(cassiusFile "default-layout")

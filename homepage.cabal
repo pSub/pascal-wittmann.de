@@ -37,7 +37,7 @@ library
                      Settings.StaticFiles
                      Handler.Root
                      Handler.Impressum
-                     Handler.Articles
+                     Handler.Entries
                      Handler.Admin
 
 executable         homepage

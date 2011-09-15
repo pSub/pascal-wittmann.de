@@ -1,0 +1,11 @@
+$maybe entry <- mentry
+       $maybe u <- mu
+         <span .right
+           <a href="@{DeleteEntryR catName (fst entry)}">Löschen
+           \ 
+           <a href="@{EditEntryR $ fst entry}">Bearbeiten
+
+       <h2>#{entryTitle $ snd entry}</h2>
+       #{markdownToHtml $ entryContent $ snd entry}
+$nothing
+       No Entry found

@@ -26,7 +26,7 @@ import Control.Concurrent.MVar (newEmptyMVar, putMVar, takeMVar)
 
 -- Import all relevant handler modules here.
 import Handler.Root
-import Handler.Articles
+import Handler.Entries
 import Handler.Impressum
 import Handler.Admin
 
