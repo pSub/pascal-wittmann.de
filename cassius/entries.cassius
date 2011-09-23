@@ -20,38 +20,38 @@
     padding-left: 0 !important
     padding-right: 0 !important
     
-.article
+.entry  
     display: block
     padding-top: 0.25em
     padding-bottom: 0.25em
     padding-left: 1em
     padding-right: 1em
 
-.article:hover
+.entry:hover
     background-color: #F2F5A9
 
-.article:nth-child(even)
+.entry:nth-child(even)
     background-color: #eeeeee
 
-.article:nth-child(even):hover
+.entry:nth-child(even):hover
     background-color: #F2F5A9
 
-.article .right
+.entry .right
     float: right
 
-.article .right .date
+.entry .right .date
     font-size: 0.8em
     color: #808080
 
-.article .right .comment-count
+.entry .right .comment-count
     font-size: 0.8em
 
-.article .right .tags
+.entry .right .tags
     font-size: 0.8em
 
-.article .left .title
+.entry .left .title
     font-size: 1.2em
 
-.article .left .recap
+.entry .left .recap
     font-size: 0.9em
     color: #000000
