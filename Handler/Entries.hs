@@ -44,12 +44,13 @@ paramsFormlet mparams cats html = (flip renderDivs) html $ Params
 getEntriesR :: Text -> Handler RepHtml
 getEntriesR catName = do
   mu <- maybeAuth
-  mcat <- runDB $ getBy $ CategoryUniq catName  
+  mcat <- runDB $ getBy $ CategoryUniq catName
+  cat <- mcat -|- notFound
   tags <- runDB $ runJoin (selectOneMany (TaggedTag <-.) taggedTag)
-          { somFilterOne = [TagCategory ==. (fst $ fromJust mcat)]
+          { somFilterOne = [TagCategory ==. (fst cat)]
           , somOrderOne = [Asc TagName]
           }
-  entries <- runDB $ selectList [EntryCat ==. (fst $ fromJust mcat)] [Desc EntryDate]
+  entries <- runDB $ selectList [EntryCat ==. (fst cat)] [Desc EntryDate]
   defaultLayout $ do
     setTitle "Log"
     addCassius $(cassiusFile "entries")
@@ -59,8 +60,9 @@ getEntryR :: Text -> Text -> Handler RepHtml
 getEntryR catName ident = do
   mu <- maybeAuth
   mentry <- runDB $ getBy $ EntryUniq ident
+  entry <- mentry -|- notFound
   tags <- runDB $ runJoin $ (selectOneMany (TaggedTag <-.) taggedTag)  -- TODO: filter for article
-          { somFilterMany = [TaggedEntry ==. (fst $ fromJust mentry)] 
+          { somFilterMany = [TaggedEntry ==. (fst entry)] 
           , somOrderOne = [Asc TagName]
           }
   defaultLayout $ do
@@ -141,11 +143,14 @@ tagsForEntry eid = map fst . filter (any ((== eid) . taggedEntry . snd) . snd)
 insertTags :: CategoryId -> EntryId -> [String] -> Handler ()
 insertTags category eid (t:tags) = do
   mtag <- runDB $ getBy $ UniqueTag (pack t) category
-  tid <- if isJust mtag
-         then
+  tid <- if isJust mtag then
            return $ fst $ fromJust mtag
          else
            runDB $ insert $ Tag (pack t) category
   _ <- runDB $ insert $ Tagged tid eid
   insertTags category eid tags
 insertTags _ _ [] = return ()
+
+(-|-) :: Monad m => Maybe a -> m a -> m a
+Just a -|- _ = return a
+Nothing -|- action = do action
