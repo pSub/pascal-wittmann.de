@@ -15,7 +15,8 @@ module Handler.Entries
 
 import Foundation
 import Yesod.Goodies.Markdown
-import Database.Persist.Join (selectOneMany, SelectOneMany(..), runJoin)
+import Database.Persist.Join (selectOneMany, SelectOneMany(..))
+import Database.Persist.Join.Sql (runJoin)
 
 import Control.Applicative
 import Data.List (find, intersperse)
@@ -44,7 +45,7 @@ getEntriesR :: Text -> Handler RepHtml
 getEntriesR catName = do
   mu <- maybeAuth
   mcat <- runDB $ getBy $ CategoryUniq catName  
-  tags <- runJoin $ (selectOneMany (TaggedTag <-.) taggedTag)
+  tags <- runDB $ runJoin (selectOneMany (TaggedTag <-.) taggedTag)
           { somFilterOne = [TagCategory ==. (fst $ fromJust mcat)]
           , somOrderOne = [Asc TagName]
           }
@@ -58,7 +59,7 @@ getEntryR :: Text -> Text -> Handler RepHtml
 getEntryR catName ident = do
   mu <- maybeAuth
   mentry <- runDB $ getBy $ EntryUniq ident
-  tags <- runJoin $ (selectOneMany (TaggedTag <-.) taggedTag)  -- TODO: filter for article
+  tags <- runDB $ runJoin $ (selectOneMany (TaggedTag <-.) taggedTag)  -- TODO: filter for article
           { somFilterMany = [TaggedEntry ==. (fst $ fromJust mentry)] 
           , somOrderOne = [Asc TagName]
           }
@@ -137,8 +138,9 @@ category c = fst . fromJust . find ((== c) . snd)
 
 tagsForEntry eid = map fst . filter (any ((== eid) . taggedEntry . snd) . snd)
 
+insertTags :: CategoryId -> EntryId -> [String] -> Handler ()
 insertTags category eid (t:tags) = do
-  --tid <- runDB $ insert $ Tag (pack t) category
-  --_ <- runDB $ insert $ Tagged eid tid
+  tid <- runDB $ insert $ Tag (pack t) category
+  _ <- runDB $ insert $ Tagged tid eid
   insertTags category eid tags
 insertTags _ _ [] = return ()
