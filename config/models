@@ -27,6 +27,7 @@ Entry
 Tag
   name Text
   category CategoryId
+  UniqueTag name category
 
 Tagged
   tag TagId

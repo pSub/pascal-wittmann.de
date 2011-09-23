@@ -140,7 +140,12 @@ tagsForEntry eid = map fst . filter (any ((== eid) . taggedEntry . snd) . snd)
 
 insertTags :: CategoryId -> EntryId -> [String] -> Handler ()
 insertTags category eid (t:tags) = do
-  tid <- runDB $ insert $ Tag (pack t) category
+  mtag <- runDB $ getBy $ UniqueTag (pack t) category
+  tid <- if isJust mtag
+         then
+           return $ fst $ fromJust mtag
+         else
+           runDB $ insert $ Tag (pack t) category
   _ <- runDB $ insert $ Tagged tid eid
   insertTags category eid tags
 insertTags _ _ [] = return ()
