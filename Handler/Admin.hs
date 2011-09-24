@@ -21,7 +21,8 @@ getAdminR = do
   cats <- runDB $ selectList [] [Asc CategoryName]
   ((_, catForm), catEnctype) <- runFormGet $ formletCat Nothing
   defaultLayout $ do
-   addWidget $(widgetFile "admin")
+    setTitle "Admin"
+    addWidget $(widgetFile "admin")
    
 getDeleteCategoryR :: CategoryId -> Handler ()
 getDeleteCategoryR cid = do

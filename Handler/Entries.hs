@@ -22,7 +22,7 @@ import Database.Persist.Join.Sql (runJoin)
 import Control.Applicative
 import Data.List (find, intersperse)
 import Data.Time
-import Data.Text (Text, unpack, pack)
+import Data.Text (Text, unpack, pack, append)
 import Data.Maybe
 import Data.List.Split (splitOn)
 
@@ -54,7 +54,7 @@ getEntriesR catName = do
   tags <- return $ map fst tagsEntries
   entries <- runDB $ selectList [EntryCat ==. (fst cat)] [Desc EntryDate]
   defaultLayout $ do
-    setTitle "Log"
+    setTitle $ toHtml catName
     addCassius $(cassiusFile "entries")
     addWidget $(widgetFile "entries")
 
@@ -77,6 +77,7 @@ getEntriesByTagR catName tagName' = do
              }
   entries <- return $ map fst entries
   defaultLayout $ do
+    setTitle $ toHtml $ catName `append` " :: " `append` tagName'
     addCassius $(cassiusFile "entries")
     addWidget $(widgetFile "entries")
 
@@ -90,6 +91,7 @@ getEntryR catName ident = do
           , somOrderOne = [Asc TagName]
           }
   defaultLayout $ do
+    setTitle $ toHtml $ entryTitle $ snd entry
     addCassius $(cassiusFile "entry")
     addWidget $(widgetFile "entry")
     
@@ -106,6 +108,7 @@ getNewEntryR = do
   tags <- return []
   ((_, form), enctype) <- runFormGet $ paramsFormlet Nothing catOpt
   defaultLayout $ do
+    setTitle "New Entry"
     addWidget $(widgetFile "new-entry")
 
 postNewEntryR :: Handler ()
@@ -131,7 +134,8 @@ getEditEntryR eid = do
     Just a ->
       do ((_, form), enctype) <- runFormGet $ paramsFormlet (Just $ Params (entryTitle a) (entryIdent a) (entryCat a) "" (entryContent a)) catOpt
          defaultLayout $ do
-         addWidget $(widgetFile "new-entry")
+           setTitle "Edit Entry"
+           addWidget $(widgetFile "new-entry")
     Nothing -> do
       redirect RedirectTemporary NewEntryR
     
