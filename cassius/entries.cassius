@@ -10,15 +10,15 @@
     display: inline
     padding-right: 0.3em
 
-#tag-list a:link, #categories a:visited, #categories a:active 
+#tag-list a:link, #tag-list a:visited, #tag-list a:active 
     color: #000
 
 #tag-list a:hover
     text-decoration: underline
 
 #content
-    padding-left: 0 !important
-    padding-right: 0 !important
+    padding-left: 0
+    padding-right: 0
     
 .entry  
     display: block
@@ -38,6 +38,7 @@
 
 .entry .right
     float: right
+    min-width: 14em
 
 .entry .right .date
     font-size: 0.8em
