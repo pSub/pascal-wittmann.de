@@ -10,6 +10,7 @@
 /admin                           AdminR GET POST
 /admin/delete/#CategoryId        DeleteCategoryR GET
 /category/#Text                  EntriesR GET
+/category/#Text/tag/#Text        EntriesByTagR GET
 /category/#Text/entry/#Text      EntryR GET
 /new-entry                       NewEntryR GET POST
 /edit-entry/#EntryId             EditEntryR GET POST

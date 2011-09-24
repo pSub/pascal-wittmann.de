@@ -4,6 +4,7 @@
 
 module Handler.Entries
        ( getEntriesR
+       , getEntriesByTagR
        , getEntryR
        , getNewEntryR
        , getDeleteTagR
@@ -46,13 +47,36 @@ getEntriesR catName = do
   mu <- maybeAuth
   mcat <- runDB $ getBy $ CategoryUniq catName
   cat <- mcat -|- notFound
-  tags <- runDB $ runJoin (selectOneMany (TaggedTag <-.) taggedTag)
+  tagsEntries <- runDB $ runJoin (selectOneMany (TaggedTag <-.) taggedTag)
           { somFilterOne = [TagCategory ==. (fst cat)]
           , somOrderOne = [Asc TagName]
           }
+  tags <- return $ map fst tagsEntries
   entries <- runDB $ selectList [EntryCat ==. (fst cat)] [Desc EntryDate]
   defaultLayout $ do
     setTitle "Log"
+    addCassius $(cassiusFile "entries")
+    addWidget $(widgetFile "entries")
+
+getEntriesByTagR :: Text -> Text -> Handler RepHtml
+getEntriesByTagR catName tagName' = do
+  mu <- maybeAuth
+  mcat <- runDB $ getBy $ CategoryUniq catName
+  cat <- mcat -|- notFound
+  mtag <- runDB $ getBy $ UniqueTag tagName' (fst cat)
+  tag <- mtag -|- notFound
+  
+  tagsEntries <- runDB $ runJoin (selectOneMany (TaggedTag <-.) taggedTag)
+          { somFilterOne = [TagCategory ==. (fst cat)]
+          , somOrderOne = [Asc TagName]
+          }
+  tags <- return $ map fst tagsEntries
+  entries <- runDB $ runJoin (selectOneMany (TaggedEntry <-.) taggedEntry)
+             { somFilterMany = [TaggedTag ==. (fst tag)]
+             , somOrderOne = [Desc EntryDate]
+             }
+  entries <- return $ map fst entries
+  defaultLayout $ do
     addCassius $(cassiusFile "entries")
     addWidget $(widgetFile "entries")
 

@@ -1,6 +1,6 @@
 <ul #tag-list
   $forall tag <- tags
-    <li>#{tagName $ snd $ fst tag}
+    <li><a href="@{EntriesByTagR catName (tagName $ snd tag)}">#{tagName $ snd tag}
 $maybe u <- mu
        <a href="@{NewEntryR}">Neuen Eintrag hinzufügen
 
@@ -12,7 +12,7 @@ $maybe u <- mu
                <br
                <span .tags
                    Tags: #
-                   $forall tag <- tagsForEntry (fst entry) tags
+                   $forall tag <- tagsForEntry (fst entry) tagsEntries
                       #{tagName (snd tag)} #
         <span .left
              <span .title>#{entryTitle $ snd entry}
