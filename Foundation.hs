@@ -93,8 +93,8 @@ instance Yesod Homepage where
         let isCurrent x = fmap toMaster current == Just x
         let categories = map (\c -> (name c, EntriesR $ name c)) cats
         pc <- widgetToPageContent $ do
-            widget
             addCassius $(cassiusFile "default-layout")
+            widget
         hamletToRepHtml $(hamletFile "default-layout")
         where name = categoryName . snd
 
