@@ -7,9 +7,3 @@ Außerdem werden hier einige Referate (nahe zu alle aus meiner Schulzeit) veröf
         <li>Free Software Foundation Europe
         <li>SOS Kinderdörfer
         <li>WWF
-
-<h2>Neue Beiträge:
-<br
-$forall article <- articles
-        <h2>#{entryTitle $ snd article}
-        <p>#{markdownToHtml $ entryContent $ snd article}
