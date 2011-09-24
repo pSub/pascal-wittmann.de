@@ -94,7 +94,8 @@ hr
 #navigation #active 
     border-bottom: 0.1em solid #fff
 
-
+#place-holder
+    height: 1.1em
 
 #content 
     clear: both
