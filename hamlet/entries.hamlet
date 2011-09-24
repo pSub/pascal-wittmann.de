@@ -1,4 +1,5 @@
 <ul #tag-list
+   <li>Tags: #
   $forall tag <- tags
     <li>
       <a href="@{EntriesByTagR catName (tagName $ snd tag)}">#{tagName $ snd tag}
