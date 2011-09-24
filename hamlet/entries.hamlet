@@ -18,4 +18,4 @@ $maybe u <- mu
         <span .left
              <span .title>#{entryTitle $ snd entry}
              <br
-             <span .recap>Dies ist eine Zusammenfassung
+             <span .recap>#{entryRecap $ snd entry}

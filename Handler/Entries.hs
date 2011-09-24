@@ -31,6 +31,7 @@ data Params = Params
      , ident :: Text
      , cat :: CategoryId
      , tag :: Text
+     , recap :: Text
      , text :: Markdown
      } deriving Show
      
@@ -40,6 +41,7 @@ paramsFormlet mparams cats html = (flip renderDivs) html $ Params
     <*> areq textField "Ident" (ident <$> mparams)
     <*> areq (selectField cats) "Kategorie" (cat <$> mparams)
     <*> areq textField "Tags" (tag <$> mparams)
+    <*> areq textField "Summary" (recap <$> mparams)
     <*> areq markdownField "Text" (text <$> mparams)
 
 getEntriesR :: Text -> Handler RepHtml
@@ -86,7 +88,7 @@ getEntryR catName ident = do
   mu <- maybeAuth
   mentry <- runDB $ getBy $ EntryUniq ident
   entry <- mentry -|- notFound
-  tags <- runDB $ runJoin $ (selectOneMany (TaggedTag <-.) taggedTag)  -- TODO: filter for article
+  tags <- runDB $ runJoin $ (selectOneMany (TaggedTag <-.) taggedTag)
           { somFilterMany = [TaggedEntry ==. (fst entry)] 
           , somOrderOne = [Asc TagName]
           }
@@ -119,7 +121,7 @@ postNewEntryR = do
   case res of
     FormSuccess p -> do
       now <- liftIO getCurrentTime
-      aid <- runDB $ insert $ Entry (title p) (ident p) (text p) (cat p) "" now
+      aid <- runDB $ insert $ Entry (title p) (ident p) (text p) (cat p) (recap p) "" now
       insertTags (cat p) aid $ splitOn "," $ filter (/= ' ') (unpack $ tag p)
       redirect RedirectTemporary $ EntriesR $ category (cat p) catOpt
     _ -> do
@@ -132,7 +134,7 @@ getEditEntryR eid = do
   catOpt <- categories
   case ma of
     Just a ->
-      do ((_, form), enctype) <- runFormGet $ paramsFormlet (Just $ Params (entryTitle a) (entryIdent a) (entryCat a) "" (entryContent a)) catOpt
+      do ((_, form), enctype) <- runFormGet $ paramsFormlet (Just $ Params (entryTitle a) (entryIdent a) (entryCat a) (entryRecap a) "" (entryContent a)) catOpt
          defaultLayout $ do
            setTitle "Edit Entry"
            addWidget $(widgetFile "new-entry")

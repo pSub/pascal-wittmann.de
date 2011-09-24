@@ -20,6 +20,7 @@ Entry
   ident Text
   content Markdown
   cat CategoryId
+  recap Text
   meta_descr String
   date UTCTime
   EntryUniq ident
