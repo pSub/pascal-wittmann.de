@@ -34,6 +34,7 @@ import Data.Time
 import Data.Maybe (isJust)
 import Data.Text (Text)
 import Control.Monad (join, unless)
+import Control.Applicative
 import Network.Mail.Mime
 import qualified Data.Text.Lazy.Encoding
 import Text.Jasmine (minifym)
@@ -90,7 +91,8 @@ instance Yesod Homepage where
         current <- getCurrentRoute
         toMaster <- getRouteToMaster
         cats <- runDB $ selectList [] [Asc CategoryName]
-        let isCurrent x = fmap toMaster current == Just x
+        let currentRoute = toMaster <$> current
+        let isCurrent x = (currentRoute == Just x) || ((parents currentRoute) == Just x)
         let categories = map (\c -> (name c, EntriesR $ name c)) cats
         pc <- widgetToPageContent $ do
             addCassius $(cassiusFile "default-layout")
@@ -233,6 +235,12 @@ Thank you
                 , emailCredsVerkey = emailVerkey e
                 }
     getEmail = runDB . fmap (fmap emailEmail) . get
+
+parents (Just ImpressumR) = Nothing
+parents (Just (EntriesByTagR cat _)) = Just $ EntriesR cat
+parents (Just (EntryR cat _)) = Just $ EntriesR cat
+parents (Just _) = Nothing
+parents Nothing = Nothing
 
 instance RenderMessage Homepage FormMessage where
     renderMessage _ _ = defaultFormMessage
