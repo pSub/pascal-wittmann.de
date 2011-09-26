@@ -19,8 +19,9 @@ import Yesod.Goodies.Markdown
 import Database.Persist.Join (selectOneMany, SelectOneMany(..))
 import Database.Persist.Join.Sql (runJoin)
 
+import Prelude hiding (unwords)
 import Control.Applicative
-import Data.List (find, intersperse)
+import Data.List (find, intersperse, unwords)
 import Data.Time
 import Data.Text (Text, unpack, pack, append)
 import Data.Maybe
@@ -132,9 +133,14 @@ getEditEntryR eid = do
   _ <- requireAuth
   ma <- runDB $ get eid
   catOpt <- categories
+  tags' <- runDB $ runJoin $ (selectOneMany (TaggedTag <-.) taggedTag)
+          { somFilterMany = [TaggedEntry ==. eid]
+          , somOrderOne = [Asc TagName]
+          }
+  tags <- return $ pack $ unwords $ intersperse "," $ map (unpack . tagName . snd . fst) tags'
   case ma of
     Just a ->
-      do ((_, form), enctype) <- runFormGet $ paramsFormlet (Just $ Params (entryTitle a) (entryIdent a) (entryCat a) (entryRecap a) "" (entryContent a)) catOpt
+      do ((_, form), enctype) <- runFormGet $ paramsFormlet (Just $ Params (entryTitle a) (entryIdent a) (entryCat a) tags (entryRecap a) (entryContent a)) catOpt
          defaultLayout $ do
            setTitle "Edit Entry"
            addWidget $(widgetFile "new-entry")
@@ -149,6 +155,7 @@ postEditEntryR eid = do
   case res of
     FormSuccess p -> do
       runDB $ update eid [EntryTitle =. (title p), EntryIdent =. (ident p), EntryCat =. (cat p), EntryContent =. (text p)]
+      runDB $ deleteWhere [TaggedEntry ==. eid]
       insertTags (cat p) eid $ splitOn "," $ filter (/= ' ') (unpack $ tag p)
       redirect RedirectTemporary $ EntriesR $ category (cat p) catOpt
     _ -> do
