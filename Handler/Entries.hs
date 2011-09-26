@@ -23,7 +23,7 @@ import Prelude hiding (unwords)
 import Control.Applicative
 import Data.List (find, intersperse, unwords)
 import Data.Time
-import Data.Text (Text, unpack, pack, append)
+import Data.Text (Text, unpack, pack, append, strip)
 import Data.Maybe
 import Data.List.Split (splitOn)
 
@@ -137,7 +137,7 @@ getEditEntryR eid = do
           { somFilterMany = [TaggedEntry ==. eid]
           , somOrderOne = [Asc TagName]
           }
-  tags <- return $ pack $ unwords $ intersperse "," $ map (unpack . tagName . snd . fst) tags'
+  tags <- return $ pack $ concat $ intersperse ", " $ map (unpack . tagName . snd . fst) tags'
   case ma of
     Just a ->
       do ((_, form), enctype) <- runFormGet $ paramsFormlet (Just $ Params (entryTitle a) (entryIdent a) (entryCat a) tags (entryRecap a) (entryContent a)) catOpt
@@ -156,7 +156,7 @@ postEditEntryR eid = do
     FormSuccess p -> do
       runDB $ update eid [EntryTitle =. (title p), EntryIdent =. (ident p), EntryCat =. (cat p), EntryContent =. (text p)]
       runDB $ deleteWhere [TaggedEntry ==. eid]
-      insertTags (cat p) eid $ splitOn "," $ filter (/= ' ') (unpack $ tag p)
+      insertTags (cat p) eid $ splitOn "," $ filter (/= ' ') (unpack $ strip $ tag p)
       redirect RedirectTemporary $ EntriesR $ category (cat p) catOpt
     _ -> do
       redirect RedirectTemporary (EditEntryR eid)
