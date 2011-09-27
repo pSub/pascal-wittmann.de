@@ -3,7 +3,9 @@
   $forall tag <- tags
     <li>
       <a href="@{EntriesByTagR catName (tagName $ snd tag)}">#{tagName $ snd tag}
-$maybe u <- mu
+
+<span #new-entry      
+  $maybe u <- mu
        <a href="@{NewEntryR}">Neuen Eintrag hinzufügen
 
 <div .entries       

@@ -1,5 +1,12 @@
+#new-entry
+    float: left
+    margin-left: 2em
+    font-size: 0.9em
+    padding-top: 0.2em
+
 #tag-list
-    margin-left: 50%
+    float: right
+    min-width: 50%
     margin-top: 0em
     padding-left: 0em
     padding-top: 0.2em
@@ -19,7 +26,10 @@
 #content
     padding-left: 0
     padding-right: 0
-    
+
+.entries
+    clear: both
+
 .entry  
     display: block
     padding-top: 0.25em
