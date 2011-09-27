@@ -1,3 +1,4 @@
+<div #place-holder
 $maybe entry <- mentry
        $maybe u <- mu
          <span .right
