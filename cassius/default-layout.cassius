@@ -143,21 +143,6 @@ hr
     text-decoration: none
     border-bottom: 0px
 
-.comment-odd, .comment-even
-    margin-bottom: 1em
-
-
-.comment-odd
-    background-color: #dcdcdc
-
-
-.comment-even
-    background-color: #ffffff
-
-
-#comment-name
-    display: none
-
 label 
     display: block
     width: 7em

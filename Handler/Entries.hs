@@ -45,9 +45,6 @@ paramsFormlet mparams cats html = (flip renderDivs) html $ Params
     <*> areq textField "Tags" (tag <$> mparams)
     <*> areq textField "Summary" (recap <$> mparams)
     <*> areq markdownField "Text" (text <$> mparams)
-    
-fileForm = renderTable $ pure (,)
-    <$> fileAFormReq "Datei anhängen"
 
 getEntriesR :: Text -> Handler RepHtml
 getEntriesR catName = do
@@ -91,13 +88,13 @@ getEntriesByTagR catName tagName' = do
 getEntryR :: Text -> Text -> Handler RepHtml
 getEntryR catName ident = do
   mu <- maybeAuth
-  ((res, form), enctype) <- runFormPost fileForm
   mentry <- runDB $ getBy $ EntryUniq ident
   entry <- mentry -|- notFound
   tags <- runDB $ runJoin $ (selectOneMany (TaggedTag <-.) taggedTag)
           { somFilterMany = [TaggedEntry ==. (fst entry)] 
           , somOrderOne = [Asc TagName]
           }
+  comments <- runDB $ selectList [CommentEntry ==. (fst entry)] []
   defaultLayout $ do
     setTitle $ toHtml $ entryTitle $ snd entry
     addCassius $(cassiusFile "entry")

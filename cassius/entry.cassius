@@ -1,2 +1,12 @@
 .right
         float: right
+
+.comment
+        margin-bottom: 1em
+
+.comment:nth-child(2n+1)
+        background-color: #dcdcdc
+
+.comment:nth-child(2n)
+        background-color: #ffffff
+     

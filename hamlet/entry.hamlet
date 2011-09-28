@@ -10,3 +10,9 @@ $maybe entry <- mentry
        #{markdownToHtml $ entryContent $ snd entry}
 $nothing
        No Entry found
+
+$forall comment <- comments
+   <div .comment
+        <b>#{commentAuthor $ snd comment}
+        #{commentDate $ snd comment}
+        #{commentContent $ snd comment}

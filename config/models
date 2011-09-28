@@ -38,3 +38,5 @@ Comment
   author Text
   content Text
   date UTCTime
+  parent CommentId Maybe
+  entry EntryId
