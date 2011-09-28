@@ -15,6 +15,7 @@ module Handler.Entries
        ) where
 
 import Foundation
+import Yesod.Form
 import Yesod.Goodies.Markdown
 import Database.Persist.Join (selectOneMany, SelectOneMany(..))
 import Database.Persist.Join.Sql (runJoin)
@@ -44,6 +45,9 @@ paramsFormlet mparams cats html = (flip renderDivs) html $ Params
     <*> areq textField "Tags" (tag <$> mparams)
     <*> areq textField "Summary" (recap <$> mparams)
     <*> areq markdownField "Text" (text <$> mparams)
+    
+fileForm = renderTable $ pure (,)
+    <$> fileAFormReq "Datei anhängen"
 
 getEntriesR :: Text -> Handler RepHtml
 getEntriesR catName = do
@@ -87,6 +91,7 @@ getEntriesByTagR catName tagName' = do
 getEntryR :: Text -> Text -> Handler RepHtml
 getEntryR catName ident = do
   mu <- maybeAuth
+  ((res, form), enctype) <- runFormPost fileForm
   mentry <- runDB $ getBy $ EntryUniq ident
   entry <- mentry -|- notFound
   tags <- runDB $ runJoin $ (selectOneMany (TaggedTag <-.) taggedTag)
@@ -109,24 +114,20 @@ getNewEntryR = do
   _ <- requireAuth
   catOpt <- categories
   tags <- return []
-  ((_, form), enctype) <- runFormGet $ paramsFormlet Nothing catOpt
-  defaultLayout $ do
-    setTitle "New Entry"
-    addWidget $(widgetFile "new-entry")
-
-postNewEntryR :: Handler ()
-postNewEntryR = do
-  _ <- requireAuth
-  catOpt <- categories
-  ((res, _), _) <- runFormPostNoNonce $ paramsFormlet Nothing catOpt
+  ((res, form), enctype) <- runFormGet $ paramsFormlet Nothing catOpt
   case res of
     FormSuccess p -> do
       now <- liftIO getCurrentTime
       aid <- runDB $ insert $ Entry (title p) (ident p) (text p) (cat p) (recap p) "" now
       insertTags (cat p) aid $ splitOn "," $ filter (/= ' ') (unpack $ tag p)
       redirect RedirectTemporary $ EntriesR $ category (cat p) catOpt
-    _ -> do
-      redirect RedirectTemporary NewEntryR
+    _ -> return ()
+  defaultLayout $ do
+    setTitle "New Entry"
+    addWidget $(widgetFile "new-entry")
+
+postNewEntryR :: Handler RepHtml
+postNewEntryR = getNewEntryR
 
 getEditEntryR :: EntryId -> Handler RepHtml
 getEditEntryR eid = do
@@ -140,26 +141,23 @@ getEditEntryR eid = do
   tags <- return $ pack $ concat $ intersperse ", " $ map (unpack . tagName . snd . fst) tags'
   case ma of
     Just a ->
-      do ((_, form), enctype) <- runFormGet $ paramsFormlet (Just $ Params (entryTitle a) (entryIdent a) (entryCat a) tags (entryRecap a) (entryContent a)) catOpt
-         defaultLayout $ do
+      do
+        ((res, form), enctype) <- runFormGet $ paramsFormlet (Just $ Params (entryTitle a) (entryIdent a) (entryCat a) tags (entryRecap a) (entryContent a)) catOpt
+        case res of
+          FormSuccess p -> do
+            runDB $ update eid [EntryTitle =. (title p), EntryIdent =. (ident p), EntryCat =. (cat p), EntryContent =. (text p)]
+            runDB $ deleteWhere [TaggedEntry ==. eid]
+            insertTags (cat p) eid $ splitOn "," $ filter (/= ' ') (unpack $ strip $ tag p)
+            redirect RedirectTemporary $ EntriesR $ category (cat p) catOpt
+          _ -> redirect RedirectTemporary (EditEntryR eid)
+        defaultLayout $ do
            setTitle "Edit Entry"
            addWidget $(widgetFile "new-entry")
     Nothing -> do
       redirect RedirectTemporary NewEntryR
     
-postEditEntryR :: EntryId -> Handler ()
-postEditEntryR eid = do
-  _ <- requireAuth
-  catOpt <- categories
-  ((res, _), _) <- runFormPostNoNonce $ paramsFormlet Nothing catOpt
-  case res of
-    FormSuccess p -> do
-      runDB $ update eid [EntryTitle =. (title p), EntryIdent =. (ident p), EntryCat =. (cat p), EntryContent =. (text p)]
-      runDB $ deleteWhere [TaggedEntry ==. eid]
-      insertTags (cat p) eid $ splitOn "," $ filter (/= ' ') (unpack $ strip $ tag p)
-      redirect RedirectTemporary $ EntriesR $ category (cat p) catOpt
-    _ -> do
-      redirect RedirectTemporary (EditEntryR eid)
+postEditEntryR :: EntryId -> Handler RepHtml
+postEditEntryR = getEditEntryR
       
 getDeleteEntryR :: Text -> EntryId -> Handler ()
 getDeleteEntryR category eid = do
