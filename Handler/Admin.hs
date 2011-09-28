@@ -19,24 +19,21 @@ getAdminR :: Handler RepHtml
 getAdminR = do
   _ <- requireAuth
   cats <- runDB $ selectList [] [Asc CategoryName]
-  ((_, catForm), catEnctype) <- runFormGet $ formletCat Nothing
+  ((res, catForm), catEnctype) <- runFormPost $ formletCat Nothing
+  case res of
+    FormSuccess cat -> do
+      _ <- runDB $ insert cat
+      redirect RedirectTemporary AdminR
+    _ -> return ()
   defaultLayout $ do
     setTitle "Admin"
     addWidget $(widgetFile "admin")
+
+postAdminR :: Handler RepHtml
+postAdminR = getAdminR
    
 getDeleteCategoryR :: CategoryId -> Handler ()
 getDeleteCategoryR cid = do
   _ <- requireAuth
   runDB $ delete cid
   redirect RedirectTemporary AdminR
-
-postAdminR :: Handler ()
-postAdminR = do
-  _ <- requireAuth
-  ((catRes, _), _) <- runFormPostNoNonce $ formletCat Nothing
-  case catRes of
-    FormSuccess cat -> do
-      _ <- runDB $ insert cat
-      redirect RedirectTemporary AdminR
-    _ -> do redirect RedirectTemporary AdminR
-
