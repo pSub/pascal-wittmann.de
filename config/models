@@ -35,8 +35,8 @@ Tagged
   entry EntryId
 
 Comment
-  author Text
-  content Text
+  author Text Maybe
+  content Markdown
   date UTCTime
   parent CommentId Maybe
   entry EntryId

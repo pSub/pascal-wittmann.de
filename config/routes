@@ -11,7 +11,7 @@
 /admin/delete/#CategoryId        DeleteCategoryR GET
 /category/#Text                  EntriesR GET
 /category/#Text/tag/#Text        EntriesByTagR GET
-/category/#Text/entry/#Text      EntryR GET
+/category/#Text/entry/#Text      EntryR GET POST
 /new-entry                       NewEntryR GET POST
 /edit-entry/#EntryId             EditEntryR GET POST
 /delete-tag/#Text/#TagId         DeleteTagR GET

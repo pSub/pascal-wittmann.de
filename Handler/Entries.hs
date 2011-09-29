@@ -6,6 +6,7 @@ module Handler.Entries
        ( getEntriesR
        , getEntriesByTagR
        , getEntryR
+       , postEntryR
        , getNewEntryR
        , getDeleteTagR
        , getDeleteEntryR
@@ -36,6 +37,12 @@ data Params = Params
      , recap :: Text
      , text :: Markdown
      } deriving Show
+                
+data PComment = PComment
+     { parent :: Maybe CommentId
+     , author :: Maybe Text
+     , content :: Markdown
+     }
      
 paramsFormlet ::  Maybe Params -> [(Text, CategoryId)] -> Html -> Form Homepage Homepage (FormResult Params, Widget)
 paramsFormlet mparams cats html = (flip renderDivs) html $ Params
@@ -45,6 +52,12 @@ paramsFormlet mparams cats html = (flip renderDivs) html $ Params
     <*> areq textField "Tags" (tag <$> mparams)
     <*> areq textField "Summary" (recap <$> mparams)
     <*> areq markdownField "Text" (text <$> mparams)
+
+commentForm :: Maybe PComment -> Maybe CommentId -> Html -> Form Homepage Homepage (FormResult PComment, Widget)
+commentForm mcomment mparent html = (flip renderDivs) html $ PComment
+    <$> pure mparent
+    <*> aopt textField "Name" (author <$> mcomment)
+    <*> areq markdownField "Kommentar" (content <$> mcomment)
 
 getEntriesR :: Text -> Handler RepHtml
 getEntriesR catName = do
@@ -95,10 +108,20 @@ getEntryR catName ident = do
           , somOrderOne = [Asc TagName]
           }
   comments <- runDB $ selectList [CommentEntry ==. (fst entry)] []
+  ((res, form), enctype) <- runFormPost $ commentForm Nothing Nothing
+  case res of
+    FormSuccess p -> do
+      now <- liftIO getCurrentTime
+      _ <- runDB $ insert $ Comment (author p) (content p) now (parent p) (fst entry)
+      redirect RedirectTemporary $ EntryR catName ident
+    _ -> return ()
   defaultLayout $ do
     setTitle $ toHtml $ entryTitle $ snd entry
     addCassius $(cassiusFile "entry")
     addWidget $(widgetFile "entry")
+    
+postEntryR :: Text -> Text -> Handler RepHtml
+postEntryR = getEntryR
     
 getDeleteTagR :: Text -> TagId -> Handler ()
 getDeleteTagR category tid = do
@@ -111,7 +134,7 @@ getNewEntryR = do
   _ <- requireAuth
   catOpt <- categories
   tags <- return []
-  ((res, form), enctype) <- runFormGet $ paramsFormlet Nothing catOpt
+  ((res, form), enctype) <- runFormPost $ paramsFormlet Nothing catOpt
   case res of
     FormSuccess p -> do
       now <- liftIO getCurrentTime
