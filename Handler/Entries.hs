@@ -110,7 +110,8 @@ entryHandler catName ident mparent = do
           { somFilterMany = [TaggedEntry ==. (fst entry)] 
           , somOrderOne = [Asc TagName]
           }
-  comments <- runDB $ selectList [CommentEntry ==. (fst entry)] [Asc CommentDate]
+  ucomments <- runDB $ selectList [CommentEntry ==. (fst entry)] [Asc CommentDate]
+  comments <- return $ buildComments ucomments
   ((res, form), enctype) <- runFormPost $ commentForm Nothing mparent
   case res of
     FormSuccess p -> do
@@ -218,7 +219,7 @@ insertTags category eid (t:tags) = do
   insertTags category eid tags
 insertTags _ _ [] = return ()
 
-buildComments cs = map flatten $ unfoldForest (\ c -> (c, getChilds c)) roots
+buildComments cs = concat $ map flatten $ unfoldForest (\ c -> (c, getChilds c)) roots
       where
         roots = filter (isNothing . commentParent . snd) cs
         getChilds c = filter (isChild c) cs

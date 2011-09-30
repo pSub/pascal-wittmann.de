@@ -11,18 +11,22 @@ $maybe entry <- mentry
 $nothing
        No Entry found
 
+<h2>Kommentare
+     
 $forall comment <- comments
    <div .comment
-        $maybe author <- commentAuthor $ snd comment
-               <b>#{author}
-        $nothing
-               <b>Anonymous
-        #{commentDate $ snd comment}
-        #{commentContent $ snd comment}
+      am #{commentDate $ snd comment} schrieb #
+      $maybe author <- commentAuthor $ snd comment
+             <b>#{author}
+      $nothing
+             <b>Anonymous
+      <a href="@{EntryCommentR catName ident (fst comment)}">antworten
+      <blockquote>       
+         #{commentContent $ snd comment}
 
 <form enctype="#{enctype}" method="post"
    <table>
-        ^{form}
-        <tr>
-           <td colspan="2">
-              <input type="submit" value="Veröffentlichen">
+      ^{form}
+      <tr>
+         <td colspan="2">
+            <input type="submit" value="Veröffentlichen">
