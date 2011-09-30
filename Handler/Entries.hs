@@ -7,6 +7,8 @@ module Handler.Entries
        , getEntriesByTagR
        , getEntryR
        , postEntryR
+       , getEntryCommentR
+       , postEntryCommentR
        , getNewEntryR
        , getDeleteTagR
        , getDeleteEntryR
@@ -28,6 +30,7 @@ import Data.Time
 import Data.Text (Text, unpack, pack, append, strip)
 import Data.Maybe
 import Data.List.Split (splitOn)
+import Data.Tree
 
 data Params = Params
      { title :: Text
@@ -98,8 +101,8 @@ getEntriesByTagR catName tagName' = do
     addCassius $(cassiusFile "entries")
     addWidget $(widgetFile "entries")
 
-getEntryR :: Text -> Text -> Handler RepHtml
-getEntryR catName ident = do
+entryHandler :: Text -> Text -> Maybe CommentId -> Handler RepHtml
+entryHandler catName ident mparent = do
   mu <- maybeAuth
   mentry <- runDB $ getBy $ EntryUniq ident
   entry <- mentry -|- notFound
@@ -107,8 +110,8 @@ getEntryR catName ident = do
           { somFilterMany = [TaggedEntry ==. (fst entry)] 
           , somOrderOne = [Asc TagName]
           }
-  comments <- runDB $ selectList [CommentEntry ==. (fst entry)] []
-  ((res, form), enctype) <- runFormPost $ commentForm Nothing Nothing
+  comments <- runDB $ selectList [CommentEntry ==. (fst entry)] [Asc CommentDate]
+  ((res, form), enctype) <- runFormPost $ commentForm Nothing mparent
   case res of
     FormSuccess p -> do
       now <- liftIO getCurrentTime
@@ -120,6 +123,15 @@ getEntryR catName ident = do
     addCassius $(cassiusFile "entry")
     addWidget $(widgetFile "entry")
     
+getEntryCommentR :: Text -> Text -> CommentId -> Handler RepHtml
+getEntryCommentR catName ident parent = entryHandler catName ident (Just parent)
+    
+postEntryCommentR :: Text -> Text -> CommentId -> Handler RepHtml
+postEntryCommentR = getEntryCommentR
+
+getEntryR :: Text -> Text ->  Handler RepHtml
+getEntryR catName ident = entryHandler catName ident Nothing
+
 postEntryR :: Text -> Text -> Handler RepHtml
 postEntryR = getEntryR
     
@@ -205,6 +217,13 @@ insertTags category eid (t:tags) = do
   _ <- runDB $ insert $ Tagged tid eid
   insertTags category eid tags
 insertTags _ _ [] = return ()
+
+buildComments cs = map flatten $ unfoldForest (\ c -> (c, getChilds c)) roots
+      where
+        roots = filter (isNothing . commentParent . snd) cs
+        getChilds c = filter (isChild c) cs
+        isChild c c' = (isJust $ getParent c') && (fst c) == (fromJust $ getParent c')
+        getParent = commentParent . snd
 
 (-|-) :: Monad m => Maybe a -> m a -> m a
 Just a -|- _ = return a

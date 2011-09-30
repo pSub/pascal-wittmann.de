@@ -9,4 +9,3 @@
 
 .comment:nth-child(2n)
         background-color: #ffffff
-     
