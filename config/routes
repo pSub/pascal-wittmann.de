@@ -1,18 +1,19 @@
-/static                          StaticR Static getStatic
+/static                                                 StaticR Static getStatic
 
-/favicon.ico                     FaviconR GET
-/robots.txt                      RobotsR GET
+/favicon.ico                                            FaviconR GET
+/robots.txt                                             RobotsR GET
 
-/                                RootR GET
+/                                                       RootR GET
 
-/impressum                       ImpressumR GET
-/login                           AuthR Auth getAuth
-/admin                           AdminR GET POST
-/admin/delete/#CategoryId        DeleteCategoryR GET
-/category/#Text                  EntriesR GET
-/category/#Text/tag/#Text        EntriesByTagR GET
-/category/#Text/entry/#Text      EntryR GET POST
-/new-entry                       NewEntryR GET POST
-/edit-entry/#EntryId             EditEntryR GET POST
-/delete-tag/#Text/#TagId         DeleteTagR GET
-/delete-entry/#Text/#EntryId     DeleteEntryR GET
+/impressum                                              ImpressumR GET
+/login                                                  AuthR Auth getAuth
+/admin                                                  AdminR GET POST
+/admin/delete/#CategoryId                               DeleteCategoryR GET
+/category/#Text                                         EntriesR GET
+/category/#Text/tag/#Text                               EntriesByTagR GET
+/category/#Text/entry/#Text                             EntryR GET POST
+/category/#Text/entry/#Text/reply-to/#CommentId         EntryCommentR GET POST
+/new-entry                                              NewEntryR GET POST
+/edit-entry/#EntryId                                    EditEntryR GET POST
+/delete-tag/#Text/#TagId                                DeleteTagR GET
+/delete-entry/#Text/#EntryId                            DeleteEntryR GET
