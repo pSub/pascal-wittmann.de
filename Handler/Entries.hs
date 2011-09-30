@@ -221,8 +221,8 @@ insertTags _ _ [] = return ()
 
 buildComments cs = concat $ map flatten $ unfoldForest (\ c -> (c, getChilds c)) roots
       where
-        roots = filter (isNothing . commentParent . snd) cs
-        getChilds c = filter (isChild c) cs
+        roots = zip [0,0..] (filter (isNothing . commentParent . snd) cs)
+        getChilds c = filter (isChild (snd c) . snd) (zip (repeat $ 1 + (fst c)) cs)
         isChild c c' = (isJust $ getParent c') && (fst c) == (fromJust $ getParent c')
         getParent = commentParent . snd
 

@@ -14,15 +14,15 @@ $nothing
 <h2>Kommentare
      
 $forall comment <- comments
-   <div .comment
-      am #{commentDate $ snd comment} schrieb #
-      $maybe author <- commentAuthor $ snd comment
+   <div .comment style="margin-left: #{show $ (*) 2 (fst comment)}em"
+      am #{commentDate $ snd $ snd comment} schrieb #
+      $maybe author <- commentAuthor $ snd $ snd comment
              <b>#{author}
       $nothing
              <b>Anonymous
-      <a href="@{EntryCommentR catName ident (fst comment)}">antworten
+      <a href="@{EntryCommentR catName ident (fst $ snd comment)}">antworten
       <blockquote>       
-         #{commentContent $ snd comment}
+         #{commentContent $ snd $ snd comment}
 
 <form enctype="#{enctype}" method="post"
    <table>
