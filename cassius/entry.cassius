@@ -1,8 +1,17 @@
 .right
         float: right
 
+#entry
+        padding-left: 1em
+        padding-right: 1em
+
+#content
+        padding-left: 0
+        padding-right: 0
+        
 .comment
-        margin-bottom: 1em
+        padding-bottom: 1em
+        padding-right: 1em
 
 .comment:nth-child(2n+1)
         background-color: #dcdcdc

@@ -137,11 +137,14 @@ hr
 #content a:hover, #content a:active
     text-decoration: none
 
-
 #content a.nodecoration
     color: #000
     text-decoration: none
     border-bottom: 0px
+
+#content .margin
+    padding-left: 1em
+    padding-right: 1em
 
 label 
     display: block
