@@ -31,6 +31,8 @@ import Database.Persist.GenericSql
 import Settings (hamletFile, cassiusFile, luciusFile, juliusFile, widgetFile)
 import Model
 import Data.Time
+import Data.Time.Format
+import System.Locale
 import Data.Maybe (isJust)
 import Data.Text (Text)
 import Control.Monad (join, unless)
@@ -249,4 +251,4 @@ instance ToHtml Markdown where
   toHtml (Markdown s) = toHtml s
 
 instance ToHtml UTCTime where
-  toHtml = toHtml . show
+  toHtml = toHtml . formatTime defaultTimeLocale "%e.%m.%Y %T"
