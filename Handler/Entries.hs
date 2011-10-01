@@ -195,6 +195,7 @@ postEditEntryR = getEditEntryR
 getDeleteEntryR :: Text -> EntryId -> Handler ()
 getDeleteEntryR category eid = do
   _ <- requireAuth
+  runDB $ deleteWhere [CommentEntry ==. eid]
   runDB $ deleteWhere [TaggedEntry ==. eid]
   runDB $ delete eid
   redirect RedirectTemporary $ EntriesR category
