@@ -14,16 +14,18 @@
 
 <h2 .margin>Kommentare
      
-$forall comment <- comments
-   <div .comment style="padding-left: #{show $ (*) 2 (fst comment)}em"
-      am #{commentDate $ snd $ snd comment} schrieb #
-      $maybe author <- commentAuthor $ snd $ snd comment
+$forall comment' <- comments
+   $with comment <- snd comment'
+    $with idention <- fst comment'
+     <div .comment style="padding-left: #{show $ (*) 2 idention}em"
+      am #{commentDate $ snd comment} schrieb #
+      $maybe author <- commentAuthor $ snd comment
              <b>#{author}
       $nothing
              <b>Anonymous
-      <a href="@{EntryCommentR catName ident (fst $ snd comment)}">antworten
+      <a href="@{EntryCommentR catName ident (fst comment)}">antworten
       <blockquote>       
-         #{commentContent $ snd $ snd comment}
+         #{commentContent $ snd comment}
 
 <form enctype="#{enctype}" method="post"
    <table>
