@@ -40,3 +40,4 @@ Comment
   date UTCTime
   parent CommentId Maybe
   entry EntryId
+  deleted Bool

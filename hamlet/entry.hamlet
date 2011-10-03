@@ -24,7 +24,12 @@ $forall comment' <- comments
       $nothing
              <b>Anonymous
       <a href="@{EntryCommentR catName ident (fst comment)}">antworten
-      <blockquote>       
+      $maybe _ <- mu
+         <a href="@{DeleteCommentR catName ident (fst comment)}">löschen
+      <blockquote>
+        $if (commentDeleted $ snd comment)
+         Kommentar wurde entfernt
+        $else
          #{commentContent $ snd comment}
 
 <form enctype="#{enctype}" method="post"

@@ -15,6 +15,7 @@ module Handler.Entries
        , postNewEntryR
        , getEditEntryR
        , postEditEntryR
+       , getDeleteCommentR 
        ) where
 
 import Foundation
@@ -71,6 +72,8 @@ getEntriesR catName = do
           , somOrderOne = [Asc TagName]
           }
   tags <- return $ map fst tagsEntries
+  comments' <- runDB $ runJoin (selectOneMany (CommentEntry <-.) commentEntry)
+  comments <- return $ map (\ c -> (fst $ fst c, length $ snd c)) comments'
   entries <- runDB $ selectList [EntryCat ==. (fst cat)] [Desc EntryDate]
   defaultLayout $ do
     setTitle $ toHtml catName
@@ -90,6 +93,8 @@ getEntriesByTagR catName tagName' = do
           , somOrderOne = [Asc TagName]
           }
   tags <- return $ map fst tagsEntries
+  comments' <- runDB $ runJoin (selectOneMany (CommentEntry <-.) commentEntry)
+  comments <- return $ map (\ c -> (fst $ fst c, length $ snd c)) comments'
   entries <- runDB $ runJoin (selectOneMany (TaggedEntry <-.) taggedEntry)
              { somFilterMany = [TaggedTag ==. (fst tag)]
              , somOrderOne = [Desc EntryDate]
@@ -115,7 +120,7 @@ entryHandler catName ident mparent = do
   case res of
     FormSuccess p -> do
       now <- liftIO getCurrentTime
-      _ <- runDB $ insert $ Comment (author p) (content p) now (parent p) (fst entry)
+      _ <- runDB $ insert $ Comment (author p) (content p) now (parent p) (fst entry) False
       redirect RedirectTemporary $ EntryR catName ident
     _ -> return ()
   defaultLayout $ do
@@ -200,6 +205,12 @@ getDeleteEntryR category eid = do
   runDB $ deleteWhere [TaggedEntry ==. eid]
   runDB $ delete eid
   redirect RedirectTemporary $ EntriesR category
+  
+getDeleteCommentR :: Text -> Text -> CommentId -> Handler ()
+getDeleteCommentR catName ident cid = do
+  _ <- requireAuth
+  runDB $ update cid [CommentDeleted =. True]
+  redirect RedirectTemporary $ EntryR catName ident
 
 -- Helper functions
 tagsForEntry eid = map fst . filter (any ((== eid) . taggedEntry . snd) . snd)

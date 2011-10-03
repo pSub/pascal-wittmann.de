@@ -17,3 +17,4 @@
 /edit-entry/#EntryId                                    EditEntryR GET POST
 /delete-tag/#Text/#TagId                                DeleteTagR GET
 /delete-entry/#Text/#EntryId                            DeleteEntryR GET
+/delete-comment/#Text/#Text/#CommentId                  DeleteCommentR GET
