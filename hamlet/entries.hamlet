@@ -3,7 +3,11 @@
   $forall tag <- tags
     <li>
      $with name <- tagName $ snd tag
-      <a :elem name tagNames':class=active href="@{EntriesByTagR catName $ toggleTag name tagNames'}">#{name}
+      $with activeTags <- toggleTag name tagNames'
+       $if null activeTags
+          <a :elem name tagNames':class=active href="@{EntriesR catName}">#{name}
+       $else
+          <a :elem name tagNames':class=active href="@{EntriesByTagR catName activeTags}">#{name}
 
 <span #new-entry      
   $maybe u <- mu

@@ -111,7 +111,6 @@ getEntriesByTagR catName tagNames' = do
     addWidget $(widgetFile "entries")
     
 toggleTag t ts
-  | length ts == 1 && t `elem` ts = ts
   | t `elem` ts = L.delete t ts
   | otherwise = t:ts
 
