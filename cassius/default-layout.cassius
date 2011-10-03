@@ -110,7 +110,7 @@ hr
 
 
 #content h2
-    display: inline
+    display: block
     font-size: 1.2em
     color: #000
     margin-bottom: 0em
@@ -151,6 +151,20 @@ label
     width: 7em
     float: left
 
+.multi-column
+    padding-left: 3em
+    
+.multi-column ul
+    margin: 0
+    padding: 0
+    width: 40em
+
+.multi-column br
+    clear: left
+
+.multi-column li
+    float: left
+    width: 20em
 
 #footer 
     color: #fff
