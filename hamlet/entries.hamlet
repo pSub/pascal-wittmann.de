@@ -2,7 +2,7 @@
    <li>Tags: #
   $forall tag <- tags
     <li>
-      <a href="@{EntriesByTagR catName $ (:) (tagName $ snd tag) (L.delete (tagName $ snd tag) tagNames')}">#{tagName $ snd tag}
+      <a href="@{EntriesByTagR catName $ toggleTag (tagName $ snd tag) tagNames'}">#{tagName $ snd tag}
 
 <span #new-entry      
   $maybe u <- mu

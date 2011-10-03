@@ -89,8 +89,6 @@ getEntriesByTagR catName tagNames' = do
   mu <- maybeAuth
   mcat <- runDB $ getBy $ UniqueCategory catName
   cat <- mcat -|- notFound
-  --mtag <- runDB $ getBy $ UniqueTag tagNames' (fst cat)
-  --tag <- mtag -|- notFound
   
   tag' <- mapM (\ n -> runDB $ getBy $ UniqueTag n (fst cat)) tagNames'
   tag <- return $ foldl (\ t t' -> if isJust t' then (fst $ fromJust t'):t else t) [] tag'
@@ -103,16 +101,19 @@ getEntriesByTagR catName tagNames' = do
   comments' <- runDB $ runJoin (selectOneMany (CommentEntry <-.) commentEntry)
   comments <- return $ map (\ c -> (fst $ fst c, length $ snd c)) comments'
   entries <- runDB $ runJoin (selectOneMany (TaggedEntry <-.) taggedEntry)
-             { somFilterMany = filterTags tag
+             { somFilterMany = [FilterOr . map (TaggedTag ==.) $ tag]
              , somOrderOne = [Desc EntryDate]
              }
   entries <- return $ map fst entries
   defaultLayout $ do
-    setTitle $ toHtml $ catName `append` " :: " `append` (T.concat $ intersperse " ," tagNames')
+    setTitle $ toHtml $ catName `append` " :: " `append` (T.concat $ intersperse ", " tagNames')
     addCassius $(cassiusFile "entries")
     addWidget $(widgetFile "entries")
-
-filterTags tags = foldlM (\ t t' -> [TaggedTag ==. t'] ||. [t]) (TaggedTag ==. (head tags)) (tail tags)
+    
+toggleTag t ts
+  | length ts == 1 && t `elem` ts = ts
+  | t `elem` ts = L.delete t ts
+  | otherwise = t:ts
 
 entryHandler :: Text -> Text -> Maybe CommentId -> Handler RepHtml
 entryHandler catName ident mparent = do
