@@ -182,7 +182,7 @@ getEditEntryR eid = do
             runDB $ deleteWhere [TaggedEntry ==. eid]
             insertTags (cat p) eid $ splitOn "," $ filter (/= ' ') (unpack $ strip $ tag p)
             redirect RedirectTemporary $ EntriesR $ category (cat p) catOpt
-          _ -> redirect RedirectTemporary (EditEntryR eid)
+          _ -> return ()
         defaultLayout $ do
            setTitle "Edit Entry"
            addWidget $(widgetFile "new-entry")
