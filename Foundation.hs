@@ -57,6 +57,9 @@ data Homepage = Homepage
     , connPool :: Settings.ConnectionPool -- ^ Database connection pool.
     }
 
+
+type Tags = [Text]
+
 -- This is where we define all of the routes in our application. For a full
 -- explanation of the syntax, please see:
 -- http://www.yesodweb.com/book/handler

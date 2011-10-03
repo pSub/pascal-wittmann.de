@@ -25,11 +25,14 @@ import Database.Persist.Join.Sql (runJoin)
 
 import Prelude hiding (unwords)
 import Control.Applicative
+import qualified Data.List as L (delete)
 import Data.List (intersperse)
 import Data.Time
+import qualified Data.Text as T
 import Data.Text (Text, unpack, pack, append, strip)
 import Data.Maybe
 import Data.List.Split (splitOn)
+import Data.Foldable (foldlM)
 import Data.Tree
 
 data Params = Params
@@ -79,14 +82,18 @@ getEntriesR catName = do
     setTitle $ toHtml catName
     addCassius $(cassiusFile "entries")
     addWidget $(widgetFile "entries")
+  where tagNames' = []
 
-getEntriesByTagR :: Text -> Text -> Handler RepHtml
-getEntriesByTagR catName tagName' = do
+getEntriesByTagR :: Text -> [Text] -> Handler RepHtml
+getEntriesByTagR catName tagNames' = do
   mu <- maybeAuth
   mcat <- runDB $ getBy $ UniqueCategory catName
   cat <- mcat -|- notFound
-  mtag <- runDB $ getBy $ UniqueTag tagName' (fst cat)
-  tag <- mtag -|- notFound
+  --mtag <- runDB $ getBy $ UniqueTag tagNames' (fst cat)
+  --tag <- mtag -|- notFound
+  
+  tag' <- mapM (\ n -> runDB $ getBy $ UniqueTag n (fst cat)) tagNames'
+  tag <- return $ foldl (\ t t' -> if isJust t' then (fst $ fromJust t'):t else t) [] tag'
   
   tagsEntries <- runDB $ runJoin (selectOneMany (TaggedTag <-.) taggedTag)
           { somFilterOne = [TagCategory ==. (fst cat)]
@@ -96,14 +103,16 @@ getEntriesByTagR catName tagName' = do
   comments' <- runDB $ runJoin (selectOneMany (CommentEntry <-.) commentEntry)
   comments <- return $ map (\ c -> (fst $ fst c, length $ snd c)) comments'
   entries <- runDB $ runJoin (selectOneMany (TaggedEntry <-.) taggedEntry)
-             { somFilterMany = [TaggedTag ==. (fst tag)]
+             { somFilterMany = filterTags tag
              , somOrderOne = [Desc EntryDate]
              }
   entries <- return $ map fst entries
   defaultLayout $ do
-    setTitle $ toHtml $ catName `append` " :: " `append` tagName'
+    setTitle $ toHtml $ catName `append` " :: " `append` (T.concat $ intersperse " ," tagNames')
     addCassius $(cassiusFile "entries")
     addWidget $(widgetFile "entries")
+
+filterTags tags = foldlM (\ t t' -> [TaggedTag ==. t'] ||. [t]) (TaggedTag ==. (head tags)) (tail tags)
 
 entryHandler :: Text -> Text -> Maybe CommentId -> Handler RepHtml
 entryHandler catName ident mparent = do
