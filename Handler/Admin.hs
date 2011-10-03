@@ -35,5 +35,10 @@ postAdminR = getAdminR
 getDeleteCategoryR :: CategoryId -> Handler ()
 getDeleteCategoryR cid = do
   _ <- requireAuth
+  eids <- runDB $ selectList [EntryCat ==. cid] []
+  mapM_ (\ e -> runDB $ deleteWhere [CommentEntry ==. (fst e)]) eids
+  mapM_ (\ e -> runDB $ deleteWhere [TaggedEntry ==. (fst e)]) eids
+  runDB $ deleteWhere [EntryCat ==. cid]
+  runDB $ deleteWhere [TagCategory ==. cid]
   runDB $ delete cid
   redirect RedirectTemporary AdminR

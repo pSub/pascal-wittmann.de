@@ -1,3 +1,4 @@
+<div #place-holder
 <h2 Admin
 <form enctype="#{catEnctype}" method="post"
       <table>
