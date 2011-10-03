@@ -17,6 +17,9 @@
     display: inline
     padding-right: 0.3em
 
+.active
+    color: #ff9900 !important
+
 #tag-list a:link, #tag-list a:visited, #tag-list a:active 
     color: #000
 
