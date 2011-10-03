@@ -15,3 +15,6 @@ getRootR = do
   defaultLayout $ do
     setTitle "Startseite"
     addWidget $(widgetFile "root")
+
+nofacebookme_png :: StaticRoute
+nofacebookme_png = StaticRoute ["no-facebook-me.png"] []
