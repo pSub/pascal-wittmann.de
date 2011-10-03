@@ -47,11 +47,11 @@ data PComment = PComment
      , content :: Markdown
      }
      
-paramsFormlet ::  Maybe Params -> [(Text, CategoryId)] -> Html -> Form Homepage Homepage (FormResult Params, Widget)
-paramsFormlet mparams cats html = (flip renderDivs) html $ Params
+paramsFormlet ::  Maybe Params -> CategoryId -> Html -> Form Homepage Homepage (FormResult Params, Widget)
+paramsFormlet mparams category html = (flip renderDivs) html $ Params
     <$> areq textField "Title" (title <$> mparams)
     <*> areq textField "Ident" (ident <$> mparams)
-    <*> areq (selectField cats) "Kategorie" (cat <$> mparams)
+    <*> pure category
     <*> areq textField "Tags" (tag <$> mparams)
     <*> areq textField "Summary" (recap <$> mparams)
     <*> areq markdownField "Text" (text <$> mparams)
@@ -65,7 +65,7 @@ commentForm mcomment mparent html = (flip renderDivs) html $ PComment
 getEntriesR :: Text -> Handler RepHtml
 getEntriesR catName = do
   mu <- maybeAuth
-  mcat <- runDB $ getBy $ CategoryUniq catName
+  mcat <- runDB $ getBy $ UniqueCategory catName
   cat <- mcat -|- notFound
   tagsEntries <- runDB $ runJoin (selectOneMany (TaggedTag <-.) taggedTag)
           { somFilterOne = [TagCategory ==. (fst cat)]
@@ -81,7 +81,7 @@ getEntriesR catName = do
 getEntriesByTagR :: Text -> Text -> Handler RepHtml
 getEntriesByTagR catName tagName' = do
   mu <- maybeAuth
-  mcat <- runDB $ getBy $ CategoryUniq catName
+  mcat <- runDB $ getBy $ UniqueCategory catName
   cat <- mcat -|- notFound
   mtag <- runDB $ getBy $ UniqueTag tagName' (fst cat)
   tag <- mtag -|- notFound
@@ -142,31 +142,31 @@ getDeleteTagR category tid = do
   runDB $ delete tid
   redirect RedirectTemporary $ EntriesR category
 
-getNewEntryR :: Handler RepHtml
-getNewEntryR = do
+getNewEntryR :: Text -> Handler RepHtml
+getNewEntryR catName = do
   _ <- requireAuth
-  catOpt <- categories
+  mcat <- runDB $ getBy $ UniqueCategory catName
+  cat' <- mcat -|- notFound
   tags <- return []
-  ((res, form), enctype) <- runFormPost $ paramsFormlet Nothing catOpt
+  ((res, form), enctype) <- runFormPost $ paramsFormlet Nothing (fst cat')
   case res of
     FormSuccess p -> do
       now <- liftIO getCurrentTime
       aid <- runDB $ insert $ Entry (title p) (ident p) (text p) (cat p) (recap p) "" now
       insertTags (cat p) aid $ splitOn "," $ filter (/= ' ') (unpack $ tag p)
-      redirect RedirectTemporary $ EntriesR $ category (cat p) catOpt
+      redirect RedirectTemporary $ EntriesR $ categoryName $ snd cat'
     _ -> return ()
   defaultLayout $ do
     setTitle "New Entry"
     addWidget $(widgetFile "new-entry")
 
-postNewEntryR :: Handler RepHtml
+postNewEntryR :: Text -> Handler RepHtml
 postNewEntryR = getNewEntryR
 
 getEditEntryR :: EntryId -> Handler RepHtml
 getEditEntryR eid = do
   _ <- requireAuth
   ma <- runDB $ get eid
-  catOpt <- categories
   tags' <- runDB $ runJoin $ (selectOneMany (TaggedTag <-.) taggedTag)
           { somFilterMany = [TaggedEntry ==. eid]
           , somOrderOne = [Asc TagName]
@@ -175,19 +175,21 @@ getEditEntryR eid = do
   case ma of
     Just a ->
       do
-        ((res, form), enctype) <- runFormGet $ paramsFormlet (Just $ Params (entryTitle a) (entryIdent a) (entryCat a) tags (entryRecap a) (entryContent a)) catOpt
+        ((res, form), enctype) <- runFormPost $ paramsFormlet (Just $ Params (entryTitle a) (entryIdent a) (entryCat a) tags (entryRecap a) (entryContent a)) (entryCat a)
         case res of
           FormSuccess p -> do
             runDB $ update eid [EntryTitle =. (title p), EntryIdent =. (ident p), EntryCat =. (cat p), EntryContent =. (text p)]
             runDB $ deleteWhere [TaggedEntry ==. eid]
             insertTags (cat p) eid $ splitOn "," $ filter (/= ' ') (unpack $ strip $ tag p)
-            redirect RedirectTemporary $ EntriesR $ category (cat p) catOpt
+            mcategory <- runDB $ get $ cat p
+            category <- mcategory -|- notFound
+            redirect RedirectTemporary $ EntriesR $ categoryName category
           _ -> return ()
         defaultLayout $ do
            setTitle "Edit Entry"
            addWidget $(widgetFile "new-entry")
     Nothing -> do
-      redirect RedirectTemporary NewEntryR
+      redirect RedirectTemporary RootR
     
 postEditEntryR :: EntryId -> Handler RepHtml
 postEditEntryR = getEditEntryR
@@ -201,12 +203,6 @@ getDeleteEntryR category eid = do
   redirect RedirectTemporary $ EntriesR category
 
 -- Helper functions
-categories = do
-  cas <- runDB $ selectList [] [Asc CategoryName]
-  return $ map (\ c -> (categoryName $ snd c, fst c)) cas
-
-category c = fst . fromJust . find ((== c) . snd)
-
 tagsForEntry eid = map fst . filter (any ((== eid) . taggedEntry . snd) . snd)
 
 insertTags :: CategoryId -> EntryId -> [String] -> Handler ()

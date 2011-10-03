@@ -13,7 +13,7 @@ Module
 
 Category
   name Text
-  CategoryUniq name
+  UniqueCategory name
   
 Entry
   title Text

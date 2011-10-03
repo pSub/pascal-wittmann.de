@@ -6,7 +6,7 @@
 
 <span #new-entry      
   $maybe u <- mu
-       <a href="@{NewEntryR}">Neuen Eintrag hinzufügen
+       <a href="@{NewEntryR catName}">Neuen Eintrag hinzufügen
 
 <div .entries       
   $forall entry <- entries
