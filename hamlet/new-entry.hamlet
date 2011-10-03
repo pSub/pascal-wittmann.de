@@ -1,3 +1,4 @@
+<div #place-holder
 <h2 Neuer Log-Eintrag
 <form enctype="#{enctype}" method="post"
       <table>
