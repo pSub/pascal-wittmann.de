@@ -31,7 +31,6 @@ import Database.Persist.GenericSql
 import Settings (hamletFile, cassiusFile, luciusFile, juliusFile, widgetFile)
 import Model
 import Data.Time
-import Data.Time.Format
 import System.Locale
 import Data.Maybe (isJust)
 import Data.Text (Text)
@@ -238,6 +237,7 @@ Thank you
                 }
     getEmail = runDB . fmap (fmap emailEmail) . get
 
+parents :: Maybe HomepageRoute -> Maybe HomepageRoute
 parents (Just ImpressumR) = Nothing
 parents (Just (EntriesByTagR cat _)) = Just $ EntriesR cat
 parents (Just (EntryR cat _)) = Just $ EntriesR cat

@@ -18,14 +18,13 @@ module Handler.Entries
        ) where
 
 import Foundation
-import Yesod.Form
 import Yesod.Goodies.Markdown
 import Database.Persist.Join (selectOneMany, SelectOneMany(..))
 import Database.Persist.Join.Sql (runJoin)
 
 import Prelude hiding (unwords)
 import Control.Applicative
-import Data.List (find, intersperse, unwords)
+import Data.List (intersperse)
 import Data.Time
 import Data.Text (Text, unpack, pack, append, strip)
 import Data.Maybe

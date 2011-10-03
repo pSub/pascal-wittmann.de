@@ -9,7 +9,6 @@ module Handler.Root
 
 import Foundation
 import Data.List (find)
-import Yesod.Goodies.Markdown
 
 getRootR :: Handler RepHtml
 getRootR = do
