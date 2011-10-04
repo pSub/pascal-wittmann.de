@@ -1,18 +1,16 @@
 <div #place-holder
-<div #entry
-  $maybe entry <- mentry
-       $maybe u <- mu
-         <span .right
-           <a href="@{DeleteEntryR catName (fst entry)}">Löschen
-           \ 
-           <a href="@{EditEntryR $ fst entry}">Bearbeiten
+$maybe entry <- mentry
+     $maybe u <- mu
+       <span .right
+         <a href="@{DeleteEntryR catName (fst entry)}">Löschen
+         \ 
+         <a href="@{EditEntryR $ fst entry}">Bearbeiten
+     <h2>#{entryTitle $ snd entry}</h2>
+     #{markdownToHtml $ entryContent $ snd entry}
+$nothing
+     No Entry found
 
-       <h2>#{entryTitle $ snd entry}</h2>
-       #{markdownToHtml $ entryContent $ snd entry}
-  $nothing
-       No Entry found
-
-<h2 .margin>Kommentare
+<h2>Kommentare
      
 $forall comment' <- comments
    $with comment <- snd comment'
@@ -23,8 +21,10 @@ $forall comment' <- comments
              <b>#{author}
       $nothing
              <b>Anonymous
+      \ 
       <a href="@{EntryCommentR catName ident (fst comment)}">antworten
       $maybe _ <- mu
+         \ 
          <a href="@{DeleteCommentR catName ident (fst comment)}">löschen
       <blockquote>
         $if (commentDeleted $ snd comment)
