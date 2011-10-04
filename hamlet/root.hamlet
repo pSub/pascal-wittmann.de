@@ -23,4 +23,4 @@ $forall post <- posts
 <h2>Soziale Netzwerke
 <center
  <a href="http://www.fsf.org/facebook"
-   <img src="@{StaticR nofacebookme_png}" width="240"
+   <img src="@{StaticR nofacebookme_png}" width="240" alt="Not f'd — you won't find me on Facebook"
