@@ -3,7 +3,7 @@
 $forall post <- posts
   $with post <- snd post
    $maybe category <- findCat post cats
-    <a href="@{EntryR (categoryName $ snd category) (entryIdent post)}">#{entryTitle post}</a> in … am #{entryDate post}
+    <a href="@{EntryR (categoryName $ snd category) (entryIdent post)}">#{entryTitle post}</a> in #{categoryName $ snd category} am #{entryDate post}
     <br
 <h2>Code & Configs
 <p>Über meinen <a href="https://github.com/psub">Github</a> und <a href="https://bitbucket.org/psub">Bitbucket</a> Account findet man Projekte an denen ich mich beteilige und Teile meiner Systemkonfiguration.
