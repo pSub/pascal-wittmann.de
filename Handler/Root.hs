@@ -16,7 +16,7 @@ getRootR = do
   cats <- runDB $ selectList [] [Asc CategoryName]
   defaultLayout $ do
     setTitle "Startseite"
-    addWidget $(widgetFile "root")
+    $(widgetFile "root")
   where findCat p cs = find (\ c -> fst c == entryCat p) cs
 
 nofacebookme_png :: StaticRoute

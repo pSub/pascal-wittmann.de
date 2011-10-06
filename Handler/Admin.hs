@@ -27,7 +27,7 @@ getAdminR = do
     _ -> return ()
   defaultLayout $ do
     setTitle "Admin"
-    addWidget $(widgetFile "admin")
+    $(widgetFile "admin")
 
 postAdminR :: Handler RepHtml
 postAdminR = getAdminR

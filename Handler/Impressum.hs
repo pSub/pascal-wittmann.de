@@ -12,7 +12,7 @@ import Foundation
 getImpressumR :: Handler RepHtml
 getImpressumR = defaultLayout $ do
   setTitle "Impressum"
-  addWidget $(widgetFile "impressum")
+  $(widgetFile "impressum")
   
 -- TODO: Protect mail from spam
 encodeMail :: String -> Html

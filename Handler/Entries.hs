@@ -80,8 +80,7 @@ getEntriesR catName = do
   entries <- runDB $ selectList [EntryCat ==. (fst cat)] [Desc EntryDate]
   defaultLayout $ do
     setTitle $ toHtml catName
-    --addCassius $(cassiusFile "entries")
-    addWidget $(widgetFile "entries")
+    $(widgetFile "entries")
   where tagNames' = []
 
 getEntriesByTagR :: Text -> [Text] -> Handler RepHtml
@@ -107,8 +106,7 @@ getEntriesByTagR catName tagNames' = do
   entries <- return $ map fst entries
   defaultLayout $ do
     setTitle $ toHtml $ catName `append` " :: " `append` (T.concat $ intersperse ", " tagNames')
-    --addCassius $(cassiusFile "entries")
-    addWidget $(widgetFile "entries")
+    $(widgetFile "entries")
     
 toggleTag t ts
   | t `elem` ts = L.delete t ts
@@ -134,8 +132,7 @@ entryHandler catName ident mparent = do
     _ -> return ()
   defaultLayout $ do
     setTitle $ toHtml $ entryTitle $ snd entry
-    --addCassius $(cassiusFile "entry")
-    addWidget $(widgetFile "entry")
+    $(widgetFile "entry")
     
 getEntryCommentR :: Text -> Text -> CommentId -> Handler RepHtml
 getEntryCommentR catName ident parent = entryHandler catName ident (Just parent)
@@ -171,7 +168,7 @@ getNewEntryR catName = do
     _ -> return ()
   defaultLayout $ do
     setTitle "New Entry"
-    addWidget $(widgetFile "new-entry")
+    $(widgetFile "new-entry")
 
 postNewEntryR :: Text -> Handler RepHtml
 postNewEntryR = getNewEntryR
@@ -200,7 +197,7 @@ getEditEntryR eid = do
           _ -> return ()
         defaultLayout $ do
            setTitle "Edit Entry"
-           addWidget $(widgetFile "new-entry")
+           $(widgetFile "new-entry")
     Nothing -> do
       redirect RedirectTemporary RootR
     
