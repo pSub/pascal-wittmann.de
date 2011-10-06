@@ -4,6 +4,7 @@
 module Foundation
     ( Homepage (..)
     , HomepageRoute (..)
+    , HomepageMessage (..)
     , resourcesHomepage
     , Handler
     , Widget
@@ -21,43 +22,47 @@ import Yesod.Static (Static, base64md5, StaticRoute(..))
 import Settings.StaticFiles
 import Yesod.Auth
 import Yesod.Auth.OpenId
-import Yesod.Auth.Email
+import Yesod.Default.Config
+import Yesod.Default.Util (addStaticContentExternal)
 import Yesod.Logger (Logger, logLazyText)
-import Yesod.Goodies.Markdown
 import qualified Settings
-import System.Directory
 import qualified Data.ByteString.Lazy as L
+import qualified Database.Persist.Base
 import Database.Persist.GenericSql
-import Settings (hamletFile, cassiusFile, luciusFile, juliusFile, widgetFile)
+import Settings (widgetFile)
 import Model
-import Data.Time
-import System.Locale
-import Data.Maybe (isJust)
-import Data.Text (Text)
-import Control.Monad (join, unless)
-import Control.Applicative
-import Network.Mail.Mime
-import qualified Data.Text.Lazy.Encoding
 import Text.Jasmine (minifym)
-import qualified Data.Text as T
 import Web.ClientSession (getKey)
+import Text.Hamlet (hamletFile)
+#if PRODUCTION
+import Network.Mail.Mime (sendmail)
+#else
+import qualified Data.Text.Lazy.Encoding
+#endif
+
+import Control.Applicative
+import Data.Text (Text)
+import Data.Time
 import Text.Blaze (ToHtml)
-import Text.Blaze.Renderer.Utf8 (renderHtml)
-import Text.Hamlet (shamlet)
-import Text.Shakespeare.Text (stext)
+import System.Locale
+import Yesod.Goodies.Markdown
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
 -- starts running, such as database connections. Every handler will have
 -- access to the data present here.
 data Homepage = Homepage
-    { settings :: Settings.AppConfig
+    { settings :: AppConfig DefaultEnv
     , getLogger :: Logger
     , getStatic :: Static -- ^ Settings for static file serving.
-    , connPool :: Settings.ConnectionPool -- ^ Database connection pool.
+    , connPool :: Database.Persist.Base.PersistConfigPool Settings.PersistConfig -- ^ Database connection pool.
     }
 
+-- Set up i18n messages. See the message folder.
+mkMessage "Homepage" "messages" "en"
 
+-- This is only temporary, since complex types are
+-- currently not allowed in routes
 type Tags = [Text]
 
 -- This is where we define all of the routes in our application. For a full
@@ -84,7 +89,7 @@ mkYesodData "Homepage" $(parseRoutesFile "config/routes")
 -- Please see the documentation for the Yesod typeclass. There are a number
 -- of settings which can be configured by overriding methods here.
 instance Yesod Homepage where
-    approot = Settings.appRoot . settings
+    approot = appRoot . settings
 
     -- Place the session key file in the config folder
     encryptKey _ = fmap Just $ getKey "config/client_session_key.aes"
@@ -98,10 +103,17 @@ instance Yesod Homepage where
         let currentRoute = toMaster <$> current
         let isCurrent x = (currentRoute == Just x) || ((parents currentRoute) == Just x)
         let categories = map (\c -> (name c, EntriesR $ name c)) cats
+
+        -- We break up the default layout into two components:
+        -- default-layout is the contents of the body tag, and
+        -- default-layout-wrapper is the entire page. Since the final
+        -- value passed to hamletToRepHtml cannot be a widget, this allows
+        -- you to use normal widget features in default-layout.
+
         pc <- widgetToPageContent $ do
-            addCassius $(cassiusFile "default-layout")
-            widget
-        hamletToRepHtml $(hamletFile "default-layout")
+            $(widgetFile "normalize")
+            $(widgetFile "default-layout")
+        hamletToRepHtml $(hamletFile "hamlet/default-layout-wrapper.hamlet")
         where name = categoryName . snd
 
     -- This is done to provide an optimization for serving static files from
@@ -120,27 +132,16 @@ instance Yesod Homepage where
     -- and names them based on a hash of their content. This allows
     -- expiration dates to be set far in the future without worry of
     -- users receiving stale content.
-    addStaticContent ext' _ content = do
-        let fn = base64md5 content ++ '.' : T.unpack ext'
-        let content' =
-                if ext' == "js"
-                    then case minifym content of
-                            Left _ -> content
-                            Right y -> y
-                    else content
-        let statictmp = Settings.staticDir ++ "/tmp/"
-        liftIO $ createDirectoryIfMissing True statictmp
-        let fn' = statictmp ++ fn
-        exists <- liftIO $ doesFileExist fn'
-        unless exists $ liftIO $ L.writeFile fn' content'
-        return $ Just $ Right (StaticR $ StaticRoute ["tmp", T.pack fn] [], [])
+    addStaticContent = addStaticContentExternal minifym base64md5 Settings.staticDir (StaticR . flip StaticRoute [])
 
+    -- Enable Javascript async loading
+    yepnopeJs _ = Just $ Right $ StaticR js_modernizr_js
 
 -- How to run database actions.
 instance YesodPersist Homepage where
     type YesodPersistBackend Homepage = SqlPersist
     runDB f = liftIOHandler
-            $ fmap connPool getYesod >>= Settings.runConnectionPool f
+            $ fmap connPool getYesod >>= Database.Persist.Base.runPool (undefined :: Settings.PersistConfig) f
 
 instance YesodAuth Homepage where
     type AuthId Homepage = UserId
@@ -157,9 +158,8 @@ instance YesodAuth Homepage where
             Nothing -> do
                 fmap Just $ insert $ User (credsIdent creds) Nothing
 
-    authPlugins = [ authOpenId
-                  , authEmail
-                  ]
+    -- You can add other plugins like BrowserID, email or OAuth here
+    authPlugins = [authOpenId]
 
 -- Sends off your mail. Requires sendmail in production!
 deliver :: Homepage -> L.ByteString -> IO ()
@@ -169,84 +169,8 @@ deliver _ = sendmail
 deliver y = logLazyText (getLogger y) . Data.Text.Lazy.Encoding.decodeUtf8
 #endif
 
-instance YesodAuthEmail Homepage where
-    type AuthEmailId Homepage = EmailId
-
-    addUnverified email verkey =
-        runDB $ insert $ Email email Nothing $ Just verkey
-
-    sendVerifyEmail email _ verurl = do
-        y <- getYesod
-        liftIO $ deliver y =<< renderMail' Mail
-            {
-              mailHeaders =
-                [ ("From", "noreply")
-                , ("To", email)
-                , ("Subject", "Verify your email address")
-                ]
-            , mailParts = [[textPart, htmlPart]]
-            }
-      where
-        textPart = Part
-            { partType = "text/plain; charset=utf-8"
-            , partEncoding = None
-            , partFilename = Nothing
-            , partContent = Data.Text.Lazy.Encoding.encodeUtf8 [stext|
-Please confirm your email address by clicking on the link below.
-
-\#{verurl}
-
-Thank you
-|]
-            , partHeaders = []
-            }
-        htmlPart = Part
-            { partType = "text/html; charset=utf-8"
-            , partEncoding = None
-            , partFilename = Nothing
-            , partContent = renderHtml [shamlet|
-<p>Please confirm your email address by clicking on the link below.
-<p>
-    <a href=#{verurl}>#{verurl}
-<p>Thank you
-|]
-            , partHeaders = []
-            }
-    getVerifyKey = runDB . fmap (join . fmap emailVerkey) . get
-    setVerifyKey eid key = runDB $ update eid [EmailVerkey =. Just key]
-    verifyAccount eid = runDB $ do
-        me <- get eid
-        case me of
-            Nothing -> return Nothing
-            Just e -> do
-                let email = emailEmail e
-                case emailUser e of
-                    Just uid -> return $ Just uid
-                    Nothing -> do
-                        uid <- insert $ User email Nothing
-                        update eid [EmailUser =. Just uid, EmailVerkey =. Nothing]
-                        return $ Just uid
-    getPassword = runDB . fmap (join . fmap userPassword) . get
-    setPassword uid pass = runDB $ update uid [UserPassword =. Just pass]
-    getEmailCreds email = runDB $ do
-        me <- getBy $ UniqueEmail email
-        case me of
-            Nothing -> return Nothing
-            Just (eid, e) -> return $ Just EmailCreds
-                { emailCredsId = eid
-                , emailCredsAuthId = emailUser e
-                , emailCredsStatus = isJust $ emailUser e
-                , emailCredsVerkey = emailVerkey e
-                }
-    getEmail = runDB . fmap (fmap emailEmail) . get
-
-parents :: Maybe HomepageRoute -> Maybe HomepageRoute
-parents (Just ImpressumR) = Nothing
-parents (Just (EntriesByTagR cat _)) = Just $ EntriesR cat
-parents (Just (EntryR cat _)) = Just $ EntriesR cat
-parents (Just _) = Nothing
-parents Nothing = Nothing
-
+-- This instance is required to use forms. You can modify renderMessage to
+-- achieve customized and internationalized form validation messages.
 instance RenderMessage Homepage FormMessage where
     renderMessage _ _ = defaultFormMessage
 
@@ -255,3 +179,10 @@ instance ToHtml Markdown where
 
 instance ToHtml UTCTime where
   toHtml = toHtml . formatTime defaultTimeLocale "%e.%m.%Y %T"
+
+parents :: Maybe HomepageRoute -> Maybe HomepageRoute
+parents (Just ImpressumR) = Nothing
+parents (Just (EntriesByTagR cat _)) = Just $ EntriesR cat
+parents (Just (EntryR cat _)) = Just $ EntriesR cat
+parents (Just _) = Nothing
+parents Nothing = Nothing

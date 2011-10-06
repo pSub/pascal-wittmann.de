@@ -80,7 +80,7 @@ getEntriesR catName = do
   entries <- runDB $ selectList [EntryCat ==. (fst cat)] [Desc EntryDate]
   defaultLayout $ do
     setTitle $ toHtml catName
-    addCassius $(cassiusFile "entries")
+    --addCassius $(cassiusFile "entries")
     addWidget $(widgetFile "entries")
   where tagNames' = []
 
@@ -107,7 +107,7 @@ getEntriesByTagR catName tagNames' = do
   entries <- return $ map fst entries
   defaultLayout $ do
     setTitle $ toHtml $ catName `append` " :: " `append` (T.concat $ intersperse ", " tagNames')
-    addCassius $(cassiusFile "entries")
+    --addCassius $(cassiusFile "entries")
     addWidget $(widgetFile "entries")
     
 toggleTag t ts
@@ -134,7 +134,7 @@ entryHandler catName ident mparent = do
     _ -> return ()
   defaultLayout $ do
     setTitle $ toHtml $ entryTitle $ snd entry
-    addCassius $(cassiusFile "entry")
+    --addCassius $(cassiusFile "entry")
     addWidget $(widgetFile "entry")
     
 getEntryCommentR :: Text -> Text -> CommentId -> Handler RepHtml

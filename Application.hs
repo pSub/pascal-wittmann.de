@@ -1,6 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Application
@@ -10,19 +9,16 @@ module Application
 
 import Foundation
 import Settings
-import Settings.StaticFiles (static)
+import Yesod.Static
 import Yesod.Auth
-import Yesod.Logger (makeLogger, flushLogger, Logger, logString, logLazyText)
-import Database.Persist.GenericSql
+import Yesod.Default.Config
+import Yesod.Default.Main
+import Yesod.Default.Handlers
+import Yesod.Logger (Logger)
 import Data.ByteString (ByteString)
 import Data.Dynamic (Dynamic, toDyn)
-import Network.Wai.Middleware.Debug (debugHandle)
-
-#ifndef WINDOWS
-import qualified System.Posix.Signals as Signal
-import Control.Concurrent (forkIO, killThread)
-import Control.Concurrent.MVar (newEmptyMVar, putMVar, takeMVar)
-#endif
+import qualified Database.Persist.Base
+import Database.Persist.GenericSql (runMigration)
 
 -- Import all relevant handler modules here.
 import Handler.Root
@@ -35,48 +31,24 @@ import Handler.Admin
 -- the comments there for more details.
 mkYesodDispatch "Homepage" resourcesHomepage
 
--- Some default handlers that ship with the Yesod site template. You will
--- very rarely need to modify this.
-getFaviconR :: Handler ()
-getFaviconR = sendFile "image/x-icon" "config/favicon.ico"
-
-getRobotsR :: Handler RepPlain
-getRobotsR = return $ RepPlain $ toContent ("User-agent: *" :: ByteString)
-
 -- This function allocates resources (such as a database connection pool),
 -- performs initialization and creates a WAI application. This is also the
 -- place to put your migrate statements to have automatic database
 -- migrations handled by Yesod.
-withHomepage :: AppConfig -> Logger -> (Application -> IO a) -> IO ()
+withHomepage :: AppConfig DefaultEnv -> Logger -> (Application -> IO ()) -> IO ()
 withHomepage conf logger f = do
+#ifdef PRODUCTION
     s <- static Settings.staticDir
-    Settings.withConnectionPool conf $ \p -> do
-        runConnectionPool (runMigration migrateAll) p
-        let h = Homepage conf logger s p
-#ifdef WINDOWS
-        toWaiApp h >>= f >> return ()
 #else
-        tid <- forkIO $ toWaiApp h >>= f >> return ()
-        flag <- newEmptyMVar
-        _ <- Signal.installHandler Signal.sigINT (Signal.CatchOnce $ do
-            putStrLn "Caught an interrupt"
-            killThread tid
-            putMVar flag ()) Nothing
-        takeMVar flag
+    s <- staticDevel Settings.staticDir
 #endif
+    dbconf <- withYamlEnvironment "config/postgres.yml" (appEnv conf)
+            $ either error return . Database.Persist.Base.loadConfig
+    Database.Persist.Base.withPool (dbconf :: Settings.PersistConfig) $ \p -> do
+        Database.Persist.Base.runPool dbconf (runMigration migrateAll) p
+        let h = Homepage conf logger s p
+        defaultRunner f h
 
 -- for yesod devel
 withDevelAppPort :: Dynamic
-withDevelAppPort =
-    toDyn go
-  where
-    go :: ((Int, Application) -> IO ()) -> IO ()
-    go f = do
-        conf <- Settings.loadConfig Settings.Development
-        let port = appPort conf
-        logger <- makeLogger
-        logString logger $ "Devel application launched, listening on port " ++ show port
-        withHomepage conf logger $ \app -> f (port, debugHandle (logHandle logger) app)
-        flushLogger logger
-      where
-        logHandle logger msg = logLazyText logger msg >> flushLogger logger
+withDevelAppPort = toDyn $ defaultDevelApp withHomepage

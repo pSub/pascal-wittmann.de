@@ -26,10 +26,6 @@ library
     else
         Buildable: False
 
-    if os(windows)
-        cpp-options: -DWINDOWS
-
-    hs-source-dirs: .
     exposed-modules: Application
     other-modules:   Foundation
                      Model
@@ -40,6 +36,8 @@ library
                      Handler.Entries
                      Handler.Admin
 
+    ghc-options:   -Wall -threaded -O0
+
 executable         homepage
     if flag(devel)
         Buildable: False
@@ -48,48 +46,34 @@ executable         homepage
         cpp-options:   -DPRODUCTION
         ghc-options:   -Wall -threaded -O2
     else
-        ghc-options:   -Wall -threaded
-
-    if os(windows)
-        cpp-options: -DWINDOWS
+        ghc-options:   -Wall -threaded -O0
 
     main-is:       main.hs
-    hs-source-dirs: .
 
-    build-depends: base         >= 4       && < 5
-                 , yesod        >= 0.9     && < 0.10
-                 , yesod-core
-                 , yesod-auth
-                 , yesod-static
-                 , blaze-html
-                 , yesod-form
-                 , yesod-goodies >= 0.0.5
-                 , mime-mail
-                 , clientsession
-                 , wai-extra
-                 , directory
-                 , bytestring
-                 , text
-                 , time
+    build-depends: base                          >= 4          && < 5
+                 , yesod                         >= 0.9        && < 0.10
+                 , yesod-core                    >= 0.9.3      && < 0.10
+                 , yesod-auth                    >= 0.7.3      && < 0.8
+                 , yesod-static                  >= 0.3.1      && < 0.4
+                 , yesod-default                 >= 0.3.1      && < 0.4
+                 , yesod-form                    >= 0.3.3      && < 0.4
+                 , mime-mail                     >= 0.3.0.3    && < 0.4
+                 , clientsession                 >= 0.7.3      && < 0.8
+                 , bytestring                    >= 0.9        && < 0.10
+                 , text                          >= 0.11       && < 0.12
+                 , persistent                    >= 0.6.2      && < 0.7
+                 , persistent-postgresql     >= 0.6        && < 0.7
+                 , template-haskell
+                 , hamlet                        >= 0.10       && < 0.11
+                 , shakespeare-css               >= 0.10       && < 0.11
+                 , shakespeare-js                >= 0.10       && < 0.11
+                 , shakespeare-text              >= 0.10       && < 0.11
+                 , hjsmin                        >= 0.0.14     && < 0.1
+
+                 -- Custom dependencies
+                 , yesod-goodies
                  , split
                  , containers
+                 , time
+                 , blaze-html
                  , old-locale
-                 , persistent
-                 , persistent-template
-                 , persistent-postgresql >= 0.6 && < 0.7
-                 
-                 , template-haskell
-                 , hamlet               >= 0.10     && < 0.11
-                 , shakespeare-css      >= 0.10     && < 0.11
-                 , shakespeare-js       >= 0.10     && < 0.11
-                 , shakespeare-text     >= 0.10     && < 0.11
-                 , hjsmin
-                 , transformers
-                 , data-object
-                 , data-object-yaml
-                 , warp
-                 , blaze-builder
-                 , cmdargs
-
-    if !os(windows)
-         build-depends: unix

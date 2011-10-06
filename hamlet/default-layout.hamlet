@@ -1,27 +1,21 @@
-!!!
-<head
-        <meta charset="utf-8">
-        <title>#{pageTitle pc}
-        ^{pageHead pc}
-<body
-        <div #container
-             <div #title
-                  <a href=@{RootR}> Pascal Wittmann
-             <div  #navigation
-                 $forall link <- categories
-                    <a :isCurrent (snd link):id=active href="@{snd link}">#{fst link}
-             <div #content
-                  ^{pageBody pc}
-             <div #footer
-                  <div #left
-                       $maybe u <- mu
-                           <a href="@{AdminR}">Admin
-                           \ | #
-                           <a href="@{AuthR LogoutR}">Logout
-                       $nothing
-                           <a href="@{AuthR LoginR}">Login
-                  <div #right
-                       Dieser Inhalt steht unter einer #
-                       <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/de/" title="Lizenz">Creative Commons Lizenz
-                       \ | #
-                       <a href=@{ImpressumR} title="Impressum">Impressum
+<div #container
+     <div #title
+          <a href=@{RootR}> Pascal Wittmann
+     <div  #navigation
+         $forall link <- categories
+            <a :isCurrent (snd link):id=active href="@{snd link}">#{fst link}
+     <div #content
+          ^{widget}
+     <div #footer
+          <div #left
+               $maybe u <- mu
+                   <a href="@{AdminR}">Admin
+                   \ | #
+                   <a href="@{AuthR LogoutR}">Logout
+               $nothing
+                   <a href="@{AuthR LoginR}">Login
+          <div #right
+               Dieser Inhalt steht unter einer #
+               <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/de/" title="Lizenz">Creative Commons Lizenz
+               \ | #
+               <a href=@{ImpressumR} title="Impressum">Impressum

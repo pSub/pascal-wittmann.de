@@ -2,9 +2,10 @@
 module Model where
 
 import Yesod
+import Yesod.Goodies.Markdown (Markdown)
+import Data.Time (UTCTime)
 import Data.Text (Text)
-import Data.Time
-import Yesod.Goodies.Markdown
+
 
 -- You can define all of your database entities in the entities file.
 -- You can find more information on persistent and how to declare entities
