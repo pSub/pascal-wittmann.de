@@ -260,6 +260,8 @@ insertTags category eid (t:tags) = do
   insertTags category eid tags
 insertTags _ _ [] = return ()
 
+buildComments :: (Num a, Enum a) => [(Key backend Comment, CommentGeneric backend)] ->
+                                  [(a, (Key backend Comment, CommentGeneric backend))]
 buildComments cs = concat $ map flatten $ unfoldForest (\ c -> (c, getChilds c)) roots
       where
         roots = zip [0,0..] (filter (isNothing . commentParent . snd) cs)
@@ -267,6 +269,7 @@ buildComments cs = concat $ map flatten $ unfoldForest (\ c -> (c, getChilds c))
         isChild c c' = (isJust $ getParent c') && (fst c) == (fromJust $ getParent c')
         getParent = commentParent . snd
 
+createStaticRoute :: Text -> StaticRoute
 createStaticRoute name = StaticRoute [name] []
 
 (-|-) :: Monad m => Maybe a -> m a -> m a
