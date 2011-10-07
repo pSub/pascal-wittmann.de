@@ -1,0 +1,9 @@
+<div #place-holder
+<form method=post enctype=#{enctype}>
+      ^{form}
+      <p>
+        <input type=submit>
+
+Anhänge löschen:
+ $forall att <- atts
+    <a href=@{DeleteFileR catName ident (fst att)}>#{attachmentName $ snd att}</a> #
