@@ -134,7 +134,8 @@ entryHandler catName ident mparent = do
   atts <- runDB $ selectList [AttachmentEntry ==. (fst entry)] [Asc AttachmentName]
   ucomments <- runDB $ selectList [CommentEntry ==. (fst entry)] [Asc CommentDate]
   comments <- return $ buildComments ucomments
-  ((res, form), enctype) <- runFormPost $ commentForm Nothing mparent
+  ((_, formNew), enctype) <- runFormPost $ commentForm Nothing Nothing
+  ((res, formEdit), enctype) <- runFormPost $ commentForm Nothing mparent
   case res of
     FormSuccess p -> do
       now <- liftIO getCurrentTime

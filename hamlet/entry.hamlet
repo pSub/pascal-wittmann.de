@@ -39,10 +39,17 @@ $forall comment' <- comments
          Kommentar wurde entfernt
         $else
          #{commentContent $ snd comment}
+      $maybe parent <- mparent
+        $if (==) parent (fst comment)
+          <form enctype=#{enctype} method=post
+            ^{formEdit}
+            <p
+              <input type=submit
 
+<h2>Neuer Kommentar
 <form enctype="#{enctype}" method="post"
    <table>
-      ^{form}
+      ^{formNew}
       <tr>
          <td colspan="2">
             <input type="submit" value="Veröffentlichen">
