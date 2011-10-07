@@ -38,6 +38,7 @@ getDeleteCategoryR cid = do
   eids <- runDB $ selectList [EntryCat ==. cid] []
   mapM_ (\ e -> runDB $ deleteWhere [CommentEntry ==. (fst e)]) eids
   mapM_ (\ e -> runDB $ deleteWhere [TaggedEntry ==. (fst e)]) eids
+  mapM_ (\ e -> runDB $ deleteWhere [AttachmentEntry ==. (fst e)]) eids
   runDB $ deleteWhere [EntryCat ==. cid]
   runDB $ deleteWhere [TagCategory ==. cid]
   runDB $ delete cid
