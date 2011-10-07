@@ -12,6 +12,8 @@
                  $if userAdmin (snd u)
                    <a href="@{AdminR}">Admin
                    \ | #
+                 <a href=@{ProfileR}>Profil
+                 \ | #
                  <a href="@{AuthR LogoutR}">Logout
                $nothing
                    <a href="@{AuthR LoginR}">Login

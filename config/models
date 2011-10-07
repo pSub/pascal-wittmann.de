@@ -1,7 +1,7 @@
 User
     ident Text
     password Text Maybe
-    name Text Maybe
+    name Text Maybe 
     admin Bool
     UniqueUser ident
 
