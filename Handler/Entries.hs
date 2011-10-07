@@ -267,6 +267,7 @@ buildFileName name = Settings.staticDir ++ [pathSeparator] ++ (unpack name)
 tagsForEntry eid = map fst . filter (any ((== eid) . taggedEntry . snd) . snd)
 
 insertTags :: CategoryId -> EntryId -> [String] -> Handler ()
+insertTags category eid ("":tags) = insertTags category eid tags
 insertTags category eid (t:tags) = do
   mtag <- runDB $ getBy $ UniqueTag (pack t) category
   tid <- if isJust mtag then
