@@ -77,3 +77,4 @@ executable         homepage
                  , time
                  , blaze-html
                  , old-locale
+                 , filepath

@@ -1,4 +1,4 @@
-{-# LANGUAGE TemplateHaskell #-}
+tat
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE OverloadedStrings #-}
 

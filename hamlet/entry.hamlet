@@ -5,11 +5,19 @@ $maybe entry <- mentry
          <a href="@{DeleteEntryR catName (fst entry)}">Löschen
          \ 
          <a href="@{EditEntryR $ fst entry}">Bearbeiten
+         \
+         <a href="@{UploadFileR catName (entryIdent $ snd entry)}">Anhang
      <h2>#{entryTitle $ snd entry}</h2>
      #{markdownToHtml $ entryContent $ snd entry}
 $nothing
      No Entry found
 
+$if not $ null atts
+  <h2>Anhänge
+  $forall att <- atts
+       <a href="@{StaticR $ createStaticRoute $ attachmentName $ snd att}">#{attachmentName $ snd att}
+       <br
+       
 <h2>Kommentare
      
 $forall comment' <- comments

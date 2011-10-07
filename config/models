@@ -41,3 +41,8 @@ Comment
   parent CommentId Maybe
   entry EntryId
   deleted Bool
+
+Attachment
+  name Text
+  entry EntryId
+  UniqueAtt name

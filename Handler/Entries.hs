@@ -15,10 +15,13 @@ module Handler.Entries
        , postNewEntryR
        , getEditEntryR
        , postEditEntryR
-       , getDeleteCommentR 
+       , getDeleteCommentR
+       , postUploadFileR
+       , getUploadFileR
        ) where
 
 import Foundation
+import qualified Settings
 import Yesod.Goodies.Markdown
 import Database.Persist.Join (selectOneMany, SelectOneMany(..))
 import Database.Persist.Join.Sql (runJoin)
@@ -34,6 +37,8 @@ import Data.Maybe
 import Data.List.Split (splitOn)
 import Data.Foldable (foldlM)
 import Data.Tree
+import qualified Data.ByteString.Lazy as BS (writeFile)
+import System.FilePath.Posix
 
 data Params = Params
      { title :: Text
@@ -64,6 +69,9 @@ commentForm mcomment mparent html = (flip renderDivs) html $ PComment
     <$> pure mparent
     <*> aopt textField "Name" (author <$> mcomment)
     <*> areq markdownField "Kommentar" (content <$> mcomment)
+
+fileForm :: Html -> Form Homepage Homepage (FormResult FileInfo, Widget)
+fileForm = renderDivs $ fileAFormReq "Anhang"
 
 getEntriesR :: Text -> Handler RepHtml
 getEntriesR catName = do
@@ -121,6 +129,7 @@ entryHandler catName ident mparent = do
           { somFilterMany = [TaggedEntry ==. (fst entry)] 
           , somOrderOne = [Asc TagName]
           }
+  atts <- runDB $ selectList [AttachmentEntry ==. (fst entry)] [Asc AttachmentName]
   ucomments <- runDB $ selectList [CommentEntry ==. (fst entry)] [Asc CommentDate]
   comments <- return $ buildComments ucomments
   ((res, form), enctype) <- runFormPost $ commentForm Nothing mparent
@@ -218,6 +227,25 @@ getDeleteCommentR catName ident cid = do
   runDB $ update cid [CommentDeleted =. True]
   redirect RedirectTemporary $ EntryR catName ident
 
+getUploadFileR :: Text -> Text -> Handler RepHtml
+getUploadFileR catName ident = do
+  _ <- requireAuth
+  ((res, form), enctype) <- runFormPost fileForm
+  case res of
+       FormSuccess f -> do
+          me <- runDB $ getBy $ EntryUniq ident
+          e <- me -|- notFound
+          runDB $ insert $ Attachment (fileName f) (fst e)
+          liftIO $ BS.writeFile (buildFileName $ fileName f) (fileContent f)
+          redirect RedirectTemporary $ EntryR catName ident
+       _ -> return ()
+  defaultLayout $
+      $(widgetFile "upload-file")
+  where buildFileName name = Settings.staticDir ++ [pathSeparator] ++ (unpack name)
+
+postUploadFileR :: Text -> Text -> Handler RepHtml
+postUploadFileR = getUploadFileR
+  
 -- Helper functions
 tagsForEntry eid = map fst . filter (any ((== eid) . taggedEntry . snd) . snd)
 
@@ -238,6 +266,8 @@ buildComments cs = concat $ map flatten $ unfoldForest (\ c -> (c, getChilds c))
         getChilds c = filter (isChild (snd c) . snd) (zip (repeat $ 1 + (fst c)) cs)
         isChild c c' = (isJust $ getParent c') && (fst c) == (fromJust $ getParent c')
         getParent = commentParent . snd
+
+createStaticRoute name = StaticRoute [name] []
 
 (-|-) :: Monad m => Maybe a -> m a -> m a
 Just a -|- _ = return a
