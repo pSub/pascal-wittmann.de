@@ -105,6 +105,7 @@ instance Yesod Homepage where
         let currentRoute = toMaster <$> current
         let isCurrent x = (currentRoute == Just x) || ((parents currentRoute) == Just x)
         let categories = map (\c -> (name c, EntriesR $ name c)) cats
+        let powered_by_logo = StaticRoute ["powered_by_yesod.png"] []
 
         -- We break up the default layout into two components:
         -- default-layout is the contents of the body tag, and

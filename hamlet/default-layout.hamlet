@@ -1,3 +1,5 @@
+<a href="http://www.yesodweb.com">
+   <img #powered-by src=@{StaticR powered_by_logo} alt="powered by Yesod"
 <div #container
      <div #title
           <a href=@{RootR}> Pascal Wittmann

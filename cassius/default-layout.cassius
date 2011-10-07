@@ -3,6 +3,12 @@ body
     font-size: 1em
     font-family: serif font-style: normal font-weight: normal
 
+#powered-by
+    position: absolute
+    top: 0
+    left: 0
+    border: 0
+
 img 
     border: 0px
 
@@ -11,7 +17,7 @@ hr
     color: #aaaaaa
     border: 0 none
     height: 1px
-
+    
 #container 
     width:66%
     margin:0 auto
