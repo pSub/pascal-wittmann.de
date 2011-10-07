@@ -30,7 +30,7 @@ import Database.Persist.Join.Sql (runJoin)
 import Prelude hiding (unwords)
 import Control.Applicative
 import qualified Data.List as L (delete)
-import Data.List (intersperse)
+import Data.List (intersperse, sort)
 import Data.Time
 import qualified Data.Text as T
 import Data.Text (Text, unpack, pack, append, strip)
@@ -98,7 +98,7 @@ getEntriesByTagR catName tagNames' = do
   mu <- maybeAuth
   mcat <- runDB $ getBy $ UniqueCategory catName
   cat <- mcat -|- notFound
-  
+
   tag' <- mapM (\ n -> runDB $ getBy $ UniqueTag n (fst cat)) tagNames'
   tag <- return $ foldl (\ t t' -> if isJust t' then (fst $ fromJust t'):t else t) [] tag'
   

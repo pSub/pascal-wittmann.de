@@ -3,7 +3,7 @@
   $forall tag <- tags
     <li>
      $with name <- tagName $ snd tag
-      $with activeTags <- toggleTag name tagNames'
+      $with activeTags <- sort $ toggleTag name tagNames'
        $if null activeTags
           <a :elem name tagNames':class=active href="@{EntriesR catName}">#{name}
        $else
