@@ -3,3 +3,5 @@ dist/**/*
 static/tmp
 deploy
 dist/
+config/settings.yml
+config/postgres.yml
