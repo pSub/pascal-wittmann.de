@@ -4,9 +4,9 @@ $maybe entry <- mentry
        <span .right
          <a href="@{DeleteEntryR catName (fst entry)}">Löschen
          \ 
-         <a href="@{EditEntryR $ fst entry}">Bearbeiten
+         <a href="@{EditEntryR catName ident}">Bearbeiten
          \
-         <a href="@{UploadFileR catName (entryIdent $ snd entry)}">Anhang
+         <a href="@{UploadFileR catName ident}">Anhang
      <h2>#{entryTitle $ snd entry}</h2>
      #{markdownToHtml $ entryContent $ snd entry}
 $nothing
