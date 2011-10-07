@@ -38,7 +38,7 @@ $forall comment' <- comments
         $if (commentDeleted $ snd comment)
          Kommentar wurde entfernt
         $else
-         #{commentContent $ snd comment}
+         #{markdownToHtml $ commentContent $ snd comment}
       $maybe parent <- mparent
         $if (==) parent (fst comment)
           <form enctype=#{enctype} method=post
