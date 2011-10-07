@@ -15,6 +15,8 @@ module Foundation
     , module Model
     , StaticRoute (..)
     , AuthRoute (..)
+    , requireAdmin
+    , maybeAdmin
     ) where
 
 import Yesod
@@ -156,7 +158,7 @@ instance YesodAuth Homepage where
         case x of
             Just (uid, _) -> return $ Just uid
             Nothing -> do
-                fmap Just $ insert $ User (credsIdent creds) Nothing
+                fmap Just $ insert $ User (credsIdent creds) Nothing Nothing False
 
     -- You can add other plugins like BrowserID, email or OAuth here
     authPlugins = [authOpenId]
@@ -190,3 +192,22 @@ parents (Just (EntryCommentR cat _ _)) = Just $ EntriesR cat
 parents (Just (EditEntryR cat _)) = Just $ EntriesR cat
 parents (Just _) = Nothing
 parents Nothing = Nothing
+
+requireAdmin :: Handler ()
+requireAdmin = do
+     (_, u) <- requireAuth
+     if userAdmin u
+       then return ()
+       else permissionDenied "You need admin privileges to do that"
+
+maybeAdmin :: Handler (Maybe (UserGeneric SqlPersist))
+maybeAdmin = do
+     mu <- maybeAuth
+     case mu of
+          Just (_, u) -> do
+            if userAdmin u
+              then return $ Just u
+              else return Nothing
+          Nothing -> return Nothing
+          
+   

@@ -76,7 +76,7 @@ fileForm = renderDivs $ fileAFormReq "Anhang"
 
 getEntriesR :: Text -> Handler RepHtml
 getEntriesR catName = do
-  mu <- maybeAuth
+  mu <- maybeAdmin
   mcat <- runDB $ getBy $ UniqueCategory catName
   cat <- mcat -|- notFound
   tagsEntries <- runDB $ runJoin (selectOneMany (TaggedTag <-.) taggedTag)
@@ -94,7 +94,7 @@ getEntriesR catName = do
 
 getEntriesByTagR :: Text -> [Text] -> Handler RepHtml
 getEntriesByTagR catName tagNames' = do
-  mu <- maybeAuth
+  mu <- maybeAdmin
   mcat <- runDB $ getBy $ UniqueCategory catName
   cat <- mcat -|- notFound
 
@@ -124,7 +124,7 @@ toggleTag t ts
 
 entryHandler :: Text -> Text -> Maybe CommentId -> Handler RepHtml
 entryHandler catName ident mparent = do
-  mu <- maybeAuth
+  mu <- maybeAdmin
   mentry <- runDB $ getBy $ EntryUniq ident
   entry <- mentry -|- notFound
   tags <- runDB $ runJoin $ (selectOneMany (TaggedTag <-.) taggedTag)
@@ -160,13 +160,13 @@ postEntryR = getEntryR
     
 getDeleteTagR :: Text -> TagId -> Handler ()
 getDeleteTagR category tid = do
-  _ <- requireAuth
+  _ <- requireAdmin
   runDB $ delete tid
   redirect RedirectTemporary $ EntriesR category
 
 getNewEntryR :: Text -> Handler RepHtml
 getNewEntryR catName = do
-  _ <- requireAuth
+  _ <- requireAdmin
   mcat <- runDB $ getBy $ UniqueCategory catName
   cat' <- mcat -|- notFound
   tags <- return []
@@ -187,7 +187,7 @@ postNewEntryR = getNewEntryR
 
 getEditEntryR :: Text -> Text -> Handler RepHtml
 getEditEntryR catName eid = do
-  _ <- requireAuth
+  _ <- requireAdmin
   ma <- runDB $ getBy $ EntryUniq eid
   a <- ma -|- notFound
   tags' <- runDB $ runJoin $ (selectOneMany (TaggedTag <-.) taggedTag)
@@ -215,7 +215,7 @@ postEditEntryR = getEditEntryR
       
 getDeleteEntryR :: Text -> EntryId -> Handler ()
 getDeleteEntryR category eid = do
-  _ <- requireAuth
+  _ <- requireAdmin
   runDB $ deleteWhere [CommentEntry ==. eid]
   runDB $ deleteWhere [TaggedEntry ==. eid]
   runDB $ deleteWhere [AttachmentEntry ==. eid]
@@ -224,13 +224,13 @@ getDeleteEntryR category eid = do
   
 getDeleteCommentR :: Text -> Text -> CommentId -> Handler ()
 getDeleteCommentR catName ident cid = do
-  _ <- requireAuth
+  _ <- requireAdmin
   runDB $ update cid [CommentDeleted =. True]
   redirect RedirectTemporary $ EntryR catName ident
 
 getUploadFileR :: Text -> Text -> Handler RepHtml
 getUploadFileR catName ident = do
-  _ <- requireAuth
+  _ <- requireAdmin
   me <- runDB $ getBy $ EntryUniq ident
   e <- me -|- notFound
   atts <- runDB $ selectList [AttachmentEntry ==. (fst e)] [Asc AttachmentName]
@@ -251,7 +251,7 @@ postUploadFileR = getUploadFileR
 
 getDeleteFileR :: Text -> Text -> AttachmentId -> Handler ()
 getDeleteFileR catName ident aid = do
-   _ <- requireAuth
+   _ <- requireAdmin
    ma <- runDB $ get aid
    a <- ma -|- notFound
    liftIO $ removeFile $ buildFileName $ attachmentName a

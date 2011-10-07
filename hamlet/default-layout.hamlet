@@ -8,10 +8,11 @@
           ^{widget}
      <div #footer
           <div #left
-               $maybe _ <- mu
+               $maybe u <- mu
+                 $if userAdmin (snd u)
                    <a href="@{AdminR}">Admin
                    \ | #
-                   <a href="@{AuthR LogoutR}">Logout
+                 <a href="@{AuthR LogoutR}">Logout
                $nothing
                    <a href="@{AuthR LoginR}">Login
           <div #right

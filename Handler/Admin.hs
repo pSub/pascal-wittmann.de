@@ -17,7 +17,7 @@ formletCat mparams html = (flip renderDivs) html $ Category
      
 getAdminR :: Handler RepHtml
 getAdminR = do
-  _ <- requireAuth
+  _ <- requireAdmin
   cats <- runDB $ selectList [] [Asc CategoryName]
   ((res, catForm), catEnctype) <- runFormPost $ formletCat Nothing
   case res of
@@ -34,7 +34,7 @@ postAdminR = getAdminR
    
 getDeleteCategoryR :: CategoryId -> Handler ()
 getDeleteCategoryR cid = do
-  _ <- requireAuth
+  _ <- requireAdmin
   eids <- runDB $ selectList [EntryCat ==. cid] []
   mapM_ (\ e -> runDB $ deleteWhere [CommentEntry ==. (fst e)]) eids
   mapM_ (\ e -> runDB $ deleteWhere [TaggedEntry ==. (fst e)]) eids
