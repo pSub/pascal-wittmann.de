@@ -118,6 +118,7 @@ getEntriesByTagR catName tagNames' = do
     setTitle $ toHtml $ catName `append` " :: " `append` (T.concat $ intersperse ", " tagNames')
     $(widgetFile "entries")
     
+toggleTag :: Eq a => a -> [a] -> [a]
 toggleTag t ts
   | t `elem` ts = L.delete t ts
   | otherwise = t:ts
@@ -262,6 +263,7 @@ getDeleteFileR catName ident aid = do
    redirect RedirectTemporary $ UploadFileR catName ident
   
 -- Helper functions
+buildFileName :: Text -> String
 buildFileName name = Settings.staticDir ++ [pathSeparator] ++ (unpack name)
 
 tagsForEntry eid = map fst . filter (any ((== eid) . taggedEntry . snd) . snd)
