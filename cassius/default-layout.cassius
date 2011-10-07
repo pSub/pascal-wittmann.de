@@ -15,7 +15,8 @@ hr
 #container 
     width:66%
     margin:0 auto
-    padding-top:3em
+    padding-top: 3em
+    padding-bottom: 3em
 
 
 .xtop, .xbottom 
