@@ -18,6 +18,7 @@ module Handler.Entries
        , getDeleteCommentR
        , postUploadFileR
        , getUploadFileR
+       , getDeleteFileR
        ) where
 
 import Foundation
@@ -39,6 +40,7 @@ import Data.Foldable (foldlM)
 import Data.Tree
 import qualified Data.ByteString.Lazy as BS (writeFile)
 import System.FilePath.Posix
+import System.Directory
 
 data Params = Params
      { title :: Text
@@ -231,6 +233,9 @@ getDeleteCommentR catName ident cid = do
 getUploadFileR :: Text -> Text -> Handler RepHtml
 getUploadFileR catName ident = do
   _ <- requireAuth
+  me <- runDB $ getBy $ EntryUniq ident
+  e <- me -|- notFound
+  atts <- runDB $ selectList [AttachmentEntry ==. (fst e)] [Asc AttachmentName]
   ((res, form), enctype) <- runFormPost fileForm
   case res of
        FormSuccess f -> do
@@ -242,12 +247,22 @@ getUploadFileR catName ident = do
        _ -> return ()
   defaultLayout $
       $(widgetFile "upload-file")
-  where buildFileName name = Settings.staticDir ++ [pathSeparator] ++ (unpack name)
 
 postUploadFileR :: Text -> Text -> Handler RepHtml
 postUploadFileR = getUploadFileR
+
+getDeleteFileR :: Text -> Text -> AttachmentId -> Handler ()
+getDeleteFileR catName ident aid = do
+   _ <- requireAuth
+   ma <- runDB $ get aid
+   a <- ma -|- notFound
+   liftIO $ removeFile $ buildFileName $ attachmentName a
+   runDB $ delete aid
+   redirect RedirectTemporary $ UploadFileR catName ident
   
 -- Helper functions
+buildFileName name = Settings.staticDir ++ [pathSeparator] ++ (unpack name)
+
 tagsForEntry eid = map fst . filter (any ((== eid) . taggedEntry . snd) . snd)
 
 insertTags :: CategoryId -> EntryId -> [String] -> Handler ()
