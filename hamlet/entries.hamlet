@@ -17,7 +17,7 @@
   $forall entry <- entries
       <a .entry href=@{EntryR catName (entryIdent $ snd entry)}
         <span .right
-               <span .date>Veröffentlich am #{entryDate $ snd entry}
+               <span .date>Veröffentlicht am #{entryDate $ snd entry}
                <br
                <span .comment-count
                  $with mcount <- lookup (fst entry) comments
