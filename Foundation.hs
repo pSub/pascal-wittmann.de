@@ -184,5 +184,8 @@ parents :: Maybe HomepageRoute -> Maybe HomepageRoute
 parents (Just ImpressumR) = Nothing
 parents (Just (EntriesByTagR cat _)) = Just $ EntriesR cat
 parents (Just (EntryR cat _)) = Just $ EntriesR cat
+parents (Just (NewEntryR cat)) = Just $ EntriesR cat
+parents (Just (UploadFileR cat _)) = Just $ EntriesR cat
+parents (Just (EntryCommentR cat _ _)) = Just $ EntriesR cat
 parents (Just _) = Nothing
 parents Nothing = Nothing
