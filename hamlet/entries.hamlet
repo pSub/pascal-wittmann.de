@@ -10,7 +10,7 @@
           <a :elem name tagNames':class=active href="@{EntriesByTagR catName activeTags}">#{name}
 
 <span #new-entry      
-  $maybe u <- mu
+  $maybe _ <- mu
        <a href="@{NewEntryR catName}">Neuen Eintrag hinzufügen
 
 <div .entries       

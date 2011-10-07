@@ -1,6 +1,6 @@
 <div #place-holder
 $maybe entry <- mentry
-     $maybe u <- mu
+     $maybe _ <- mu
        <span .right
          <a href="@{DeleteEntryR catName (fst entry)}">Löschen
          \ 

@@ -36,7 +36,6 @@ import qualified Data.Text as T
 import Data.Text (Text, unpack, pack, append, strip)
 import Data.Maybe
 import Data.List.Split (splitOn)
-import Data.Foldable (foldlM)
 import Data.Tree
 import qualified Data.ByteString.Lazy as BS (writeFile)
 import System.FilePath.Posix
@@ -135,7 +134,7 @@ entryHandler catName ident mparent = do
   atts <- runDB $ selectList [AttachmentEntry ==. (fst entry)] [Asc AttachmentName]
   ucomments <- runDB $ selectList [CommentEntry ==. (fst entry)] [Asc CommentDate]
   comments <- return $ buildComments ucomments
-  ((_, formNew), enctype) <- runFormPost $ commentForm Nothing Nothing
+  ((_, formNew), _) <- runFormPost $ commentForm Nothing Nothing
   ((res, formEdit), enctype) <- runFormPost $ commentForm Nothing mparent
   case res of
     FormSuccess p -> do
@@ -240,7 +239,7 @@ getUploadFileR catName ident = do
        FormSuccess f -> do
           me <- runDB $ getBy $ EntryUniq ident
           e <- me -|- notFound
-          runDB $ insert $ Attachment (fileName f) (fst e)
+          _ <- runDB $ insert $ Attachment (fileName f) (fst e)
           liftIO $ BS.writeFile (buildFileName $ fileName f) (fileContent f)
           redirect RedirectTemporary $ EntryR catName ident
        _ -> return ()
