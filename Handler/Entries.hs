@@ -125,6 +125,7 @@ toggleTag t ts
 entryHandler :: Text -> Text -> Maybe CommentId -> Handler RepHtml
 entryHandler catName ident mparent = do
   mu <- maybeAdmin
+  mua <- maybeAuth
   mentry <- runDB $ getBy $ EntryUniq ident
   entry <- mentry -|- notFound
   tags <- runDB $ runJoin $ (selectOneMany (TaggedTag <-.) taggedTag)
@@ -134,8 +135,8 @@ entryHandler catName ident mparent = do
   atts <- runDB $ selectList [AttachmentEntry ==. (fst entry)] [Asc AttachmentName]
   ucomments <- runDB $ selectList [CommentEntry ==. (fst entry)] [Asc CommentDate]
   comments <- return $ buildComments ucomments
-  ((_, formNew), _) <- runFormPost $ commentForm Nothing Nothing
-  ((res, formEdit), enctype) <- runFormPost $ commentForm Nothing mparent
+  ((_, formNew), _) <- runFormPost $ commentForm (Just $ PComment Nothing ((maybe Nothing (userName . snd)) mua) "") Nothing
+  ((res, formEdit), enctype) <- runFormPost $ commentForm (Just $ PComment mparent ((maybe Nothing (userName . snd)) mua) "") mparent
   case res of
     FormSuccess p -> do
       now <- liftIO getCurrentTime
