@@ -9,47 +9,48 @@ $maybe entry <- mentry
          <a href="@{UploadFileR catName ident}">Anhang
      <h2>#{entryTitle $ snd entry}</h2>
      #{markdownToHtml $ entryContent $ snd entry}
+
+     $if not $ null atts
+       <h2>Anhänge
+       $forall att <- atts
+            <a href="@{StaticR $ createStaticRoute $ attachmentName $ snd att}">#{attachmentName $ snd att}
+            <br
+            
+     <h2>Kommentare
+     
+     $forall comment' <- comments
+        $with comment <- snd comment'
+         $with idention <- fst comment'
+          <div .comment style="padding-left: #{show $ (*) 2 idention}em"
+           am #{commentDate $ snd comment} schrieb #
+           $maybe author <- commentAuthor $ snd comment
+                  <b>#{author}
+           $nothing
+                  <b>Anonymous
+           \ 
+           <a href="@{EntryCommentR catName ident (fst comment)}">antworten
+           $maybe _ <- mu
+              \ 
+              <a href="@{DeleteCommentR catName ident (fst comment)}">löschen
+           <blockquote>
+             $if (commentDeleted $ snd comment)
+              Kommentar wurde entfernt
+             $else
+              #{markdownToHtml $ commentContent $ snd comment}
+           $maybe parent <- mparent
+             $if (==) parent (fst comment)
+               <form enctype=#{enctype} method=post
+                 ^{formEdit}
+                 <p
+                   <input type=submit
+      
+     <h2>Neuer Kommentar
+     <form enctype="#{enctype}" method="post"
+        <table>
+           ^{formNew}
+           <tr>
+              <td colspan="2">
+                 <input type="submit" value="Veröffentlichen">
 $nothing
      No Entry found
 
-$if not $ null atts
-  <h2>Anhänge
-  $forall att <- atts
-       <a href="@{StaticR $ createStaticRoute $ attachmentName $ snd att}">#{attachmentName $ snd att}
-       <br
-       
-<h2>Kommentare
-     
-$forall comment' <- comments
-   $with comment <- snd comment'
-    $with idention <- fst comment'
-     <div .comment style="padding-left: #{show $ (*) 2 idention}em"
-      am #{commentDate $ snd comment} schrieb #
-      $maybe author <- commentAuthor $ snd comment
-             <b>#{author}
-      $nothing
-             <b>Anonymous
-      \ 
-      <a href="@{EntryCommentR catName ident (fst comment)}">antworten
-      $maybe _ <- mu
-         \ 
-         <a href="@{DeleteCommentR catName ident (fst comment)}">löschen
-      <blockquote>
-        $if (commentDeleted $ snd comment)
-         Kommentar wurde entfernt
-        $else
-         #{markdownToHtml $ commentContent $ snd comment}
-      $maybe parent <- mparent
-        $if (==) parent (fst comment)
-          <form enctype=#{enctype} method=post
-            ^{formEdit}
-            <p
-              <input type=submit
-
-<h2>Neuer Kommentar
-<form enctype="#{enctype}" method="post"
-   <table>
-      ^{formNew}
-      <tr>
-         <td colspan="2">
-            <input type="submit" value="Veröffentlichen">
