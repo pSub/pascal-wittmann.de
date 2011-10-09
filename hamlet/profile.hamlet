@@ -1,4 +1,3 @@
-<div #place-holder
 <form method=post encoding=#{enctype}
       ^{form}
       <p
