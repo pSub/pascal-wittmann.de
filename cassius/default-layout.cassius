@@ -17,6 +17,13 @@ hr
     color: #aaaaaa
     border: 0 none
     height: 1px
+
+#message-box
+    border-radius: 5px
+    background-color: #ffffff
+    width: 66%
+    margin: 0 auto
+    margin-top: 2em
     
 #container 
     width:66%

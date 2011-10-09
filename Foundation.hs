@@ -4,7 +4,6 @@
 module Foundation
     ( Homepage (..)
     , HomepageRoute (..)
-    , HomepageMessage (..)
     , resourcesHomepage
     , Handler
     , Widget
@@ -59,9 +58,6 @@ data Homepage = Homepage
     , getStatic :: Static -- ^ Settings for static file serving.
     , connPool :: Database.Persist.Base.PersistConfigPool Settings.PersistConfig -- ^ Database connection pool.
     }
-
--- Set up i18n messages. See the message folder.
-mkMessage "Homepage" "messages" "en"
 
 -- This is only temporary, since complex types are
 -- currently not allowed in routes

@@ -1,5 +1,8 @@
 <a href="http://www.yesodweb.com">
    <img #powered-by src=@{StaticR powered_by_logo} alt="powered by Yesod"
+$maybe msg <- mmsg
+   <div #message-box>
+        <center>#{msg}
 <div #container
      <div #title
           <a href=@{RootR}> Pascal Wittmann
