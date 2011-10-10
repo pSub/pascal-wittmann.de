@@ -5,7 +5,7 @@ $forall post <- posts
     <a href="@{EntryR (categoryName $ snd category) (entryIdent post)}">#{entryTitle post}</a> in #{categoryName $ snd category} am #{entryDate post}
     <br
 <h2>Yesod
-Diese Webseite wurde in <a href="http://www.haskell.org">Haskell</a> mit Hilfe des Webframeworks <a href="http://www.yesodweb.com/">Yesod</a> erstellt. Der Quellcode ist auf Github <a href="https://github.com/pSub/pascal-wittmann.de">einsehbar</a>.
+Diese Webseite wurde in <a href="http://www.haskell.org">Haskell</a> mit Hilfe des Webframeworks <a href="http://www.yesodweb.com/">Yesod</a> erstellt. Der Quellcode ist auf Github <a href="https://github.com/pSub/pascal-wittmann.de">einsehbar</a>. Das "powered by Yesod"-Logo ist eine Modifikation der <a href="http://de.wikipedia.org/wiki/MIT-Lizenz">MIT</a> lizenzierten <a href="https://github.com/github/media/tree/master/ribbons">Github Ribbons</a>.
 <h2>Code & Configs
 <p>Über meinen <a href="https://github.com/psub">Github</a> und <a href="https://bitbucket.org/psub">Bitbucket</a> Account findet man Projekte an denen ich mich beteilige und Teile meiner Systemkonfiguration.
 <h2>Organisationen
