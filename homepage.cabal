@@ -36,6 +36,7 @@ library
                      Handler.Entries
                      Handler.Admin
                      Handler.Profile
+                     Handler.News
 
     ghc-options:   -Wall -threaded -O0
 
@@ -73,6 +74,7 @@ executable         homepage
 
                  -- Custom dependencies
                  , yesod-goodies
+                 , yesod-newsfeed
                  , containers
                  , time
                  , blaze-html

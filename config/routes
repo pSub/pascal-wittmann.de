@@ -21,3 +21,4 @@
 /upload-file-to/#Text/#Text                             UploadFileR GET POST
 /delete-file-from/#Text/#Text/#AttachmentId             DeleteFileR GET
 /profile                                                ProfileR GET POST
+/news                                                   NewsFeedR GET

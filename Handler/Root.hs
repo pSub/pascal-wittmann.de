@@ -7,8 +7,8 @@ module Handler.Root
          getRootR
        ) where
 
-import Foundation
 import Data.List  (find)
+import Foundation
 
 getRootR :: Handler RepHtml
 getRootR = do
