@@ -33,9 +33,8 @@ import qualified Data.List as L (delete)
 import Data.List (intersperse, sort)
 import Data.Time
 import qualified Data.Text as T
-import Data.Text (Text, unpack, pack, append, strip)
+import Data.Text (Text, unpack, pack, append, strip, splitOn)
 import Data.Maybe
-import Data.List.Split (splitOn)
 import Data.Tree
 import qualified Data.ByteString.Lazy as BS (writeFile)
 import System.FilePath.Posix
@@ -198,7 +197,7 @@ getEditEntryR catName eid = do
   where buildTags = pack . concat . intersperse ", " . map (unpack . tagName . snd . fst)
 
 buildTagList :: PEntry -> [Text]
-buildTagList = map (strip . pack) . splitOn "," . unpack . tag
+buildTagList = map strip . splitOn "," . tag
     
 postEditEntryR :: Text -> Text -> Handler RepHtml
 postEditEntryR = getEditEntryR

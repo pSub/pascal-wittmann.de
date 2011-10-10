@@ -73,7 +73,6 @@ executable         homepage
 
                  -- Custom dependencies
                  , yesod-goodies
-                 , split
                  , containers
                  , time
                  , blaze-html
