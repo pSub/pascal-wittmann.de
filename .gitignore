@@ -5,3 +5,5 @@ dist
 config/settings.yml
 config/postgres.yml
 config/client_session_key.aes
+
+TAGS
