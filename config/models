@@ -26,7 +26,7 @@ Entry
   recap Text
   meta_descr String
   date UTCTime
-  EntryUniq ident
+  UniqueEntry ident
   
 Tag
   name Text

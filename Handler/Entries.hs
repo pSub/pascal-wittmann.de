@@ -41,7 +41,7 @@ import qualified Data.ByteString.Lazy as BS (writeFile)
 import System.FilePath.Posix
 import System.Directory
 
-data Params = Params
+data PEntry = PEntry
      { title :: Text
      , ident :: Text
      , cat :: CategoryId
@@ -56,8 +56,8 @@ data PComment = PComment
      , content :: Markdown
      }
      
-paramsFormlet ::  Maybe Params -> CategoryId -> Html -> Form Homepage Homepage (FormResult Params, Widget)
-paramsFormlet mparams category html = (flip renderDivs) html $ Params
+entryForm ::  Maybe PEntry -> CategoryId -> Html -> Form Homepage Homepage (FormResult PEntry, Widget)
+entryForm mparams category html = (flip renderDivs) html $ PEntry
     <$> areq textField "Title" (title <$> mparams)
     <*> areq textField "Ident" (ident <$> mparams)
     <*> pure category
@@ -77,16 +77,14 @@ fileForm = renderDivs $ fileAFormReq "Anhang"
 getEntriesR :: Text -> Handler RepHtml
 getEntriesR catName = do
   mu <- maybeAdmin
-  mcat <- runDB $ getBy $ UniqueCategory catName
-  cat <- mcat -|- notFound
+  category <- (-|-) notFound =<< (runDB $ getBy $ UniqueCategory catName)
   tagsEntries <- runDB $ runJoin (selectOneMany (TaggedTag <-.) taggedTag)
-          { somFilterOne = [TagCategory ==. (fst cat)]
+          { somFilterOne = [TagCategory ==. (fst category)]
           , somOrderOne = [Asc TagName]
           }
   tags <- return $ map fst tagsEntries
-  comments' <- runDB $ runJoin (selectOneMany (CommentEntry <-.) commentEntry)
-  comments <- return $ map (\ c -> (fst $ fst c, length $ snd c)) comments'
-  entries <- runDB $ selectList [EntryCat ==. (fst cat)] [Desc EntryDate]
+  comments <- map (\ c -> (fst $ fst c, length $ snd c)) <$> (runDB $ runJoin (selectOneMany (CommentEntry <-.) commentEntry))
+  entries <- runDB $ selectList [EntryCat ==. (fst category)] [Desc EntryDate]
   defaultLayout $ do
     setTitle $ toHtml catName
     $(widgetFile "entries")
@@ -95,24 +93,18 @@ getEntriesR catName = do
 getEntriesByTagR :: Text -> [Text] -> Handler RepHtml
 getEntriesByTagR catName tagNames' = do
   mu <- maybeAdmin
-  mcat <- runDB $ getBy $ UniqueCategory catName
-  cat <- mcat -|- notFound
-
-  tag' <- mapM (\ n -> runDB $ getBy $ UniqueTag n (fst cat)) tagNames'
-  tag <- return $ foldl (\ t t' -> if isJust t' then (fst $ fromJust t'):t else t) [] tag'
-  
+  category <- (-|-) notFound =<< (runDB $ getBy $ UniqueCategory catName)
+  currentTags <- mapMaybe (fst <$>) <$> mapM (\ n -> runDB $ getBy $ UniqueTag n (fst category)) tagNames'
   tagsEntries <- runDB $ runJoin (selectOneMany (TaggedTag <-.) taggedTag)
-          { somFilterOne = [TagCategory ==. (fst cat)]
+          { somFilterOne = [TagCategory ==. (fst category)]
           , somOrderOne = [Asc TagName]
           }
   tags <- return $ map fst tagsEntries
-  comments' <- runDB $ runJoin (selectOneMany (CommentEntry <-.) commentEntry)
-  comments <- return $ map (\ c -> (fst $ fst c, length $ snd c)) comments'
-  entries <- runDB $ runJoin (selectOneMany (TaggedEntry <-.) taggedEntry)
-             { somFilterMany = [FilterOr . map (TaggedTag ==.) $ tag]
+  comments <- map (\ c -> (fst $ fst c, length $ snd c)) <$> (runDB $ runJoin (selectOneMany (CommentEntry <-.) commentEntry))
+  entries <- map fst <$> (runDB $ runJoin (selectOneMany (TaggedEntry <-.) taggedEntry)
+             { somFilterMany = [FilterOr . map (TaggedTag ==.) $ currentTags]
              , somOrderOne = [Desc EntryDate]
-             }
-  entries <- return $ map fst entries
+             })
   defaultLayout $ do
     setTitle $ toHtml $ catName `append` " :: " `append` (T.concat $ intersperse ", " tagNames')
     $(widgetFile "entries")
@@ -123,38 +115,36 @@ toggleTag t ts
   | otherwise = t:ts
 
 entryHandler :: Text -> Text -> Maybe CommentId -> Handler RepHtml
-entryHandler catName ident mparent = do
+entryHandler catName curIdent mparent = do
   mu <- maybeAdmin
   mua <- maybeAuth
-  mentry <- runDB $ getBy $ EntryUniq ident
-  entry <- mentry -|- notFound
+  entry <- (-|-) notFound =<< (runDB $ getBy $ UniqueEntry curIdent)
   tags <- runDB $ runJoin $ (selectOneMany (TaggedTag <-.) taggedTag)
           { somFilterMany = [TaggedEntry ==. (fst entry)] 
           , somOrderOne = [Asc TagName]
           }
   atts <- runDB $ selectList [AttachmentEntry ==. (fst entry)] [Asc AttachmentName]
-  ucomments <- runDB $ selectList [CommentEntry ==. (fst entry)] [Asc CommentDate]
-  comments <- return $ buildComments ucomments
+  comments <- buildComments <$> (runDB $ selectList [CommentEntry ==. (fst entry)] [Asc CommentDate])
   ((_, formNew), _) <- runFormPost $ commentForm (Just $ PComment Nothing ((maybe Nothing (userName . snd)) mua) "") Nothing
   ((res, formEdit), enctype) <- runFormPost $ commentForm (Just $ PComment mparent ((maybe Nothing (userName . snd)) mua) "") mparent
   case res of
     FormSuccess p -> do
       now <- liftIO getCurrentTime
       _ <- runDB $ insert $ Comment (author p) (content p) now (parent p) (fst entry) False
-      redirect RedirectTemporary $ EntryR catName ident
+      redirect RedirectTemporary $ EntryR catName curIdent
     _ -> return ()
   defaultLayout $ do
     setTitle $ toHtml $ entryTitle $ snd entry
     $(widgetFile "entry")
     
 getEntryCommentR :: Text -> Text -> CommentId -> Handler RepHtml
-getEntryCommentR catName ident parent = entryHandler catName ident (Just parent)
+getEntryCommentR catName curIdent curParent = entryHandler catName curIdent (Just curParent)
     
 postEntryCommentR :: Text -> Text -> CommentId -> Handler RepHtml
 postEntryCommentR = getEntryCommentR
 
 getEntryR :: Text -> Text ->  Handler RepHtml
-getEntryR catName ident = entryHandler catName ident Nothing
+getEntryR catName curIdent = entryHandler catName curIdent Nothing
 
 postEntryR :: Text -> Text -> Handler RepHtml
 postEntryR = getEntryR
@@ -168,16 +158,15 @@ getDeleteTagR category tid = do
 getNewEntryR :: Text -> Handler RepHtml
 getNewEntryR catName = do
   _ <- requireAdmin
-  mcat <- runDB $ getBy $ UniqueCategory catName
-  cat' <- mcat -|- notFound
+  category <- (-|-) notFound =<< (runDB $ getBy $ UniqueCategory catName)
   tags <- return []
-  ((res, form), enctype) <- runFormPost $ paramsFormlet Nothing (fst cat')
+  ((res, form), enctype) <- runFormPost $ entryForm Nothing (fst category)
   case res of
     FormSuccess p -> do
       now <- liftIO getCurrentTime
       aid <- runDB $ insert $ Entry (title p) (ident p) (text p) (cat p) (recap p) "" now
-      insertTags (cat p) aid $ splitOn "," $ filter (/= ' ') (unpack $ tag p)
-      redirect RedirectTemporary $ EntriesR $ categoryName $ snd cat'
+      insertTags (cat p) aid (buildTagList p)
+      redirect RedirectTemporary $ EntriesR $ categoryName $ snd category
     _ -> return ()
   defaultLayout $ do
     setTitle "New Entry"
@@ -189,27 +178,27 @@ postNewEntryR = getNewEntryR
 getEditEntryR :: Text -> Text -> Handler RepHtml
 getEditEntryR catName eid = do
   _ <- requireAdmin
-  ma <- runDB $ getBy $ EntryUniq eid
-  a <- ma -|- notFound
-  tags' <- runDB $ runJoin $ (selectOneMany (TaggedTag <-.) taggedTag)
+  a <- (-|-) notFound =<< (runDB $ getBy $ UniqueEntry eid)
+  tags <- buildTags <$> (runDB $ runJoin $ (selectOneMany (TaggedTag <-.) taggedTag)
           { somFilterMany = [TaggedEntry ==. (fst a)]
           , somOrderOne = [Asc TagName]
-          }
-  tags <- return $ pack $ concat $ intersperse ", " $ map (unpack . tagName . snd . fst) tags'
-  do
-    ((res, form), enctype) <- runFormPost $ paramsFormlet (Just $ Params (entryTitle $ snd a) (entryIdent $ snd a) (entryCat $ snd a) tags (entryRecap $ snd a) (entryContent $ snd a)) (entryCat $ snd a)
-    case res of
+          })
+  ((res, form), enctype) <- runFormPost $ entryForm (Just $ PEntry (entryTitle $ snd a) (entryIdent $ snd a) (entryCat $ snd a) tags (entryRecap $ snd a) (entryContent $ snd a)) (entryCat $ snd a)
+  case res of
       FormSuccess p -> do
         runDB $ update (fst a) [EntryTitle =. (title p), EntryIdent =. (ident p), EntryCat =. (cat p), EntryContent =. (text p)]
         runDB $ deleteWhere [TaggedEntry ==. (fst a)]
-        insertTags (cat p) (fst a) $ splitOn "," $ filter (/= ' ') (unpack $ strip $ tag p)
-        mcategory <- runDB $ get $ cat p
-        category <- mcategory -|- notFound
+        insertTags (cat p) (fst a) (buildTagList p)
+        category <- (-|-) notFound =<< (runDB $ get $ cat p)
         redirect RedirectTemporary $ EntriesR $ categoryName category
       _ -> return ()
-    defaultLayout $ do
+  defaultLayout $ do
        setTitle "Edit Entry"
        $(widgetFile "new-entry")
+  where buildTags = pack . concat . intersperse ", " . map (unpack . tagName . snd . fst)
+
+buildTagList :: PEntry -> [Text]
+buildTagList = map (strip . pack) . splitOn "," . unpack . tag
     
 postEditEntryR :: Text -> Text -> Handler RepHtml
 postEditEntryR = getEditEntryR
@@ -224,25 +213,22 @@ getDeleteEntryR category eid = do
   redirect RedirectTemporary $ EntriesR category
   
 getDeleteCommentR :: Text -> Text -> CommentId -> Handler ()
-getDeleteCommentR catName ident cid = do
+getDeleteCommentR catName curIdent cid = do
   _ <- requireAdmin
   runDB $ update cid [CommentDeleted =. True]
-  redirect RedirectTemporary $ EntryR catName ident
+  redirect RedirectTemporary $ EntryR catName curIdent
 
 getUploadFileR :: Text -> Text -> Handler RepHtml
-getUploadFileR catName ident = do
+getUploadFileR catName curIdent = do
   _ <- requireAdmin
-  me <- runDB $ getBy $ EntryUniq ident
-  e <- me -|- notFound
+  e <- (-|-) notFound =<< (runDB $ getBy $ UniqueEntry curIdent)
   atts <- runDB $ selectList [AttachmentEntry ==. (fst e)] [Asc AttachmentName]
   ((res, form), enctype) <- runFormPost fileForm
   case res of
        FormSuccess f -> do
-          me <- runDB $ getBy $ EntryUniq ident
-          e <- me -|- notFound
           _ <- runDB $ insert $ Attachment (fileName f) (fst e)
           liftIO $ BS.writeFile (buildFileName $ fileName f) (fileContent f)
-          redirect RedirectTemporary $ EntryR catName ident
+          redirect RedirectTemporary $ EntryR catName curIdent
        _ -> return ()
   defaultLayout $
       $(widgetFile "upload-file")
@@ -251,34 +237,29 @@ postUploadFileR :: Text -> Text -> Handler RepHtml
 postUploadFileR = getUploadFileR
 
 getDeleteFileR :: Text -> Text -> AttachmentId -> Handler ()
-getDeleteFileR catName ident aid = do
+getDeleteFileR catName curIdent aid = do
    _ <- requireAdmin
-   ma <- runDB $ get aid
-   a <- ma -|- notFound
+   a <- (-|-) notFound =<< (runDB $ get aid)
    liftIO $ removeFile $ buildFileName $ attachmentName a
    runDB $ delete aid
-   redirect RedirectTemporary $ UploadFileR catName ident
+   redirect RedirectTemporary $ UploadFileR catName curIdent
   
 -- Helper functions
 buildFileName :: Text -> String
-buildFileName name = Settings.staticDir ++ [pathSeparator] ++ (unpack name)
+buildFileName name = Settings.staticDir ++ [pathSeparator] ++ unpack name
 
+tagsForEntry :: Key backend Entry -> [(b, [(a, TaggedGeneric backend)])] -> [b]
 tagsForEntry eid = map fst . filter (any ((== eid) . taggedEntry . snd) . snd)
 
-insertTags :: CategoryId -> EntryId -> [String] -> Handler ()
-insertTags category eid ("":tags) = insertTags category eid tags
-insertTags category eid (t:tags) = do
-  mtag <- runDB $ getBy $ UniqueTag (pack t) category
-  tid <- if isJust mtag then
-           return $ fst $ fromJust mtag
-         else
-           runDB $ insert $ Tag (pack t) category
-  _ <- runDB $ insert $ Tagged tid eid
-  insertTags category eid tags
-insertTags _ _ [] = return ()
+insertTags :: CategoryId -> EntryId -> [Text] -> Handler ()
+insertTags category eid = mapM_ insertTag . filter T.null
+           where insertTag t = do
+                 mtag <- runDB $ getBy $ UniqueTag t category
+                 tid <- (-|-) (runDB $ insert $ Tag t category) (fst <$> mtag)
+                 runDB $ insert $ Tagged tid eid
 
-buildComments :: (Num a, Enum a) => [(Key backend Comment, CommentGeneric backend)] ->
-                                  [(a, (Key backend Comment, CommentGeneric backend))]
+buildComments :: [(Key backend Comment, CommentGeneric backend)] ->
+                [(Integer, (Key backend Comment, CommentGeneric backend))]
 buildComments cs = concat $ map flatten $ unfoldForest (\ c -> (c, getChilds c)) roots
       where
         roots = zip [0,0..] (filter (isNothing . commentParent . snd) cs)
@@ -289,6 +270,6 @@ buildComments cs = concat $ map flatten $ unfoldForest (\ c -> (c, getChilds c))
 createStaticRoute :: Text -> StaticRoute
 createStaticRoute name = StaticRoute [name] []
 
-(-|-) :: Monad m => Maybe a -> m a -> m a
-Just a -|- _ = return a
-Nothing -|- action = do action
+(-|-) :: Monad m => m a -> Maybe a -> m a
+_ -|- Just a = return a
+action -|- Nothing = action
