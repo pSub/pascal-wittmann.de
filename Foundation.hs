@@ -26,6 +26,7 @@ import Yesod.Auth.OpenId
 import Yesod.Default.Config
 import Yesod.Default.Util (addStaticContentExternal)
 import Yesod.Logger (Logger, logLazyText)
+import Yesod.AtomFeed
 import qualified Settings
 import qualified Data.ByteString.Lazy as L
 import qualified Database.Persist.Base
@@ -110,6 +111,7 @@ instance Yesod Homepage where
         -- you to use normal widget features in default-layout.
 
         pc <- widgetToPageContent $ do
+            atomLink NewsFeedR "Newsfeed von pascal-wittmann.de"
             $(widgetFile "normalize")
             $(widgetFile "default-layout")
         hamletToRepHtml $(hamletFile "hamlet/default-layout-wrapper.hamlet")
