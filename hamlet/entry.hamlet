@@ -46,8 +46,6 @@ $else
  
 <h2>Neuer Kommentar
 <form enctype="#{enctype}" method="post"
-   <table>
       ^{formNew}
-      <tr>
-         <td colspan="2">
-            <input type="submit" value="Veröffentlichen">
+      <p
+        <input type="submit" value="Veröffentlichen">
