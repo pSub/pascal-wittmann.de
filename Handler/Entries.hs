@@ -178,7 +178,7 @@ getEditEntryR :: Text -> Text -> Handler RepHtml
 getEditEntryR catName eid = do
   _ <- requireAdmin
   a <- (-|-) notFound =<< (runDB $ getBy $ UniqueEntry eid)
-  tags <- buildTags <$> (runDB $ runJoin $ (selectOneMany (TaggedTag <-.) taggedTag)
+  tags <- showTags <$> (runDB $ runJoin $ (selectOneMany (TaggedTag <-.) taggedTag)
           { somFilterMany = [TaggedEntry ==. (fst a)]
           , somOrderOne = [Asc TagName]
           })
@@ -194,7 +194,7 @@ getEditEntryR catName eid = do
   defaultLayout $ do
        setTitle "Edit Entry"
        $(widgetFile "new-entry")
-  where buildTags = pack . concat . intersperse ", " . map (unpack . tagName . snd . fst)
+  where showTags = pack . concat . intersperse ", " . map (unpack . tagName . snd . fst)
 
 buildTagList :: PEntry -> [Text]
 buildTagList = map strip . splitOn "," . tag
@@ -251,7 +251,7 @@ tagsForEntry :: Key backend Entry -> [(b, [(a, TaggedGeneric backend)])] -> [b]
 tagsForEntry eid = map fst . filter (any ((== eid) . taggedEntry . snd) . snd)
 
 insertTags :: CategoryId -> EntryId -> [Text] -> Handler ()
-insertTags category eid = mapM_ insertTag . filter T.null
+insertTags category eid = mapM_ insertTag .filter (not . T.null)
            where insertTag t = do
                  mtag <- runDB $ getBy $ UniqueTag t category
                  tid <- (-|-) (runDB $ insert $ Tag t category) (fst <$> mtag)
