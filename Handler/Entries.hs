@@ -189,7 +189,7 @@ getEditEntryR catName eid = do
         runDB $ update (fst a) [EntryTitle =. (title p), EntryIdent =. (ident p), EntryContent =. (text p), EntryRecap =. (recap p)]
         runDB $ deleteWhere [TaggedEntry ==. (fst a)]
         insertTags (cat p) (fst a) (buildTagList p)
-        redirect RedirectTemporary $ EntriesR $ categoryName category
+        redirect RedirectTemporary $ EntryR (categoryName category) (ident p)
       _ -> return ()
   defaultLayout $ do
        setTitle "Edit Entry"
