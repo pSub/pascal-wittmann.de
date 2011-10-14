@@ -52,7 +52,7 @@
 
 .entry .right
     float: right
-    min-width: 16em
+    min-width: 13em
 
 .entry .right .date
     font-size: 0.8em
