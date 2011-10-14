@@ -179,7 +179,7 @@ instance ToHtml Markdown where
   toHtml (Markdown s) = toHtml s
 
 instance ToHtml UTCTime where
-  toHtml = toHtml . formatTime defaultTimeLocale "%e.%m.%Y %T"
+  toHtml = toHtml . formatTime defaultTimeLocale "%e.%m.%Y"
 
 parents :: Maybe HomepageRoute -> Maybe HomepageRoute
 parents (Just ImpressumR) = Nothing
@@ -208,5 +208,3 @@ maybeAdmin = do
               then return $ Just u
               else return Nothing
           Nothing -> return Nothing
-          
-   
