@@ -18,6 +18,9 @@ hr
     border: 0 none
     height: 1px
 
+textarea
+    height: 5em
+    
 #message-box
     border-radius: 5px
     background-color: #ffffff
