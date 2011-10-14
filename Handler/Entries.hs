@@ -185,10 +185,10 @@ getEditEntryR catName eid = do
   ((res, form), enctype) <- runFormPost $ entryForm (Just $ PEntry (entryTitle $ snd a) (entryIdent $ snd a) (entryCat $ snd a) tags (entryRecap $ snd a) (entryContent $ snd a)) (entryCat $ snd a)
   case res of
       FormSuccess p -> do
-        runDB $ update (fst a) [EntryTitle =. (title p), EntryIdent =. (ident p), EntryCat =. (cat p), EntryContent =. (text p)]
+        category <- (-|-) notFound =<< (runDB $ get $ cat p)
+        runDB $ update (fst a) [EntryTitle =. (title p), EntryIdent =. (ident p), EntryContent =. (text p), EntryRecap =. (recap p)]
         runDB $ deleteWhere [TaggedEntry ==. (fst a)]
         insertTags (cat p) (fst a) (buildTagList p)
-        category <- (-|-) notFound =<< (runDB $ get $ cat p)
         redirect RedirectTemporary $ EntriesR $ categoryName category
       _ -> return ()
   defaultLayout $ do
