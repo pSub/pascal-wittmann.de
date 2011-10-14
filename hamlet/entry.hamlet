@@ -15,7 +15,7 @@ $if not $ null atts
        <br
        
 <h2>Kommentare
-$if null comments
+$if not (null comments)
  $forall comment' <- comments
    $with comment <- snd comment'
     $with idention <- fst comment'
