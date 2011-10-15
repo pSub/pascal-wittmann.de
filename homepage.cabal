@@ -37,6 +37,7 @@ library
                      Handler.Admin
                      Handler.Profile
                      Handler.News
+                     Handler.Sitemap
 
     ghc-options:   -Wall -threaded -O0
 
