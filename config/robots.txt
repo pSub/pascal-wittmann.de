@@ -1,0 +1,2 @@
+User-agent: *
+Sitemap: https://www.pascal-wittmann.de/sitemap.xml
