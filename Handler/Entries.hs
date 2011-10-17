@@ -76,7 +76,7 @@ fileForm = renderDivs $ fileAFormReq "Anhang"
 getEntriesR :: Text -> Handler RepHtml
 getEntriesR catName = do
   mu <- maybeAdmin
-  category <- (-|-) notFound =<< (runDB $ getBy $ UniqueCategory catName)
+  category <- runDB $ getBy404 $ UniqueCategory catName
   tagsEntries <- runDB $ runJoin (selectOneMany (TaggedTag <-.) taggedTag)
           { somFilterOne = [TagCategory ==. (fst category)]
           , somOrderOne = [Asc TagName]
@@ -92,7 +92,7 @@ getEntriesR catName = do
 getEntriesByTagR :: Text -> [Text] -> Handler RepHtml
 getEntriesByTagR catName tagNames' = do
   mu <- maybeAdmin
-  category <- (-|-) notFound =<< (runDB $ getBy $ UniqueCategory catName)
+  category <- runDB $ getBy404 $ UniqueCategory catName
   currentTags <- mapMaybe (fst <$>) <$> mapM (\ n -> runDB $ getBy $ UniqueTag n (fst category)) tagNames'
   tagsEntries <- runDB $ runJoin (selectOneMany (TaggedTag <-.) taggedTag)
           { somFilterOne = [TagCategory ==. (fst category)]
@@ -117,7 +117,7 @@ entryHandler :: Text -> Text -> Maybe CommentId -> Handler RepHtml
 entryHandler catName curIdent mparent = do
   mu <- maybeAdmin
   mua <- maybeAuth
-  entry <- (-|-) notFound =<< (runDB $ getBy $ UniqueEntry curIdent)
+  entry <- runDB $ getBy404 $ UniqueEntry curIdent
   tags <- runDB $ runJoin $ (selectOneMany (TaggedTag <-.) taggedTag)
           { somFilterMany = [TaggedEntry ==. (fst entry)] 
           , somOrderOne = [Asc TagName]
@@ -157,7 +157,7 @@ getDeleteTagR category tid = do
 getNewEntryR :: Text -> Handler RepHtml
 getNewEntryR catName = do
   _ <- requireAdmin
-  category <- (-|-) notFound =<< (runDB $ getBy $ UniqueCategory catName)
+  category <- runDB $ getBy404 $ UniqueCategory catName
   tags <- return []
   ((res, form), enctype) <- runFormPost $ entryForm Nothing (fst category)
   case res of
@@ -177,7 +177,7 @@ postNewEntryR = getNewEntryR
 getEditEntryR :: Text -> Text -> Handler RepHtml
 getEditEntryR catName eid = do
   _ <- requireAdmin
-  a <- (-|-) notFound =<< (runDB $ getBy $ UniqueEntry eid)
+  a <- runDB $ getBy404 $ UniqueEntry eid
   tags <- showTags <$> (runDB $ runJoin $ (selectOneMany (TaggedTag <-.) taggedTag)
           { somFilterMany = [TaggedEntry ==. (fst a)]
           , somOrderOne = [Asc TagName]
@@ -185,7 +185,7 @@ getEditEntryR catName eid = do
   ((res, form), enctype) <- runFormPost $ entryForm (Just $ PEntry (entryTitle $ snd a) (entryIdent $ snd a) (entryCat $ snd a) tags (entryRecap $ snd a) (entryContent $ snd a)) (entryCat $ snd a)
   case res of
       FormSuccess p -> do
-        category <- (-|-) notFound =<< (runDB $ get $ cat p)
+        category <- runDB $ get404 $ cat p
         runDB $ update (fst a) [EntryTitle =. (title p), EntryIdent =. (ident p), EntryContent =. (text p), EntryRecap =. (recap p)]
         runDB $ deleteWhere [TaggedEntry ==. (fst a)]
         insertTags (cat p) (fst a) (buildTagList p)
@@ -220,7 +220,7 @@ getDeleteCommentR catName curIdent cid = do
 getUploadFileR :: Text -> Text -> Handler RepHtml
 getUploadFileR catName curIdent = do
   _ <- requireAdmin
-  e <- (-|-) notFound =<< (runDB $ getBy $ UniqueEntry curIdent)
+  e <- runDB $ getBy404 $ UniqueEntry curIdent
   atts <- runDB $ selectList [AttachmentEntry ==. (fst e)] [Asc AttachmentName]
   ((res, form), enctype) <- runFormPost fileForm
   case res of
@@ -238,7 +238,7 @@ postUploadFileR = getUploadFileR
 getDeleteFileR :: Text -> Text -> AttachmentId -> Handler ()
 getDeleteFileR catName curIdent aid = do
    _ <- requireAdmin
-   a <- (-|-) notFound =<< (runDB $ get aid)
+   a <- runDB $ get404 aid
    liftIO $ removeFile $ buildFileName $ attachmentName a
    runDB $ delete aid
    redirect RedirectTemporary $ UploadFileR catName curIdent
