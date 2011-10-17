@@ -262,9 +262,8 @@ buildComments :: [(Key backend Comment, CommentGeneric backend)] ->
 buildComments cs = concat $ map flatten $ unfoldForest (\ c -> (c, getChilds c)) roots
       where
         roots = zip [0,0..] (filter (isNothing . commentParent . snd) cs)
-        getChilds c = filter (isChild (snd c) . snd) (zip (repeat $ 1 + (fst c)) cs)
-        isChild c c' = (isJust $ getParent c') && (fst c) == (fromJust $ getParent c')
-        getParent = commentParent . snd
+        getChilds (cid, c) = zip (repeat $ succ cid) (filter (isChild c) cs)
+        isChild (c,_) (_,c') = (isJust $ commentParent c') && c == (fromJust $ commentParent c')
 
 createStaticRoute :: Text -> StaticRoute
 createStaticRoute name = StaticRoute [name] []
