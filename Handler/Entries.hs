@@ -74,20 +74,7 @@ fileForm :: Html -> Form Homepage Homepage (FormResult FileInfo, Widget)
 fileForm = renderDivs $ fileAFormReq "Anhang"
 
 getEntriesR :: Text -> Handler RepHtml
-getEntriesR catName = do
-  mu <- maybeAdmin
-  category <- runDB $ getBy404 $ UniqueCategory catName
-  tagsEntries <- runDB $ runJoin (selectOneMany (TaggedTag <-.) taggedTag)
-          { somFilterOne = [TagCategory ==. (fst category)]
-          , somOrderOne = [Asc TagName]
-          }
-  tags <- return $ map fst tagsEntries
-  comments <- map (\ c -> (fst $ fst c, length $ snd c)) <$> (runDB $ runJoin (selectOneMany (CommentEntry <-.) commentEntry))
-  entries <- runDB $ selectList [EntryCat ==. (fst category)] [Desc EntryDate]
-  defaultLayout $ do
-    setTitle $ toHtml catName
-    $(widgetFile "entries")
-  where tagNames' = []
+getEntriesR catName = getEntriesByTagR catName []
 
 getEntriesByTagR :: Text -> [Text] -> Handler RepHtml
 getEntriesByTagR catName tagNames' = do
@@ -99,11 +86,13 @@ getEntriesByTagR catName tagNames' = do
           , somOrderOne = [Asc TagName]
           }
   tags <- return $ map fst tagsEntries
-  comments <- map (\ c -> (fst $ fst c, length $ snd c)) <$> (runDB $ runJoin (selectOneMany (CommentEntry <-.) commentEntry))
-  entries <- map fst <$> (runDB $ runJoin (selectOneMany (TaggedEntry <-.) taggedEntry)
-             { somFilterMany = [FilterOr . map (TaggedTag ==.) $ currentTags]
-             , somOrderOne = [Desc EntryDate]
-             })
+  comments <- map (\ (e,c) -> (fst e, length c)) <$> (runDB $ runJoin (selectOneMany (CommentEntry <-.) commentEntry))
+  entries <- if null tagNames'
+                then runDB $ selectList [EntryCat ==. (fst category)] [Desc EntryDate]
+                else map fst <$> (runDB $ runJoin (selectOneMany (TaggedEntry <-.) taggedEntry)
+                     { somFilterMany = [FilterOr . map (TaggedTag ==.) $ currentTags]
+                     , somOrderOne = [Desc EntryDate]
+                     })
   defaultLayout $ do
     setTitle $ toHtml $ catName `append` " :: " `append` (T.concat $ intersperse ", " tagNames')
     $(widgetFile "entries")
