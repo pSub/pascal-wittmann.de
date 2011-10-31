@@ -4,5 +4,5 @@
         <input type=submit>
 
 Anhänge löschen:
- $forall att <- atts
-    <a href=@{DeleteFileR catName curIdent (fst att)}>#{attachmentName $ snd att}</a> #
+ $forall (aid, att) <- atts
+    <a href=@{DeleteFileR catName curIdent aid}>#{attachmentName att}</a> #

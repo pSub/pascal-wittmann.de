@@ -10,33 +10,32 @@ $maybe _ <- mu
 
 $if not $ null atts
   <h2>Anhänge
-  $forall att <- atts
-       <a href="@{StaticR $ createStaticRoute $ attachmentName $ snd att}">#{attachmentName $ snd att}
+  $forall (_, att) <- atts
+       <a href="@{StaticR $ createStaticRoute $ attachmentName att}">#{attachmentName att}
        <br
        
 <h2>Kommentare
 $if not (null comments)
- $forall comment' <- comments
-   $with comment <- snd comment'
-    $with idention <- fst comment'
-     <div .comment style="padding-left: #{show $ (*) 2 idention}em"
-      am #{commentDate $ snd comment} schrieb #
-      $maybe author <- commentAuthor $ snd comment
+ $forall (indention, _comment) <- comments
+  $with (cid, comment) <- _comment
+    <div .comment style="padding-left: #{show $ (*) 2 indention}em"
+      am #{commentDate comment} schrieb #
+      $maybe author <- commentAuthor comment
              <b>#{author}
       $nothing
              <b>Anonymous
       \ 
-      <a href="@{EntryCommentR catName curIdent (fst comment)}">antworten
+      <a href="@{EntryCommentR catName curIdent cid}">antworten
       $maybe _ <- mu
          \ 
-         <a href="@{DeleteCommentR catName curIdent (fst comment)}">löschen
+         <a href="@{DeleteCommentR catName curIdent cid}">löschen
       <blockquote>
-        $if (commentDeleted $ snd comment)
+        $if (commentDeleted comment)
          Kommentar wurde entfernt
         $else
-         #{markdownToHtml $ commentContent $ snd comment}
+         #{markdownToHtml $ commentContent comment}
       $maybe parent <- mparent
-        $if (==) parent (fst comment)
+        $if (==) parent cid
           <form enctype=#{enctype} method=post
             ^{formEdit}
             <p

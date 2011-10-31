@@ -7,14 +7,14 @@ $maybe msg <- mmsg
      <div #title
           <a href=@{RootR}> Pascal Wittmann
      <div  #navigation
-         $forall link <- categories
-            <a :isCurrent (snd link):id=active href="@{snd link}">#{fst link}
+         $forall (label, url) <- categories
+            <a :isCurrent url:id=active href="@{url}">#{label}
      <div #content
           ^{widget}
      <div #footer
           <div #left
-               $maybe u <- mu
-                 $if userAdmin (snd u)
+               $maybe (_, u) <- mu
+                 $if userAdmin u
                    <a href="@{AdminR}">Admin
                    \ | #
                  <a href=@{ProfileR}>Profil

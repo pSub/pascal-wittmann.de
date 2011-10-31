@@ -1,26 +1,25 @@
 <ul #tag-list
    <li>Tags: #
-  $forall tag <- tags
+  $forall (_, tag) <- tags
     <li>
-     $with name <- tagName $ snd tag
-      $with activeTags <- sort $ toggleTag name tagNames'
+     $with activeTags <- sort $ toggleTag (tagName tag) tagNames'
        $if null activeTags
-          <a :elem name tagNames':class=active href="@{EntriesR catName}">#{name}
+          <a :elem (tagName tag) tagNames':class=active href="@{EntriesR catName}">#{tagName tag}
        $else
-          <a :elem name tagNames':class=active href="@{EntriesByTagR catName activeTags}">#{name}
+          <a :elem (tagName tag) tagNames':class=active href="@{EntriesByTagR catName activeTags}">#{tagName tag}
 
 <span #new-entry      
   $maybe _ <- mu
        <a href="@{NewEntryR catName}">Neuen Eintrag hinzufügen
 
 <div .entries       
-  $forall entry <- entries
-      <a .entry href=@{EntryR catName (entryIdent $ snd entry)}
+  $forall (eid, entry) <- entries
+      <a .entry href=@{EntryR catName (entryIdent entry)}
         <span .right
-               <span .date>Veröffentlicht am #{entryDate $ snd entry}
+               <span .date>Veröffentlicht am #{entryDate entry}
                <br
                <span .comment-count
-                 $with mcount <- lookup (fst entry) comments
+                 $with mcount <- lookup eid comments
                   $maybe count <- mcount
                     #{count} Kommentar
                     $if (/=) count 1
@@ -28,11 +27,11 @@
                   $nothing
                     keine Kommentare
                 \ / #
-               <span .tags      
+               <span .tags
                    Tags: #
-                   $forall tag <- tagsForEntry (fst entry) tagsEntries
-                      #{tagName (snd tag)} #
+                   $forall (_ ,tag) <- tagsForEntry eid tagsEntries
+                      #{tagName tag} #
         <span .left
-             <span .title>#{entryTitle $ snd entry}
+             <span .title>#{entryTitle entry}
              <br
-             <span .recap>#{entryRecap $ snd entry}
+             <span .recap>#{entryRecap entry}
