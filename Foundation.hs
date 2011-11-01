@@ -1,6 +1,3 @@
-{-# LANGUAGE QuasiQuotes, TemplateHaskell, TypeFamilies #-}
-{-# LANGUAGE OverloadedStrings, MultiParamTypeClasses #-}
-{-# LANGUAGE CPP #-}
 module Foundation
     ( Homepage (..)
     , HomepageRoute (..)

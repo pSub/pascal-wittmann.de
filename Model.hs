@@ -1,4 +1,3 @@
-{-# LANGUAGE QuasiQuotes, TypeFamilies, GeneralizedNewtypeDeriving, TemplateHaskell, GADTs #-}
 module Model where
 
 import Yesod
