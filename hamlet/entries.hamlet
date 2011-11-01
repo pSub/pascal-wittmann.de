@@ -2,11 +2,11 @@
    <li>Tags: #
   $forall (_, tag) <- tags
     <li>
-     $with activeTags <- sort $ toggleTag (tagName tag) tagNames'
+     $with activeTags <- sort $ toggleTag (tagName tag) tagNames
        $if null activeTags
-          <a :elem (tagName tag) tagNames':class=active href="@{EntriesR catName}">#{tagName tag}
+          <a :elem (tagName tag) tagNames:class=active href="@{EntriesR catName}">#{tagName tag}
        $else
-          <a :elem (tagName tag) tagNames':class=active href="@{EntriesByTagR catName activeTags}">#{tagName tag}
+          <a :elem (tagName tag) tagNames:class=active href="@{EntriesByTagR catName activeTags}">#{tagName tag}
 
 <span #new-entry      
   $maybe _ <- mu
