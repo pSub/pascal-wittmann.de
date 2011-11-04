@@ -4,13 +4,13 @@ license:           BSD3
 license-file:      LICENSE
 author:            Pascal Wittmann
 maintainer:        Pascal Wittmann
-synopsis:          The greatest Yesod web application ever.
-description:       I'm sure you can say something clever here if you try.
+synopsis:          Personal website
+description:       Personal website of Pascal Wittmann.
 category:          Web
 stability:         Experimental
 cabal-version:     >= 1.6
 build-type:        Simple
-homepage:          http://homepage.yesodweb.com/
+homepage:          https://www.pascal-wittmann.de
 
 Flag production
     Description:   Build the production executable.
