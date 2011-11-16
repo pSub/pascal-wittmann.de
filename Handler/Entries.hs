@@ -90,7 +90,9 @@ getEntriesByTagR catName tagNames = do
                      , somOrderOne = [Desc EntryDate]
                      })
   defaultLayout $ do
-    setTitle $ toHtml $ catName `append` " :: " `append` (T.concat $ intersperse ", " tagNames)
+    if null tagNames
+       then setTitle $ toHtml catName
+       else setTitle $ toHtml $ catName `append` " :: " `append` (T.concat $ intersperse ", " tagNames)
     $(widgetFile "entries")
     
 toggleTag :: Eq a => a -> [a] -> [a]
