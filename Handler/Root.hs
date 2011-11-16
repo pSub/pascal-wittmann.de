@@ -11,7 +11,7 @@ getRootR = do
   posts <- runDB $ selectList [] [Desc EntryDate, LimitTo 5]
   cats <- runDB $ selectList [] [Asc CategoryName]
   defaultLayout $ do
-    setTitle "Startseite"
+    setTitle "Pascal Wittmann"
     $(widgetFile "root")
   where findCat p cs = find (\ c -> fst c == entryCat p) cs
 
