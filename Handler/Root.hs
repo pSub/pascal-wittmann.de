@@ -1,6 +1,7 @@
 module Handler.Root where
 
 import Import
+import Yesod.Static
 import Data.List  (find)
 
 getRootR :: Handler RepHtml

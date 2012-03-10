@@ -20,6 +20,7 @@ module Handler.Entries
 import           Import
 import qualified Settings
 import           Yesod.Markdown
+import           Yesod.Static
 import           Database.Persist.Query.Join     (selectOneMany, SelectOneMany(..))
 import           Database.Persist.Query.Join.Sql (runJoin)
 
