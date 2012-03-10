@@ -1,6 +1,6 @@
 <ul #tag-list
    <li>Tags: #
-  $forall (_, tag) <- tags
+  $forall Entity _ tag <- tags
     <li>
      $with activeTags <- sort $ toggleTag (tagName tag) tagNames
        $if null activeTags
@@ -8,12 +8,12 @@
        $else
           <a :elem (tagName tag) tagNames:class=active href="@{EntriesByTagR catName activeTags}">#{tagName tag}
 
-<span #new-entry      
+<span #new-entry
   $maybe _ <- mu
        <a href="@{NewEntryR catName}">Neuen Eintrag hinzufügen
 
-<div .entries       
-  $forall (eid, entry) <- entries
+<div .entries
+  $forall Entity eid entry <- entries
       <a .entry href=@{EntryR catName (entryIdent entry)}
         <span .right
                <span .date>Veröffentlicht am #{entryDate entry}
@@ -29,7 +29,7 @@
                 \ / #
                <span .tags
                    Tags: #
-                   $forall (_ ,tag) <- tagsForEntry eid tagsEntries
+                   $forall Entity _ tag <- tagsForEntry eid tagsEntries
                       #{tagName tag} #
         <span .left
              <span .title>#{entryTitle entry}

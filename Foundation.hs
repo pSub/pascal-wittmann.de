@@ -1,61 +1,73 @@
+-- 0.10 compatible
 module Foundation
     ( Homepage (..)
-    , HomepageRoute (..)
+    , Route (..)
+    , HomepageMessage (..)
     , resourcesHomepage
     , Handler
     , Widget
     , maybeAuth
     , requireAuth
-    , module Yesod
     , module Settings
     , module Model
-    , StaticRoute (..)
-    , AuthRoute (..)
+    , StaticRoute
+    , AuthRoute
     , requireAdmin
     , maybeAdmin
     ) where
 
+import Prelude
 import Yesod
-import Yesod.Static (Static, base64md5, StaticRoute(..))
-import Settings.StaticFiles
+import Yesod.Static
 import Yesod.Auth
-import Yesod.Auth.OpenId
+import Yesod.Auth.GoogleEmail
 import Yesod.Default.Config
 import Yesod.Default.Util (addStaticContentExternal)
-import Yesod.Logger (Logger, logLazyText)
-import Yesod.AtomFeed
+import Yesod.Logger (Logger, logMsg, formatLogText)
+import Network.HTTP.Conduit (Manager)
+#ifdef DEVELOPMENT
+import Yesod.Logger (logLazyText)
+#endif
 import qualified Settings
 import qualified Data.ByteString.Lazy as L
-import qualified Database.Persist.Base
+import qualified Database.Persist.Store
 import Database.Persist.GenericSql
-import Settings (widgetFile)
+import Settings (widgetFile, Extra (..))
 import Model
 import Text.Jasmine (minifym)
 import Web.ClientSession (getKey)
 import Text.Hamlet (hamletFile)
-#if PRODUCTION
-import Network.Mail.Mime (sendmail)
-#else
+#if DEVELOPMENT
 import qualified Data.Text.Lazy.Encoding
+#else
+import Network.Mail.Mime (sendmail)
 #endif
 
+-- Custom imports
 import Control.Applicative
 import Data.Text (Text)
 import Data.Time
 import Text.Blaze (ToHtml)
 import System.Locale
-import Yesod.Goodies.Markdown
+import Yesod.Markdown
+import Yesod.AtomFeed
+import Settings.StaticFiles
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
 -- starts running, such as database connections. Every handler will have
 -- access to the data present here.
 data Homepage = Homepage
-    { settings :: AppConfig DefaultEnv
+    { settings :: AppConfig DefaultEnv Extra
     , getLogger :: Logger
     , getStatic :: Static -- ^ Settings for static file serving.
-    , connPool :: Database.Persist.Base.PersistConfigPool Settings.PersistConfig -- ^ Database connection pool.
+    , connPool :: Database.Persist.Store.PersistConfigPool Settings.PersistConfig -- ^ Database connection pool.
+    , httpManager :: Manager
+    , persistConfig :: Settings.PersistConfig
     }
+
+-- Set up i18n messages. See the message folder.
+mkMessage "Homepage" "messages" "en"
 
 -- This is only temporary, since complex types are
 -- currently not allowed in routes
@@ -82,16 +94,20 @@ type Tags = [Text]
 -- split these actions into two functions and place them in separate files.
 mkYesodData "Homepage" $(parseRoutesFile "config/routes")
 
+type Form x = Html -> MForm Homepage Homepage (FormResult x, Widget)
+
 -- Please see the documentation for the Yesod typeclass. There are a number
 -- of settings which can be configured by overriding methods here.
 instance Yesod Homepage where
-    approot = appRoot . settings
+    approot = ApprootMaster $ appRoot . settings
 
     -- Place the session key file in the config folder
     encryptKey _ = fmap Just $ getKey "config/client_session_key.aes"
 
     defaultLayout widget = do
+        master <- getYesod
         mmsg <- getMessage
+
         mu <- maybeAuth
         current <- getCurrentRoute
         toMaster <- getRouteToMaster
@@ -111,8 +127,8 @@ instance Yesod Homepage where
             atomLink NewsFeedR "Newsfeed von pascal-wittmann.de"
             $(widgetFile "normalize")
             $(widgetFile "default-layout")
-        hamletToRepHtml $(hamletFile "hamlet/default-layout-wrapper.hamlet")
-        where name = categoryName . snd
+        hamletToRepHtml $(hamletFile "templates/default-layout-wrapper.hamlet")
+        where name = categoryName . entityVal
 
     -- This is done to provide an optimization for serving static files from
     -- a separate domain. Please see the staticRoot setting in Settings.hs
@@ -124,7 +140,7 @@ instance Yesod Homepage where
     authRoute _ = Just $ AuthR LoginR
 
     messageLogger y loc level msg =
-      formatLogMessage loc level msg >>= logLazyText (getLogger y)
+      formatLogText (getLogger y) loc level msg >>= logMsg (getLogger y)
 
     -- This function creates static content files in the static folder
     -- and names them based on a hash of their content. This allows
@@ -138,8 +154,12 @@ instance Yesod Homepage where
 -- How to run database actions.
 instance YesodPersist Homepage where
     type YesodPersistBackend Homepage = SqlPersist
-    runDB f = liftIOHandler
-            $ fmap connPool getYesod >>= Database.Persist.Base.runPool (undefined :: Settings.PersistConfig) f
+    runDB f = do
+        master <- getYesod
+        Database.Persist.Store.runPool
+            (persistConfig master)
+            f
+            (connPool master)
 
 instance YesodAuth Homepage where
     type AuthId Homepage = UserId
@@ -152,19 +172,21 @@ instance YesodAuth Homepage where
     getAuthId creds = runDB $ do
         x <- getBy $ UniqueUser $ credsIdent creds
         case x of
-            Just (uid, _) -> return $ Just uid
+            Just (Entity uid _) -> return $ Just uid
             Nothing -> do
                 fmap Just $ insert $ User (credsIdent creds) Nothing Nothing False
 
     -- You can add other plugins like BrowserID, email or OAuth here
-    authPlugins = [authOpenId]
+    authPlugins _ = [authGoogleEmail]
+
+    authHttpManager = httpManager
 
 -- Sends off your mail. Requires sendmail in production!
 deliver :: Homepage -> L.ByteString -> IO ()
-#ifdef PRODUCTION
-deliver _ = sendmail
-#else
+#ifdef DEVELOPMENT
 deliver y = logLazyText (getLogger y) . Data.Text.Lazy.Encoding.decodeUtf8
+#else
+deliver _ = sendmail
 #endif
 
 -- This instance is required to use forms. You can modify renderMessage to
@@ -178,7 +200,7 @@ instance ToHtml Markdown where
 instance ToHtml UTCTime where
   toHtml = toHtml . formatTime defaultTimeLocale "%e.%m.%Y"
 
-parents :: Maybe HomepageRoute -> Maybe HomepageRoute
+parents :: Maybe (Route Homepage) -> Maybe (Route Homepage)
 parents (Just ImpressumR) = Nothing
 parents (Just (EntriesByTagR cat _)) = Just $ EntriesR cat
 parents (Just (EntryR cat _)) = Just $ EntriesR cat
@@ -191,7 +213,7 @@ parents Nothing = Nothing
 
 requireAdmin :: Handler ()
 requireAdmin = do
-     (_, u) <- requireAuth
+     (Entity _ u) <- requireAuth
      if userAdmin u
        then return ()
        else permissionDenied "You need admin privileges to do that"
@@ -200,7 +222,7 @@ maybeAdmin :: Handler (Maybe (UserGeneric SqlPersist))
 maybeAdmin = do
      mu <- maybeAuth
      case mu of
-          Just (_, u) -> do
+          Just (Entity _ u) -> do
             if userAdmin u
               then return $ Just u
               else return Nothing

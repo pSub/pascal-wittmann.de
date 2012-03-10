@@ -8,5 +8,5 @@
 
 <p>Kategorien löschen
 
-$forall (cid, c) <- cats
+$forall Entity cid c <- cats
     <a href=@{DeleteCategoryR cid}>#{categoryName c}</a> #

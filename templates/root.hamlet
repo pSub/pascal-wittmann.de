@@ -1,6 +1,6 @@
 <h2>Letzte Posts
-$forall (_, post) <- posts
-  $maybe (_, category) <- findCat post cats
+$forall Entity _ post <- posts
+  $maybe Entity _ category <- findCat post cats
     <a href="@{EntryR (categoryName category) (entryIdent post)}">#{entryTitle post}</a> in #{categoryName category} am #{entryDate post}
     <br
 <h2>Newsfeed

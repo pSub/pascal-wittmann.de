@@ -14,14 +14,14 @@
     font-size: 0.9em
     list-style: none
 
-#tag-list li 
+#tag-list li
     display: inline
     padding-right: 0.3em
 
 .active
     color: #ff9940 !important
 
-#tag-list a:link, #tag-list a:visited, #tag-list a:active 
+#tag-list a:link, #tag-list a:visited, #tag-list a:active
     color: #000
 
 #tag-list a:hover
@@ -34,7 +34,7 @@
 .entries
     clear: both
 
-.entry  
+.entry
     display: block
     padding-top: 0.25em
     padding-bottom: 0.25em

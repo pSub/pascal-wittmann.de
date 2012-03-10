@@ -1,10 +1,7 @@
-module Handler.Root 
-       (
-         getRootR
-       ) where
+module Handler.Root where
 
+import Import
 import Data.List  (find)
-import Foundation
 
 getRootR :: Handler RepHtml
 getRootR = do
@@ -13,7 +10,7 @@ getRootR = do
   defaultLayout $ do
     setTitle "Pascal Wittmann"
     $(widgetFile "root")
-  where findCat p cs = find (\ c -> fst c == entryCat p) cs
+  where findCat p cs = find (\ c -> entityKey c == entryCat p) cs
 
 nofacebookme_png :: StaticRoute
 nofacebookme_png = StaticRoute ["no-facebook-me.png"] []

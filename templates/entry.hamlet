@@ -1,33 +1,33 @@
 $maybe _ <- mu
   <span .right
-    <a href="@{DeleteEntryR catName (fst entry)}">Löschen
-    \ 
+    <a href="@{DeleteEntryR catName (entityKey entry)}">Löschen
+    \
     <a href="@{EditEntryR catName curIdent}">Bearbeiten
     \
     <a href="@{UploadFileR catName curIdent}">Anhang
-<h2>#{entryTitle $ snd entry}</h2>
-#{markdownToHtml $ entryContent $ snd entry}
+<h2>#{entryTitle $ entityVal entry}</h2>
+#{markdownToHtml $ entryContent $ entityVal entry}
 
 $if not $ null atts
   <h2>Anhänge
-  $forall (_, att) <- atts
+  $forall Entity _ att <- atts
        <a href="@{StaticR $ createStaticRoute $ attachmentName att}">#{attachmentName att}
        <br
-       
+
 <h2>Kommentare
 $if not (null comments)
  $forall (indention, _comment) <- comments
-  $with (cid, comment) <- _comment
+  $with Entity cid comment <- _comment
     <div .comment style="padding-left: #{show $ (*) 2 indention}em"
       am #{commentDate comment} schrieb #
       $maybe author <- commentAuthor comment
              <b>#{author}
       $nothing
              <b>Anonymous
-      \ 
+      \
       <a href="@{EntryCommentR catName curIdent cid}">antworten
       $maybe _ <- mu
-         \ 
+         \
          <a href="@{DeleteCommentR catName curIdent cid}">löschen
       <blockquote>
         $if (commentDeleted comment)
@@ -43,7 +43,7 @@ $if not (null comments)
               \ <a href=@{EntryR catName curIdent}>abbrechen
 $else
   Keine Kommentare vorhanden
- 
+
 <h2>Neuer Kommentar
 <form enctype="#{enctype}" method="post"
       ^{formNew}

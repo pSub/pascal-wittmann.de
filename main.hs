@@ -1,6 +1,9 @@
+-- 0.10 compatible
+import Prelude              (IO)
 import Yesod.Default.Config (fromArgs)
 import Yesod.Default.Main   (defaultMain)
-import Application          (withHomepage)
+import Settings             (parseExtra)
+import Application          (getApplication)
 
 main :: IO ()
-main = defaultMain fromArgs withHomepage
+main = defaultMain (fromArgs parseExtra) getApplication

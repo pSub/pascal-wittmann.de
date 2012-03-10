@@ -2,7 +2,7 @@ module Handler.Sitemap
        ( getSitemapR
        ) where
 
-import Foundation
+import Import
 
 getSitemapR :: GHandler s m RepXml
 getSitemapR = sendFile "application/xml" "config/sitemap.xml"

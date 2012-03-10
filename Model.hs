@@ -1,13 +1,17 @@
+-- 0.10. compatible
 module Model where
 
+import Prelude
 import Yesod
-import Yesod.Goodies.Markdown (Markdown)
+import Yesod.Markdown (Markdown)
 import Data.Time (UTCTime)
 import Data.Text (Text)
+import Database.Persist.Quasi
 
 
 -- You can define all of your database entities in the entities file.
 -- You can find more information on persistent and how to declare entities
 -- at:
 -- http://www.yesodweb.com/book/persistent/
-share [mkPersist sqlSettings, mkMigrate "migrateAll"] $(persistFile "config/models")
+share [mkPersist sqlSettings, mkMigrate "migrateAll"]
+     $(persistFileWith lowerCaseSettings "config/models")

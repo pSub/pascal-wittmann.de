@@ -1,19 +1,27 @@
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+-- 0.10 compatible
 module Application
-    ( withHomepage
-    , withDevelAppPort
+    ( getApplication
+    , getApplicationDev
     ) where
 
-import Foundation
+import Import
 import Settings
-import Yesod.Static
+import Settings.StaticFiles (staticSite)
 import Yesod.Auth
 import Yesod.Default.Config
 import Yesod.Default.Main
-import Yesod.Default.Handlers hiding (getRobotsR)
-import Yesod.Logger (Logger)
-import Data.Dynamic (Dynamic, toDyn)
-import qualified Database.Persist.Base
+import Yesod.Default.Handlers
+#if DEVELOPMENT
+import Yesod.Logger (Logger, logBS)
+import Network.Wai.Middleware.RequestLogger (logCallbackDev)
+#else
+import Yesod.Logger (Logger, logBS, toProduction)
+import Network.Wai.Middleware.RequestLogger (logCallback)
+#endif
+import qualified Database.Persist.Store
 import Database.Persist.GenericSql (runMigration)
+import Network.HTTP.Conduit (newManager, def)
 
 -- Import all relevant handler modules here.
 import Handler.Root
@@ -36,20 +44,32 @@ mkYesodDispatch "Homepage" resourcesHomepage
 -- performs initialization and creates a WAI application. This is also the
 -- place to put your migrate statements to have automatic database
 -- migrations handled by Yesod.
-withHomepage :: AppConfig DefaultEnv -> Logger -> (Application -> IO ()) -> IO ()
-withHomepage conf logger f = do
-#ifdef PRODUCTION
-    s <- static Settings.staticDir
+getApplication :: AppConfig DefaultEnv Extra -> Logger -> IO Application
+getApplication conf logger = do
+    manager <- newManager def
+    s <- staticSite
+    dbconf <- withYamlEnvironment "config/postgresql.yml" (appEnv conf)
+              Database.Persist.Store.loadConfig >>=
+              Database.Persist.Store.applyEnv
+    p <- Database.Persist.Store.createPoolConfig (dbconf :: Settings.PersistConfig)
+    Database.Persist.Store.runPool dbconf (runMigration migrateAll) p
+    let foundation = Homepage conf setLogger s p manager dbconf
+    app <- toWaiAppPlain foundation
+    return $ logWare app
+  where
+#ifdef DEVELOPMENT
+    logWare = logCallbackDev (logBS setLogger)
+    setLogger = logger
 #else
-    s <- staticDevel Settings.staticDir
+    setLogger = toProduction logger -- by default the logger is set for development
+    logWare = logCallback (logBS setLogger)
 #endif
-    dbconf <- withYamlEnvironment "config/postgres.yml" (appEnv conf)
-            $ either error return . Database.Persist.Base.loadConfig
-    Database.Persist.Base.withPool (dbconf :: Settings.PersistConfig) $ \p -> do
-        Database.Persist.Base.runPool dbconf (runMigration migrateAll) p
-        let h = Homepage conf logger s p
-        defaultRunner f h
 
 -- for yesod devel
-withDevelAppPort :: Dynamic
-withDevelAppPort = toDyn $ defaultDevelApp withHomepage
+getApplicationDev :: IO (Int, Application)
+getApplicationDev =
+    defaultDevelApp loader getApplication
+  where
+    loader = loadConfig (configSettings Development)
+        { csParseExtra = parseExtra
+        }

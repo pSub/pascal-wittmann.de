@@ -1,4 +1,4 @@
-body 
+body
     background-color: #393939
     font-size: 1em
     font-family: serif font-style: normal font-weight: normal
@@ -9,7 +9,7 @@ body
     left: 0
     border: 0
 
-img 
+img
     border: 0px
 
 hr
@@ -20,53 +20,53 @@ hr
 
 textarea
     height: 5em
-    
+
 #message-box
     border-radius: 5px
     background-color: #ffffff
     width: 66%
     margin: 0 auto
     margin-top: 2em
-    
-#container 
+
+#container
     width:66%
     margin:0 auto
     padding-top: 3em
     padding-bottom: 3em
 
-.xtop, .xbottom 
+.xtop, .xbottom
     clear:both
     display:block
     background:transparent
 
-.xb1, .xb2, .xb3, .xb4 
+.xb1, .xb2, .xb3, .xb4
     display:block
     overflow:hidden
 
-.xb1, .xb2, .xb3 
+.xb1, .xb2, .xb3
     height:1px
 
-.xb2, .xb3, .xb4 
+.xb2, .xb3, .xb4
     background: #fff
     border-left:1px solid #fff
     border-right:1px solid #fff
 
-.xb1 
+.xb1
     margin:0 5px
         background:#fff
 
-.xb2 
+.xb2
     margin:0 3px
         border-width:0 2px
 
-.xb3 
+.xb3
     margin:0 2px
 
-.xb4 
+.xb4
     height:2px
         margin:0 1px
 
-#title 
+#title
     font-size: 1.5em
     text-align: center
     float:left
@@ -74,9 +74,9 @@ textarea
 
 #title a:link, #title a:visited, #title a:active, #title a:hover
     text-decoration: none
-    color: #fff    
+    color: #fff
 
-#navigation 
+#navigation
     font-size:1.5em
     list-style: none
     text-align: left
@@ -90,9 +90,9 @@ textarea
 
 #navigation a:link, #navigation a:visited, #navigation a:active, #navigation a:hover
     text-decoration: none
-    color: #0099ff 
+    color: #0099ff
 
-#navigation a 
+#navigation a
     display: inline
     background-color: #fff
     margin-left: 0.3em
@@ -101,10 +101,10 @@ textarea
     border-left: 0.1em solid #fff
     border-right: 0.1em solid #fff
 
-#navigation #active 
+#navigation #active
     border-bottom: 0.1em solid #fff
 
-#content 
+#content
     clear: both
     background-color: #fff
     padding: 1em
@@ -146,14 +146,14 @@ textarea
     padding-left: 1em
     padding-right: 1em
 
-label 
+label
     display: block
     width: 7em
     float: left
 
 .multi-column
     padding-left: 3em
-    
+
 .multi-column ul
     margin: 0
     padding: 0
@@ -166,12 +166,12 @@ label
     float: left
     width: 20em
 
-#footer 
+#footer
     color: #fff
     font-size: 0.8em
     padding-top: 0.5em
 
-#footer a 
+#footer a
     color: #fff
 
 #footer #left
@@ -179,4 +179,3 @@ label
 
 #footer #right
     float: right
-
