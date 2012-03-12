@@ -134,6 +134,9 @@ textarea
     color: #0099ff
     text-decoration: none
 
+#content a:after
+    content: '⇡'
+
 #content a:hover, #content a:active
     text-decoration: none
 
@@ -141,6 +144,9 @@ textarea
     color: #000
     text-decoration: none
     border-bottom: 0px
+
+#content a[href*="pascal-wittmann.de"]:after
+    content: ''
 
 #content .margin
     padding-left: 1em
