@@ -145,7 +145,7 @@ textarea
     text-decoration: none
     border-bottom: 0px
 
-#content a[href*="pascal-wittmann.de"]:after
+#content a[href^="@{RootR}"]:after
     content: ''
 
 #content .margin
