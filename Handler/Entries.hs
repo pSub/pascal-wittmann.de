@@ -137,13 +137,13 @@ postEntryR = getEntryR
 
 getDeleteTagR :: Text -> TagId -> Handler ()
 getDeleteTagR category tid = do
-  _ <- requireAdmin
+  requireAdmin
   runDB $ delete tid
   redirect $  EntriesR category
 
 getNewEntryR :: Text -> Handler RepHtml
 getNewEntryR catName = do
-  _ <- requireAdmin
+  requireAdmin
   category <- runDB $ getBy404 $ UniqueCategory catName
   tags <- return []
   ((res, form), enctype) <- runFormPost $ entryForm Nothing (entityKey category)
@@ -163,7 +163,7 @@ postNewEntryR = getNewEntryR
 
 getEditEntryR :: Text -> Text -> Handler RepHtml
 getEditEntryR catName eid = do
-  _ <- requireAdmin
+  requireAdmin
   Entity eKey eVal <- runDB $ getBy404 $ UniqueEntry eid
   tags <- showTags <$> (runDB $ runJoin $ (selectOneMany (TaggedTag <-.) taggedTag)
           { somFilterMany = [TaggedEntry ==. eKey]
@@ -191,7 +191,7 @@ postEditEntryR = getEditEntryR
 
 getDeleteEntryR :: Text -> EntryId -> Handler ()
 getDeleteEntryR category eid = do
-  _ <- requireAdmin
+  requireAdmin
   runDB $ deleteWhere [CommentEntry ==. eid]
   runDB $ deleteWhere [TaggedEntry ==. eid]
   runDB $ deleteWhere [AttachmentEntry ==. eid]
@@ -200,13 +200,13 @@ getDeleteEntryR category eid = do
 
 getDeleteCommentR :: Text -> Text -> CommentId -> Handler ()
 getDeleteCommentR catName curIdent cid = do
-  _ <- requireAdmin
+  requireAdmin
   runDB $ update cid [CommentDeleted =. True]
   redirect $  EntryR catName curIdent
 
 getUploadFileR :: Text -> Text -> Handler RepHtml
 getUploadFileR catName curIdent = do
-  _ <- requireAdmin
+  requireAdmin
   e <- runDB $ getBy404 $ UniqueEntry curIdent
   atts <- runDB $ selectList [AttachmentEntry ==. (entityKey e)] [Asc AttachmentName]
   ((res, form), enctype) <- runFormPost fileForm
@@ -224,7 +224,7 @@ postUploadFileR = getUploadFileR
 
 getDeleteFileR :: Text -> Text -> AttachmentId -> Handler ()
 getDeleteFileR catName curIdent aid = do
-   _ <- requireAdmin
+   requireAdmin
    a <- runDB $ get404 aid
    liftIO $ removeFile $ buildFileName $ attachmentName a
    runDB $ delete aid
@@ -241,7 +241,7 @@ insertTags :: CategoryId -> EntryId -> [Text] -> Handler ()
 insertTags category eid = mapM_ insertTag .filter (not . T.null)
            where insertTag t = do
                  mtag <- runDB $ getBy $ UniqueTag t category
-                 tid <- (-|-) (runDB $ insert $ Tag t category) (entityKey <$> mtag)
+                 tid <- (runDB $ insert $ Tag t category) -|- (entityKey <$> mtag)
                  runDB $ insert $ Tagged tid eid
 
 buildComments :: [Entity (CommentGeneric b)] -> [(Integer, Entity (CommentGeneric b))]
