@@ -28,7 +28,7 @@ import qualified Data.ByteString.Lazy      as BS (writeFile)
 import           Data.List                 (intersperse, sort)
 import qualified Data.List                 as L (delete)
 import           Data.Maybe
-import           Data.Text                 (Text, unpack, pack, append, strip, splitOn)
+import           Data.Text                 (unpack, pack, append, strip, splitOn)
 import qualified Data.Text                 as T
 import           Data.Time
 import           Data.Tree
@@ -249,7 +249,7 @@ buildComments cs = concat $ map flatten $ unfoldForest (\ c -> (c, getChilds c))
       where
         roots = zip [0,0..] (filter (isNothing . commentParent . entityVal) cs)
         getChilds (depth, c) = zip (repeat $ succ depth) (filter (isChild c) cs)
-        isChild (Entity c _) (Entity _ c') = (isJust $ commentParent c') && c == (fromJust $ commentParent c')
+        isChild (Entity c _) (Entity _ c') = maybe False (c ==) (commentParent c')
 
 createStaticRoute :: Text -> StaticRoute
 createStaticRoute name = StaticRoute [name] []
