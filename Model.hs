@@ -4,6 +4,7 @@ module Model where
 import Prelude
 import Yesod
 import Yesod.Markdown (Markdown)
+import Yesod.RST (RST)
 import Data.Time (UTCTime)
 import Data.Text (Text)
 import Database.Persist.Quasi

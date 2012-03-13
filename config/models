@@ -21,7 +21,7 @@ Category
 Entry
   title Text
   ident Text
-  content Markdown
+  content RST
   cat CategoryId
   recap Text
   meta_descr String

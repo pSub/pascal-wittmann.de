@@ -106,6 +106,7 @@ executable         homepage
 
                  -- Custom dependencies
                  , yesod-markdown
+                 , yesod-rst
                  , yesod-newsfeed
                  , containers
                  , time

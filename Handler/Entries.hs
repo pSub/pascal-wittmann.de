@@ -19,20 +19,21 @@ module Handler.Entries
 
 import           Import
 import qualified Settings
+import           Yesod.RST
 import           Yesod.Markdown
 import           Yesod.Static
 import           Database.Persist.Query.Join     (selectOneMany, SelectOneMany(..))
 import           Database.Persist.Query.Join.Sql (runJoin)
 
-import qualified Data.ByteString.Lazy      as BS (writeFile)
-import           Data.List                 (intersperse, sort)
-import qualified Data.List                 as L (delete)
+import qualified Data.ByteString.Lazy            as BS (writeFile)
+import           Data.List                       (intersperse, sort)
+import qualified Data.List                       as L (delete)
 import           Data.Maybe
-import           Data.Text                 (unpack, pack, append, strip, splitOn)
-import qualified Data.Text                 as T
+import           Data.Text                       (unpack, pack, append, strip, splitOn)
+import qualified Data.Text                       as T
 import           Data.Time
 import           Data.Tree
-import           Prelude                   hiding (unwords)
+import           Prelude                         hiding (unwords)
 import           System.Directory
 import           System.FilePath.Posix
 
@@ -42,7 +43,7 @@ data PEntry = PEntry
      , cat :: CategoryId
      , tag :: Text
      , recap :: Text
-     , text :: Markdown
+     , text :: RST
      } deriving Show
 
 data PComment = PComment
@@ -58,7 +59,7 @@ entryForm mparams category html = (flip renderDivs) html $ PEntry
     <*> pure category
     <*> areq textField "Tags" (tag <$> mparams)
     <*> areq textField "Summary" (recap <$> mparams)
-    <*> areq markdownField "Text" (text <$> mparams)
+    <*> areq rstField "Text" (text <$> mparams)
 
 commentForm :: Maybe PComment -> Maybe CommentId -> Html -> MForm Homepage Homepage (FormResult PComment, Widget)
 commentForm mcomment mparent html = (flip renderDivs) html $ PComment
