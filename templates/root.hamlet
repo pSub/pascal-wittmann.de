@@ -1,7 +1,8 @@
 <h2>Letzte Posts
 $forall Entity _ post <- posts
   $maybe Entity _ category <- findCat post cats
-    <a href="@{EntryR (categoryName category) (entryIdent post)}">#{entryTitle post}</a> in #{categoryName category} am #{entryDate post}
+    <a href="@{EntryR (categoryName category) (entryIdent post)}">#{entryTitle post}
+    \ in #{categoryName category} am #{entryDate post}
     <br
 <h2>Newsfeed
 Über den <a href=@{NewsFeedR}>Newsfeed</a> erfährt man stets ob, auf dieser Webseite neue Artikel veröffentlicht wurden. Der Feed wird standartmäßig im Atom-Format ausgeliefert. Falls jedoch mittels des HTTP-Headers den ihr Feedreader sendet festgestellt wird, dass dieser Atom nicht unterstützt, wird RSS ausgeliefert.
