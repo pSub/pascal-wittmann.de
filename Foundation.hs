@@ -17,6 +17,7 @@ module Foundation
     ) where
 
 import Prelude
+import Text.Blaze (preEscapedText)
 import Yesod
 import Yesod.Static
 import Yesod.Auth
