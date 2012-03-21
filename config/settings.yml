@@ -14,5 +14,7 @@ Staging:
   <<: *defaults
 
 Production:
-  approot: "http://psub.eu:3000"
+  approot: "https://www.pascal-wittmann.de"
+  host: "127.0.0.1"
+  port: 3001
   <<: *defaults
