@@ -126,7 +126,6 @@ instance Yesod Homepage where
 
         pc <- widgetToPageContent $ do
             atomLink NewsFeedR "Newsfeed von pascal-wittmann.de"
-            $(widgetFile "normalize")
             $(widgetFile "default-layout")
         hamletToRepHtml $(hamletFile "templates/default-layout-wrapper.hamlet")
         where name = categoryName . entityVal
