@@ -1,5 +1,4 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
--- 0.10 compatible
 module Application
     ( getApplication
     , getApplicationDev

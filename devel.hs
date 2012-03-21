@@ -1,4 +1,3 @@
--- 0.10 compatible
 {-# LANGUAGE PackageImports #-}
 import "homepage" Application (getApplicationDev)
 import Network.Wai.Handler.Warp

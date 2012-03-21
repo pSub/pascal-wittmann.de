@@ -1,4 +1,3 @@
--- 0.10 compatible
 module Settings.StaticFiles where
 
 import Prelude (IO)

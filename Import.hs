@@ -1,4 +1,3 @@
--- 0.10 compatible
 module Import
     ( module Prelude
     , module Yesod

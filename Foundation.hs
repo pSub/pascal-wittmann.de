@@ -1,4 +1,3 @@
--- 0.10 compatible
 module Foundation
     ( Homepage (..)
     , Route (..)
