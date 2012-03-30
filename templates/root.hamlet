@@ -25,6 +25,6 @@ Diese Webseite wurde in <a href="http://www.haskell.org">Haskell</a> mit Hilfe d
  <br
 <h2>Soziale Netzwerke & Sonstiges
 <a href="http://www.fsf.org/facebook"
-   <img src="@{StaticR nofacebookme_png}" width="240" alt="Not f'd — you won't find me on Facebook"
+   <img src=@{StaticR nofacebookme_png} width="240" alt="Not f'd — you won't find me on Facebook"
 <a href="http://www.haskellers.com/user/1371"
-   <img src="http://www.haskellers.com/static/badge.png" alt="I'm a Haskeller"
+   <img src=@{StaticR haskeller_logo} alt="I'm a Haskeller"
