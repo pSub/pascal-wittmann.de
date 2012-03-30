@@ -9,6 +9,12 @@ body
     left: 0
     border: 0
 
+#newsfeed
+    position: absolute
+    top: 5%
+    right: 10%
+    border: 0
+
 img
     border: 0px
 
