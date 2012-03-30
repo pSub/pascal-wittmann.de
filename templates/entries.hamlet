@@ -1,12 +1,12 @@
 <ul #tag-list
    <li>Tags: #
-  $forall Entity _ tag <- tags
+  $forall Entity _ tag' <- tags
     <li>
-     $with activeTags <- sort $ toggleTag (tagName tag) tagNames
+     $with activeTags <- sort $ toggleTag (tagName tag') tagNames
        $if null activeTags
-          <a :elem (tagName tag) tagNames:class=active href="@{EntriesR catName}">#{tagName tag}
+          <a :elem (tagName tag') tagNames:class=active href="@{EntriesR catName}">#{tagName tag'}
        $else
-          <a :elem (tagName tag) tagNames:class=active href="@{EntriesByTagR catName activeTags}">#{tagName tag}
+          <a :elem (tagName tag') tagNames:class=active href="@{EntriesByTagR catName activeTags}">#{tagName tag'}
 
 <span #new-entry
   $maybe _ <- mu
@@ -20,17 +20,17 @@
                <br
                <span .comment-count
                  $with mcount <- lookup eid comments
-                  $maybe count <- mcount
-                    #{count} Kommentar
-                    $if (/=) count 1
+                  $maybe count' <- mcount
+                    #{count'} Kommentar
+                    $if (/=) count' 1
                       e
                   $nothing
                     keine Kommentare
                 \ / #
                <span .tags
                    Tags: #
-                   $forall Entity _ tag <- tagsForEntry eid tagsEntries
-                      #{tagName tag} #
+                   $forall Entity _ tag' <- tagsForEntry eid tagsEntries
+                      #{tagName tag'} #
         <span .left
              <span .title>#{entryTitle entry}
              <br

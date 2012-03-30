@@ -15,8 +15,8 @@ $maybe msg <- mmsg
           ^{widget}
      <div #footer
           <div #left
-               $maybe Entity _ u <- mu
-                 $if userAdmin u
+               $maybe Entity _ user <- muser
+                 $if userAdmin user
                    <a href="@{AdminR}">Admin
                    \ | #
                  <a href=@{ProfileR}>Profil

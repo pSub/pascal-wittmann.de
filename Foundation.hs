@@ -108,7 +108,7 @@ instance Yesod Homepage where
         master <- getYesod
         mmsg <- getMessage
 
-        mu <- maybeAuth
+        muser<- maybeAuth
         current <- getCurrentRoute
         toMaster <- getRouteToMaster
         cats <- runDB $ selectList [] [Asc CategoryName]
