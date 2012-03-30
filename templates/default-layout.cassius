@@ -11,7 +11,7 @@ body
 
 #newsfeed
     position: absolute
-    top: 5%
+    top: 3em
     right: 10%
     border: 0
 
