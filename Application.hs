@@ -31,9 +31,6 @@ import Handler.Profile
 import Handler.News
 import Handler.Sitemap
 
-getRobotsR :: GHandler s m RepPlain
-getRobotsR = sendFile "text/plain" "config/robots.txt"
-
 -- This line actually creates our YesodSite instance. It is the second half
 -- of the call to mkYesodData which occurs in Foundation.hs. Please see
 -- the comments there for more details.
