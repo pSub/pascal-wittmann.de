@@ -1,4 +1,4 @@
-<form method=post encoding=#{enctype}
+<form method=post encoding=#{enctype}>
       ^{form}
-      <p
-         <input type=submit
+      <p>
+         <input type=submit>

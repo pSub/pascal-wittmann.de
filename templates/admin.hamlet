@@ -1,5 +1,5 @@
-<h2 Admin
-<form enctype="#{catEnctype}" method="post"
+<h2> Admin
+<form enctype="#{catEnctype}" method="post">
       <table>
         ^{catForm}
         <tr>

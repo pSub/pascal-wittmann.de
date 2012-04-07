@@ -1,4 +1,4 @@
-<ul #tag-list
+<ul #tag-list>
    <li>Tags: #
   $forall Entity _ tag' <- tags
     <li>
@@ -8,17 +8,17 @@
        $else
           <a :elem (tagName tag') tagNames:class=active href="@{EntriesByTagR catName activeTags}">#{tagName tag'}
 
-<span #new-entry
+<span #new-entry>
   $maybe _ <- mu
        <a href="@{NewEntryR catName}">Neuen Eintrag hinzufügen
 
-<div .entries
+<div .entries>
   $forall Entity eid entry <- entries
-      <a .entry href=@{EntryR catName (entryIdent entry)}
-        <span .right
-               <span .date>Veröffentlicht am #{entryDate entry}
-               <br
-               <span .comment-count
+      <a .entry href=@{EntryR catName (entryIdent entry)}>
+        <span .right>
+               <span .date>Veröffentlicht am #{entryDate entry}>
+               <br>
+               <span .comment-count>
                  $with mcount <- lookup eid comments
                   $maybe count' <- mcount
                     #{count'} Kommentar
@@ -27,11 +27,11 @@
                   $nothing
                     keine Kommentare
                 \ / #
-               <span .tags
+               <span .tags>
                    Tags: #
                    $forall Entity _ tag' <- tagsForEntry eid tagsEntries
                       #{tagName tag'} #
-        <span .left
-             <span .title>#{entryTitle entry}
-             <br
-             <span .recap>#{entryRecap entry}
+        <span .left>
+             <span .title>#{entryTitle entry}>
+             <br>
+             <span .recap>#{entryRecap entry}>

@@ -1,20 +1,20 @@
 <a href="http://www.yesodweb.com">
-   <img #powered-by src=@{StaticR powered_by_logo} alt="powered by Yesod"
-<a href=@{NewsFeedR}
-   <img #newsfeed src=@{StaticR rss_logo} alt="Newsfeed"
+   <img #powered-by src=@{StaticR powered_by_logo} alt="powered by Yesod">
+<a href=@{NewsFeedR}>
+   <img #newsfeed src=@{StaticR rss_logo} alt="Newsfeed">
 $maybe msg <- mmsg
-   <div #message-box>
-        <center>#{msg}
-<div #container
-     <div #title
+       <div #message-box>
+            <center>#{msg}
+<div #container>
+     <div #title>
           <a href=@{RootR}> Pascal Wittmann
-     <div  #navigation
+     <div  #navigation>
          $forall (label, url) <- categories
             <a :isCurrent url:id=active href="@{url}">#{label}
-     <div #content
+     <div #content>
           ^{widget}
-     <div #footer
-          <div #left
+     <div #footer>
+          <div #left>
                $maybe Entity _ user <- muser
                  $if userAdmin user
                    <a href="@{AdminR}">Admin
@@ -24,7 +24,7 @@ $maybe msg <- mmsg
                  <a href="@{AuthR LogoutR}">Logout
                $nothing
                    <a href="@{AuthR LoginR}">Login
-          <div #right
+          <div #right>
                #{preEscapedText $ extraCopyright $ appExtra $ settings master}
                \ | #
                <a href=@{ImpressumR} title="Impressum">Impressum

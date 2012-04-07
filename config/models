@@ -46,6 +46,7 @@ Comment
   deleted Bool
 
 Attachment
-  name Text
+  file Text
   entry EntryId
-  UniqueAtt name
+  descr Text
+  UniqueAtt file
