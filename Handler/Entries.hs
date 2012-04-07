@@ -110,7 +110,7 @@ entryHandler catName curIdent mparent = do
           { somFilterMany = [TaggedEntry ==. (entityKey entry)]
           , somOrderOne = [Asc TagName]
           }
-  atts <- runDB $ selectList [AttachmentEntry ==. (entityKey entry)] [Asc AttachmentName]
+  atts <- runDB $ selectList [AttachmentEntry ==. (entityKey entry)] [Asc AttachmentDescr]
   comments <- buildComments <$> (runDB $ selectList [CommentEntry ==. (entityKey entry)] [Asc CommentDate])
   ((_, formNew), _) <- runFormPost $ commentForm (Just $ PComment Nothing ((maybe Nothing (userName . entityVal)) mua) "") Nothing
   ((res, formEdit), enctype) <- runFormPost $ commentForm (Just $ PComment mparent ((maybe Nothing (userName . entityVal)) mua) "") mparent
@@ -209,11 +209,11 @@ getUploadFileR :: Text -> Text -> Handler RepHtml
 getUploadFileR catName curIdent = do
   requireAdmin
   e <- runDB $ getBy404 $ UniqueEntry curIdent
-  atts <- runDB $ selectList [AttachmentEntry ==. (entityKey e)] [Asc AttachmentName]
-  ((res, form), enctype) <- runFormPost fileForm
+  atts <- runDB $ selectList [AttachmentEntry ==. (entityKey e)] [Asc AttachmentDescr]
+  ((res, form), enctype) <- runFormPost $ fileForm
   case res of
        FormSuccess f -> do
-          _ <- runDB $ insert $ Attachment (fileName f) (entityKey e)
+          _ <- runDB $ insert $ Attachment (fileName f) (entityKey e) ""
           liftIO $ BS.writeFile (buildFileName $ fileName f) (fileContent f)
           redirect $  EntryR catName curIdent
        _ -> return ()
@@ -227,7 +227,7 @@ getDeleteFileR :: Text -> Text -> AttachmentId -> Handler ()
 getDeleteFileR catName curIdent aid = do
    requireAdmin
    a <- runDB $ get404 aid
-   liftIO $ removeFile $ buildFileName $ attachmentName a
+   liftIO $ removeFile $ buildFileName $ attachmentFile a
    runDB $ delete aid
    redirect $  UploadFileR catName curIdent
 
