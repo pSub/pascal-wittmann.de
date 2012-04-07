@@ -37,11 +37,6 @@ import Model
 import Text.Jasmine (minifym)
 import Web.ClientSession (getKey)
 import Text.Hamlet (hamletFile)
-#if DEVELOPMENT
-import qualified Data.Text.Lazy.Encoding
-#else
-import Network.Mail.Mime (sendmail)
-#endif
 
 -- Custom imports
 import Control.Applicative
@@ -180,14 +175,6 @@ instance YesodAuth Homepage where
     authPlugins _ = [authGoogleEmail]
 
     authHttpManager = httpManager
-
--- Sends off your mail. Requires sendmail in production!
-deliver :: Homepage -> L.ByteString -> IO ()
-#ifdef DEVELOPMENT
-deliver y = logLazyText (getLogger y) . Data.Text.Lazy.Encoding.decodeUtf8
-#else
-deliver _ = sendmail
-#endif
 
 -- This instance is required to use forms. You can modify renderMessage to
 -- achieve customized and internationalized form validation messages.
