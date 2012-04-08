@@ -20,7 +20,7 @@ getSitemapR = do
                     }) categories
     entries <- runDB $ selectList [] [] >>= return . map (\(Entity _ v) -> SitemapUrl
             { sitemapLoc = EntryR (findCategory (entryCat v) categories) $ entryIdent v
-            , sitemapLastMod = time
+            , sitemapLastMod = entryLastMod v
             , sitemapChangeFreq = Monthly
             , sitemapPriority = 0.9
             })

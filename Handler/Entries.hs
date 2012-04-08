@@ -151,7 +151,7 @@ getNewEntryR catName = do
   case res of
     FormSuccess p -> do
       now <- liftIO getCurrentTime
-      aid <- runDB $ insert $ Entry (title p) (ident p) (text p) (cat p) (recap p) "" now
+      aid <- runDB $ insert $ Entry (title p) (ident p) (text p) (cat p) (recap p) "" now now
       insertTags (cat p) aid (buildTagList p)
       redirect $  EntriesR $ categoryName $ entityVal category
     _ -> return ()
@@ -174,7 +174,8 @@ getEditEntryR catName eid = do
   case res of
       FormSuccess p -> do
         category <- runDB $ get404 $ cat p
-        runDB $ update eKey [EntryTitle =. (title p), EntryIdent =. (ident p), EntryContent =. (text p), EntryRecap =. (recap p)]
+        now <- liftIO $ getCurrentTime
+        runDB $ update eKey [EntryTitle =. (title p), EntryIdent =. (ident p), EntryContent =. (text p), EntryRecap =. (recap p), EntryLastMod =. now]
         runDB $ deleteWhere [TaggedEntry ==. eKey]
         insertTags (cat p) (eKey) (buildTagList p)
         redirect $  EntryR (categoryName category) (ident p)

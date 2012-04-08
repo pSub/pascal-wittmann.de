@@ -26,6 +26,7 @@ Entry
   recap Text
   meta_descr String
   date UTCTime
+  lastMod UTCTime
   UniqueEntry ident
 
 Tag
