@@ -16,7 +16,7 @@
   $forall Entity eid entry <- entries
       <a .entry href=@{EntryR catName (entryIdent entry)}>
         <span .right>
-               <span .date>Veröffentlicht am #{entryDate entry}>
+               <span .date>Veröffentlicht am #{entryDate entry}
                <br>
                <span .comment-count>
                  $with mcount <- lookup eid comments
@@ -32,6 +32,6 @@
                    $forall Entity _ tag' <- tagsForEntry eid tagsEntries
                       #{tagName tag'} #
         <span .left>
-             <span .title>#{entryTitle entry}>
+             <span .title>#{entryTitle entry}
              <br>
-             <span .recap>#{entryRecap entry}>
+             <span .recap>#{entryRecap entry}
