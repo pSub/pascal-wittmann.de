@@ -27,7 +27,7 @@ getSitemapR = do
             }) entries
     statics <- runDB $ selectList [] [] >>= return . map(\(Entity _ v) -> SitemapUrl
             { sitemapLoc = StaticR $ StaticRoute [attachmentFile v] []
-            , sitemapLastMod = time
+            , sitemapLastMod = attachmentLastMod v
             , sitemapChangeFreq = Never
             , sitemapPriority = 0.8
             })

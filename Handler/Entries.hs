@@ -214,7 +214,8 @@ getUploadFileR catName curIdent = do
   ((res, form), enctype) <- runFormPost $ fileForm
   case res of
        FormSuccess f -> do
-          _ <- runDB $ insert $ Attachment (fileName f) (entityKey e) ""
+          now <- liftIO $ getCurrentTime
+          _ <- runDB $ insert $ Attachment (fileName f) (entityKey e) "" now
           liftIO $ BS.writeFile (buildFileName $ fileName f) (fileContent f)
           redirect $  EntryR catName curIdent
        _ -> return ()

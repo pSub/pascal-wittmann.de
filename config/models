@@ -50,4 +50,5 @@ Attachment
   file Text
   entry EntryId
   descr Text
+  lastMod UTCTime
   UniqueAtt file
