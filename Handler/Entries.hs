@@ -22,6 +22,7 @@ import qualified Settings
 import           Yesod.RST
 import           Yesod.Markdown
 import           Yesod.Static
+import           Database.Persist.Store (deleteCascade)
 import           Database.Persist.Query.Join     (selectOneMany, SelectOneMany(..))
 import           Database.Persist.Query.Join.Sql (runJoin)
 
@@ -44,7 +45,7 @@ data PEntry = PEntry
      , tag :: Text
      , recap :: Text
      , text :: RST
-     } deriving Show
+     }
 
 data PComment = PComment
      { parent :: Maybe CommentId
