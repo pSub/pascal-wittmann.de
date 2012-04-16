@@ -5,6 +5,7 @@ Default: &defaults
   #analytics: Don't use Google Analytics!
 
 Development:
+  approot: "http://localhost:3000"
   <<: *defaults
 
 Test:
