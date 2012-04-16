@@ -8,8 +8,8 @@ import Import
 data Profile = Profile
              { name :: Maybe Text }
 
-profileForm :: Maybe Profile -> Html -> MForm Homepage Homepage (FormResult Profile, Widget)
-profileForm profile html = (flip renderDivs) html $ Profile
+profileForm :: Maybe Profile -> Form Profile
+profileForm profile = renderDivs $ Profile
      <$> aopt textField "Name" (name <$> profile)
 
 getProfileR :: Handler RepHtml

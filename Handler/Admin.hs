@@ -6,9 +6,9 @@ module Handler.Admin
 
 import Import
 
-formletCat :: Maybe Category -> Html -> MForm Homepage Homepage (FormResult Category, Widget)
-formletCat mparams html = (flip renderDivs) html $ Category
-    <$> areq textField "Kategorie" (fmap categoryName mparams)
+formletCat :: Maybe Category -> Form Category
+formletCat mparams = renderDivs $ Category
+    <$> areq textField "Kategorie" (categoryName <$> mparams)
 
 getAdminR :: Handler RepHtml
 getAdminR = do

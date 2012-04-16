@@ -52,8 +52,8 @@ data PComment = PComment
      , content :: Markdown
      }
 
-entryForm ::  Maybe PEntry -> CategoryId -> Html -> MForm Homepage Homepage (FormResult PEntry, Widget)
-entryForm mparams category html = (flip renderDivs) html $ PEntry
+entryForm ::  Maybe PEntry -> CategoryId -> Form PEntry
+entryForm mparams category = renderDivs $ PEntry
     <$> areq textField "Title" (title <$> mparams)
     <*> areq textField "Ident" (ident <$> mparams)
     <*> pure category
@@ -61,13 +61,13 @@ entryForm mparams category html = (flip renderDivs) html $ PEntry
     <*> areq textField "Summary" (recap <$> mparams)
     <*> areq rstField "Text" (text <$> mparams)
 
-commentForm :: Maybe PComment -> Maybe CommentId -> Html -> MForm Homepage Homepage (FormResult PComment, Widget)
-commentForm mcomment mparent html = (flip renderDivs) html $ PComment
+commentForm :: Maybe PComment -> Maybe CommentId -> Form PComment
+commentForm mcomment mparent = renderDivs $ PComment
     <$> pure mparent
     <*> aopt textField "Name" (author <$> mcomment)
     <*> areq markdownField "Kommentar" (content <$> mcomment)
 
-fileForm :: Html -> MForm Homepage Homepage (FormResult FileInfo, Widget)
+fileForm :: Form FileInfo
 fileForm = renderDivs $ fileAFormReq "Anhang"
 
 getEntriesR :: Text -> Handler RepHtml
