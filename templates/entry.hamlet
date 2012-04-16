@@ -11,7 +11,7 @@ $maybe _ <- mu
 $if not $ null atts
   <h2>Anhänge
   $forall Entity _ att <- atts
-       <a href="@{StaticR $ createStaticRoute $ attachmentFile att}">#{attachmentFile att}
+       <a href="@{StaticR $ createStaticRoute $ attachmentFile att}">#{attachmentDescr att}
        <br>
 
 <h2>Kommentare

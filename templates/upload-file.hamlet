@@ -5,4 +5,4 @@
 
 Anhänge löschen:
  $forall Entity aid att <- atts
-    <a href=@{DeleteFileR catName curIdent aid}>#{attachmentFile att}</a> #
+    <a href=@{DeleteFileR catName curIdent aid}>#{attachmentDescr att}</a> #

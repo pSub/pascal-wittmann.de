@@ -68,8 +68,10 @@ commentForm mcomment mparent = renderDivs $ PComment
     <*> aopt textField "Name" (author <$> mcomment)
     <*> areq markdownField "Kommentar" (content <$> mcomment)
 
-fileForm :: Form FileInfo
-fileForm = renderDivs $ fileAFormReq "Anhang"
+fileForm :: Text -> Form (FileInfo, Text)
+fileForm name = renderDivs $ (,)
+         <$> fileAFormReq "Anhang"
+         <*> areq textField "Name" (Just name)
 
 getEntriesR :: Text -> Handler RepHtml
 getEntriesR catName = getEntriesByTagR catName []
@@ -212,12 +214,12 @@ getUploadFileR catName curIdent = do
   requireAdmin
   e <- runDB $ getBy404 $ UniqueEntry curIdent
   atts <- runDB $ selectList [AttachmentEntry ==. (entityKey e)] [Asc AttachmentDescr]
-  ((res, form), enctype) <- runFormPost $ fileForm
+  ((res, form), enctype) <- runFormPost $ fileForm ""
   case res of
-       FormSuccess f -> do
+       FormSuccess (file, descr) -> do
           now <- liftIO $ getCurrentTime
-          _ <- runDB $ insert $ Attachment (fileName f) (entityKey e) "" now
-          liftIO $ BS.writeFile (buildFileName $ fileName f) (fileContent f)
+          _ <- runDB $ insert $ Attachment (fileName file) (entityKey e) descr now
+          liftIO $ BS.writeFile (buildFileName $ fileName file) (fileContent file)
           redirect $  EntryR catName curIdent
        _ -> return ()
   defaultLayout $
