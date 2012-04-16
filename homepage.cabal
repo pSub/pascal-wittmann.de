@@ -104,9 +104,10 @@ executable         homepage
                  , http-conduit                  >= 1.4        && < 1.5
 
                  -- Custom dependencies
-                 , yesod-markdown
+                 , yesod-markdown                >= 0.4        && < 0.5
                  , yesod-rst                     >= 0.2        && < 0.3
                  , yesod-newsfeed                >= 1.0        && < 1.1
+                 , yesod-sitemap                 >= 1.0        && < 1.1
                  , containers
                  , time
                  , blaze-html
