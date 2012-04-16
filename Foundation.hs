@@ -5,6 +5,7 @@ module Foundation
     , resourcesHomepage
     , Handler
     , Widget
+    , Form
     , maybeAuth
     , requireAuth
     , module Settings
