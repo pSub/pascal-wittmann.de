@@ -26,9 +26,6 @@ import Yesod.Default.Config
 import Yesod.Default.Util (addStaticContentExternal)
 import Yesod.Logger (Logger, logMsg, formatLogText)
 import Network.HTTP.Conduit (Manager)
-#ifdef DEVELOPMENT
-import Yesod.Logger (logLazyText)
-#endif
 import qualified Settings
 import qualified Data.ByteString.Lazy as L
 import qualified Database.Persist.Store
