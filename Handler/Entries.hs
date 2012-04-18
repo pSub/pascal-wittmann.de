@@ -14,7 +14,6 @@ module Handler.Entries
        , getDeleteCommentR
        , postUploadFileR
        , getUploadFileR
-       , getDeleteFileR
        , getMoveFileR
        , postMoveFileR
        ) where
@@ -28,6 +27,7 @@ import           Database.Persist.Store (deleteCascade)
 import           Database.Persist.Query.Join     (selectOneMany, SelectOneMany(..))
 import           Database.Persist.Query.Join.Sql (runJoin)
 
+import           Control.Arrow
 import qualified Data.ByteString.Lazy            as BS (writeFile)
 import           Data.List                       (intersperse, sort)
 import qualified Data.List                       as L (delete)
@@ -74,6 +74,9 @@ fileForm :: Text -> Form (FileInfo, Text)
 fileForm name = renderDivs $ (,)
          <$> fileAFormReq "Anhang"
          <*> areq textField "Name" (Just name)
+
+deleteFileForm :: [(Text, AttachmentId)] -> Form ([AttachmentId])
+deleteFileForm atts = renderDivs $ areq (multiSelectFieldList atts) "" Nothing
 
 getEntriesR :: Text -> Handler RepHtml
 getEntriesR catName = getEntriesByTagR catName []
@@ -215,8 +218,7 @@ getUploadFileR :: Text -> Text -> Handler RepHtml
 getUploadFileR catName curIdent = do
   requireAdmin
   e <- runDB $ getBy404 $ UniqueEntry curIdent
-  atts <- runDB $ selectList [AttachmentEntry ==. (entityKey e)] [Asc AttachmentDescr]
-  ((res, form), enctype) <- runFormPost $ fileForm ""
+  ((res, newFileFormView), enctype) <- runFormPost $ fileForm ""
   case res of
        FormSuccess (file, descr) -> do
           now <- liftIO $ getCurrentTime
@@ -224,19 +226,20 @@ getUploadFileR catName curIdent = do
           liftIO $ BS.writeFile (buildFileName $ fileName file) (fileContent file)
           redirect $  EntryR catName curIdent
        _ -> return ()
+  atts <- runDB $ selectList [AttachmentEntry ==. (entityKey e)] [Asc AttachmentDescr]
+  ((res, deleteFileFormView), _) <- runFormPost $ deleteFileForm $ map ((attachmentDescr . entityVal) &&& entityKey) atts
+  case res of
+       FormSuccess aids -> do
+         as <- runDB $ selectList [FilterOr $ map (AttachmentId ==.) aids] []
+         runDB $ deleteWhere [FilterOr $ map (AttachmentId ==.) aids]
+         liftIO $ mapM_ (removeFile . buildFileName . attachmentFile . entityVal) as
+         redirect $ EntryR catName curIdent
+       _ -> return ()
   defaultLayout $
       $(widgetFile "upload-file")
 
 postUploadFileR :: Text -> Text -> Handler RepHtml
 postUploadFileR = getUploadFileR
-
-getDeleteFileR :: Text -> Text -> AttachmentId -> Handler ()
-getDeleteFileR catName curIdent aid = do
-   requireAdmin
-   a <- runDB $ get404 aid
-   liftIO $ removeFile $ buildFileName $ attachmentFile a
-   runDB $ delete aid
-   redirect $  UploadFileR catName curIdent
 
 getMoveFileR :: Text -> Text -> AttachmentId -> Handler RepHtml
 getMoveFileR catName curIdent aid = do

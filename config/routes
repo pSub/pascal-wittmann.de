@@ -20,7 +20,6 @@
 /delete-entry/#Text/#EntryId                            DeleteEntryR GET
 /delete-comment/#Text/#Text/#CommentId                  DeleteCommentR GET
 /upload-file-to/#Text/#Text                             UploadFileR GET POST
-/delete-file-from/#Text/#Text/#AttachmentId             DeleteFileR GET
 /move-file/#Text/#Text/#AttachmentId                    MoveFileR GET POST
 /profile                                                ProfileR GET POST
 /news                                                   NewsFeedR GET
