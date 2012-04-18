@@ -15,6 +15,8 @@ module Handler.Entries
        , postUploadFileR
        , getUploadFileR
        , getDeleteFileR
+       , getMoveFileR
+       , postMoveFileR
        ) where
 
 import           Import
@@ -235,6 +237,24 @@ getDeleteFileR catName curIdent aid = do
    liftIO $ removeFile $ buildFileName $ attachmentFile a
    runDB $ delete aid
    redirect $  UploadFileR catName curIdent
+
+getMoveFileR :: Text -> Text -> AttachmentId -> Handler RepHtml
+getMoveFileR catName curIdent aid = do
+  requireAdmin
+  a <- runDB $ get404 aid
+  ((res, form), enctype) <- runFormPost $ fileForm $ attachmentDescr a
+  case res of
+       FormSuccess (file, descr) -> do
+          now <- liftIO $ getCurrentTime
+          _ <- runDB $ insert $ Attachment (fileName file) (attachmentEntry a) descr now
+          liftIO $ BS.writeFile (buildFileName $ fileName file) (fileContent file)
+          redirect $  EntryR catName curIdent
+       _ -> return ()
+  defaultLayout $
+      $(widgetFile "move-file")
+
+postMoveFileR :: Text -> Text -> AttachmentId -> Handler RepHtml
+postMoveFileR = getMoveFileR
 
 -- Helper functions
 buildFileName :: Text -> String
