@@ -62,10 +62,6 @@ data Homepage = Homepage
 -- Set up i18n messages. See the message folder.
 mkMessage "Homepage" "messages" "en"
 
--- This is only temporary, since complex types are
--- currently not allowed in routes
-type Tags = [Text]
-
 -- This is where we define all of the routes in our application. For a full
 -- explanation of the syntax, please see:
 -- http://www.yesodweb.com/book/handler
