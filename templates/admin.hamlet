@@ -7,6 +7,7 @@
                 <input type="submit" value="hinzufügen">
 
 <p>Kategorien löschen
-
-$forall Entity cid c <- cats
-    <a href=@{DeleteCategoryR cid}>#{categoryName c}</a> #
+<form enctype=#{deleteEnctype} method="get">
+      ^{deleteCatForm}
+      <p>
+        <input type=submit value=löschen>
