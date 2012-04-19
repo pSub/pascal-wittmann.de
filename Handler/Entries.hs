@@ -264,18 +264,18 @@ tagsForEntry :: Key backend (EntryGeneric backend) -> [(b, [Entity (TaggedGeneri
 tagsForEntry eid = map fst . filter (any ((== eid) . taggedEntry . entityVal) . snd)
 
 insertTags :: CategoryId -> EntryId -> [Text] -> Handler ()
-insertTags category eid = mapM_ insertTag .filter (not . T.null)
+insertTags category eid = mapM_ insertTag . filter (not . T.null)
            where insertTag t = do
                  mtag <- runDB $ getBy $ UniqueTag t category
                  tid <- (runDB $ insert $ Tag t category) -|- (entityKey <$> mtag)
                  runDB $ insert $ Tagged tid eid
 
-buildComments :: [Entity (CommentGeneric b)] -> [(Integer, Entity (CommentGeneric b))]
-buildComments cs = concat $ map flatten $ unfoldForest (\ c -> (c, getChilds c)) roots
+buildComments :: [Entity Comment] -> [(Integer, Entity Comment)]
+buildComments cs = concat $ map flatten $ unfoldForest (id &&& getChilds) roots
       where
         roots = zip [0,0..] (filter (isNothing . commentParent . entityVal) cs)
         getChilds (depth, c) = zip (repeat $ succ depth) (filter (isChild c) cs)
-        isChild (Entity c _) (Entity _ c') = maybe False (c ==) (commentParent c')
+        isChild (Entity key _) (Entity _ val) = maybe False (key ==) (commentParent val)
 
 createStaticRoute :: Text -> StaticRoute
 createStaticRoute name = StaticRoute [name] []
