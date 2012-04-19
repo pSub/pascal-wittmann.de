@@ -5,6 +5,7 @@ module Handler.Admin
        ) where
 
 import Import
+import Database.Persist.Store
 
 formletCat :: Maybe Category -> Form Category
 formletCat mparams = renderDivs $ Category
@@ -30,11 +31,5 @@ postAdminR = getAdminR
 getDeleteCategoryR :: CategoryId -> Handler ()
 getDeleteCategoryR cid = do
   requireAdmin
-  eids <- runDB $ selectList [EntryCat ==. cid] []
-  mapM_ (\ e -> runDB $ deleteWhere [CommentEntry ==. (entityKey e)]) eids
-  mapM_ (\ e -> runDB $ deleteWhere [TaggedEntry ==. (entityKey e)]) eids
-  mapM_ (\ e -> runDB $ deleteWhere [AttachmentEntry ==. (entityKey e)]) eids
-  runDB $ deleteWhere [EntryCat ==. cid]
-  runDB $ deleteWhere [TagCategory ==. cid]
-  runDB $ delete cid
+  runDB $ deleteCascade cid
   redirect AdminR

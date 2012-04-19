@@ -202,10 +202,7 @@ postEditEntryR = getEditEntryR
 getDeleteEntryR :: Text -> EntryId -> Handler ()
 getDeleteEntryR category eid = do
   requireAdmin
-  runDB $ deleteWhere [CommentEntry ==. eid]
-  runDB $ deleteWhere [TaggedEntry ==. eid]
-  runDB $ deleteWhere [AttachmentEntry ==. eid]
-  runDB $ delete eid
+  runDB $ deleteCascade eid
   redirect $  EntriesR category
 
 getDeleteCommentR :: Text -> Text -> CommentId -> Handler ()
