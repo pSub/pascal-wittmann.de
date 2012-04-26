@@ -55,6 +55,7 @@ data PComment = PComment
      , content :: Markdown
      }
 
+-- | Form for entering a new entry.
 entryForm ::  Maybe PEntry -> CategoryId -> Form PEntry
 entryForm mparams category = renderDivs $ PEntry
     <$> areq textField "Title" (title <$> mparams)
@@ -64,23 +65,34 @@ entryForm mparams category = renderDivs $ PEntry
     <*> areq textField "Summary" (recap <$> mparams)
     <*> areq rstField "Text" (text <$> mparams)
 
+-- | Form to add comments to an entry
 commentForm :: Maybe PComment -> Maybe CommentId -> Form PComment
 commentForm mcomment mparent = renderDivs $ PComment
     <$> pure mparent
     <*> aopt textField "Name" (author <$> mcomment)
     <*> areq markdownField "Kommentar" (content <$> mcomment)
 
+-- | Form to upload attachments to an entry
 fileForm :: Text -> Form (FileInfo, Text)
 fileForm name = renderDivs $ (,)
          <$> fileAFormReq "Anhang"
          <*> areq textField "Name" (Just name)
 
+-- | Form to delete (multiple) attachments
 deleteFileForm :: [(Text, AttachmentId)] -> Form ([AttachmentId])
 deleteFileForm atts = renderDivs $ areq (multiSelectFieldList atts) "" Nothing
 
+-- | Calls the central entries handler ('getEntriesByTag') without a restriction
+-- on tags.
 getEntriesR :: Text -> Handler RepHtml
 getEntriesR catName = getEntriesByTagR catName []
 
+-- | Central handler for showing a list of entries of a category.
+-- Optionally filtered by tags.
+-- The first argument is the category name, the second is a
+-- list of tags. If this list is not empty, every entry which is assigned
+-- to at least one tag from the list (given it is in the right category)
+-- is shown
 getEntriesByTagR :: Text -> [Text] -> Handler RepHtml
 getEntriesByTagR catName tagNames = do
   mu <- maybeAdmin
@@ -104,6 +116,8 @@ getEntriesByTagR catName tagNames = do
        else setTitle $ toHtml $ catName <> " :: " <> (T.concat $ intersperse ", " tagNames)
     $(widgetFile "entries")
 
+-- | If the element is not contained in the list it is added,
+-- otherwise deleted from the list.
 toggleTag :: Eq a => a -> [a] -> [a]
 toggleTag t ts
   | t `elem` ts = L.delete t ts
