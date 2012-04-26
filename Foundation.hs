@@ -37,6 +37,7 @@ import Web.ClientSession (getKey)
 import Text.Hamlet (hamletFile)
 
 -- Custom imports
+import Control.Arrow ((&&&))
 import Control.Applicative
 import Data.Text (Text)
 import Data.Time
@@ -100,13 +101,15 @@ instance Yesod Homepage where
         master <- getYesod
         mmsg <- getMessage
 
-        muser<- maybeAuth
+        muser <- maybeAuth
         current <- getCurrentRoute
         toMaster <- getRouteToMaster
         cats <- runDB $ selectList [] [Asc CategoryName]
         let currentRoute = toMaster <$> current
         let isCurrent x = (currentRoute == Just x) || ((parents currentRoute) == Just x)
-        let categories = map (\c -> (name c, EntriesR $ name c)) cats
+        let categories = map (name &&& EntriesR . name) cats
+
+        -- static links to images
         let powered_by_logo = StaticRoute ["powered_by_yesod.png"] []
         let rss_logo = StaticRoute ["rss_logo.png"] []
 
