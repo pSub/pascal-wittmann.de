@@ -49,12 +49,6 @@ data PEntry = PEntry
      , text :: RST
      }
 
-data PComment = PComment
-     { parent :: Maybe CommentId
-     , author :: Maybe Text
-     , content :: Markdown
-     }
-
 -- | Form for entering a new entry.
 entryForm ::  Maybe PEntry -> CategoryId -> Form PEntry
 entryForm mparams category = renderDivs $ PEntry
@@ -66,11 +60,14 @@ entryForm mparams category = renderDivs $ PEntry
     <*> areq rstField "Text" (text <$> mparams)
 
 -- | Form to add comments to an entry
-commentForm :: Maybe PComment -> Maybe CommentId -> Form PComment
-commentForm mcomment mparent = renderDivs $ PComment
-    <$> pure mparent
-    <*> aopt textField "Name" (author <$> mcomment)
-    <*> areq markdownField "Kommentar" (content <$> mcomment)
+commentForm :: Maybe Text -> Markdown -> UTCTime -> Maybe CommentId -> EntryId -> Form Comment
+commentForm author comment now parentKey entryKey = renderDivs $ Comment
+    <$> aopt textField "Name" (Just author)
+    <*> areq markdownField "Kommentar" (Just comment)
+    <*> pure now
+    <*> pure parentKey
+    <*> pure entryKey
+    <*> pure False -- If an entry is edited it becomes visible again.
 
 -- | Form to upload attachments to an entry
 fileForm :: Text -> Form (FileInfo, Text)
@@ -134,12 +131,14 @@ entryHandler catName curIdent mparent = do
           }
   atts <- runDB $ selectList [AttachmentEntry ==. (entityKey entry)] [Asc AttachmentDescr]
   comments <- buildComments <$> (runDB $ selectList [CommentEntry ==. (entityKey entry)] [Asc CommentDate])
-  ((_, formNew), _) <- runFormPost $ commentForm (Just $ PComment Nothing ((maybe Nothing (userName . entityVal)) mua) "") Nothing
-  ((res, formEdit), enctype) <- runFormPost $ commentForm (Just $ PComment mparent ((maybe Nothing (userName . entityVal)) mua) "") mparent
+
+  now <- liftIO getCurrentTime
+  ((_, formNew), _) <- runFormPost $ commentForm Nothing "" now Nothing (entityKey entry)
+  ((res, formEdit), enctype) <- runFormPost $ commentForm (maybe Nothing (userName . entityVal) mua) "" now mparent (entityKey entry)
   case res of
-    FormSuccess p -> do
+    FormSuccess comment -> do
       now <- liftIO getCurrentTime
-      _ <- runDB $ insert $ Comment (author p) (content p) now (parent p) (entityKey entry) False
+      _ <- runDB $ insert comment
       redirect $ EntryR catName curIdent
     _ -> return ()
   defaultLayout $ do
