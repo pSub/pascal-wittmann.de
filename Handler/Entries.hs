@@ -32,7 +32,7 @@ import qualified Data.ByteString.Lazy            as BS (writeFile)
 import           Data.List                       (intersperse, sort)
 import qualified Data.List                       as L (delete)
 import           Data.Maybe
-import           Data.Text                       (unpack, pack, append, strip, splitOn)
+import           Data.Text                       (unpack, pack, strip, splitOn)
 import qualified Data.Text                       as T
 import           Data.Time
 import           Data.Tree
@@ -101,7 +101,7 @@ getEntriesByTagR catName tagNames = do
   defaultLayout $ do
     if null tagNames
        then setTitle $ toHtml catName
-       else setTitle $ toHtml $ catName `append` " :: " `append` (T.concat $ intersperse ", " tagNames)
+       else setTitle $ toHtml $ catName <> " :: " <> (T.concat $ intersperse ", " tagNames)
     $(widgetFile "entries")
 
 toggleTag :: Eq a => a -> [a] -> [a]
