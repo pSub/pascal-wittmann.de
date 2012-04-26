@@ -178,9 +178,6 @@ instance YesodAuth Homepage where
 instance RenderMessage Homepage FormMessage where
     renderMessage _ _ = defaultFormMessage
 
-instance ToHtml Markdown where
-  toHtml (Markdown s) = toHtml s
-
 instance ToHtml UTCTime where
   toHtml = toHtml . formatTime defaultTimeLocale "%e.%m.%Y"
 
