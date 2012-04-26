@@ -1,0 +1,4 @@
+<form method=post enctype=#{enctype}>
+      ^{form}
+      <p>
+        <input type=submit>
