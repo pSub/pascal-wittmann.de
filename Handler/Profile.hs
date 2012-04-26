@@ -5,20 +5,16 @@ module Handler.Profile
 
 import Import
 
-data Profile = Profile
-             { name :: Maybe Text }
-
-profileForm :: Maybe Profile -> Form Profile
-profileForm profile = renderDivs $ Profile
-     <$> aopt textField "Name" (name <$> profile)
+profileForm :: Maybe Text -> Form Text
+profileForm name = renderDivs $ areq textField "Name" name
 
 getProfileR :: Handler RepHtml
 getProfileR = do
     Entity uid u <- requireAuth
-    ((res, form), enctype) <- runFormPost $ profileForm $ Just (Profile $ userName u)
+    ((res, form), enctype) <- runFormPost $ profileForm $ userName u
     case res of
-         FormSuccess p -> do
-            runDB $ update uid [UserName =. (name p)]
+         FormSuccess name -> do
+            runDB $ update uid [UserName =. (Just name)]
             redirect ProfileR
          _ -> return ()
     defaultLayout $ do
