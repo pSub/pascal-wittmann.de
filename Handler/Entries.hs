@@ -27,7 +27,7 @@ import           Database.Persist.Store (deleteCascade)
 import           Database.Persist.Query.Join     (selectOneMany, SelectOneMany(..))
 import           Database.Persist.Query.Join.Sql (runJoin)
 
-import           Control.Arrow
+import           Control.Arrow ((&&&))
 import qualified Data.ByteString.Lazy            as BS (writeFile)
 import           Data.List                       (intersperse, sort)
 import qualified Data.List                       as L (delete)

@@ -6,7 +6,7 @@ module Handler.Admin
 
 import Import
 import Database.Persist.Store
-import Control.Arrow
+import Control.Arrow ((&&&))
 
 formletCat :: Maybe Category -> Form Category
 formletCat mparams = renderDivs $ Category
