@@ -6,6 +6,7 @@ import Import
 import Data.Maybe
 import Data.Time  (getCurrentTime)
 import Data.List (find)
+import Yesod.RST (rstToHtml)
 import Yesod.Feed
 
 getNewsFeedR :: Handler RepAtomRss
@@ -16,7 +17,7 @@ getNewsFeedR = do
             { feedEntryLink = EntryR (findCategory (entryCat e) categories) (entryIdent e)
             , feedEntryUpdated = entryDate e
             , feedEntryTitle = entryTitle e
-            , feedEntryContent = toHtml $ entryRecap e
+            , feedEntryContent = rstToHtml $ entryContent e
             })
     newsFeed Feed
        { feedTitle = "pascal-wittmann.de"
