@@ -39,8 +39,8 @@ $if not (null comments)
           <form enctype=#{enctype} method=post>
             ^{formEdit}
             <p>
-              <input type=submit>
-              \ <a href=@{EntryR catName curIdent}>abbrechen
+              <input type=submit value="Veröffentlichen"> #
+              <a href=@{EntryR catName curIdent}>abbrechen
 $else
   Keine Kommentare vorhanden
 
