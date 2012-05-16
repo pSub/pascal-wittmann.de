@@ -120,6 +120,8 @@ toggleTag t ts
   | t `elem` ts = L.delete t ts
   | otherwise = t:ts
 
+-- | This handler is responsible for building pages showing an
+-- entry in full length including attachments and comments.
 entryHandler :: Text -> Text -> Maybe CommentId -> Handler RepHtml
 entryHandler catName curIdent mparent = do
   mu <- maybeAdmin
@@ -157,12 +159,18 @@ getEntryR catName curIdent = entryHandler catName curIdent Nothing
 postEntryR :: Text -> Text -> Handler RepHtml
 postEntryR = getEntryR
 
+
+-- | Handler that deletes a Tag from an entry. The entry
+-- is identified by its Ident.
 getDeleteTagR :: Text -> TagId -> Handler ()
 getDeleteTagR category tid = do
   requireAdmin
   runDB $ delete tid
   redirect $  EntriesR category
 
+-- | This handler builds a page with a form to
+-- create a new article. It needs the identifier
+-- of the Category, the entry should be placed in.
 getNewEntryR :: Text -> Handler RepHtml
 getNewEntryR catName = do
   requireAdmin
@@ -183,6 +191,10 @@ getNewEntryR catName = do
 postNewEntryR :: Text -> Handler RepHtml
 postNewEntryR = getNewEntryR
 
+
+-- | Handler that fills all fields of an entry
+-- that is specified by the second parameter.
+-- The first parameter is the Category.
 getEditEntryR :: Text -> Text -> Handler RepHtml
 getEditEntryR catName eid = do
   requireAdmin
