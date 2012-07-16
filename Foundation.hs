@@ -16,36 +16,36 @@ module Foundation
     , maybeAdmin
     ) where
 
-import Prelude
-import Text.Blaze (preEscapedText)
-import Yesod
-import Yesod.Static
-import Yesod.Auth
-import Yesod.Auth.GoogleEmail
-import Yesod.Default.Config
-import Yesod.Default.Util (addStaticContentExternal)
-import Yesod.Logger (Logger, logMsg, formatLogText)
-import Network.HTTP.Conduit (Manager)
+import           Prelude
+import           Yesod
+import           Yesod.Static
+import           Yesod.Auth
+import           Yesod.Auth.GoogleEmail
+import           Yesod.Default.Config
+import           Yesod.Default.Util (addStaticContentExternal)
+import           Yesod.Logger (Logger, logMsg, formatLogText)
+import           Network.HTTP.Conduit (Manager)
 import qualified Settings
 import qualified Data.ByteString.Lazy as L
 import qualified Database.Persist.Store
-import Database.Persist.GenericSql
-import Settings (widgetFile, Extra (..))
-import Model
-import Text.Jasmine (minifym)
-import Web.ClientSession (getKey)
-import Text.Hamlet (hamletFile)
+import           Database.Persist.GenericSql
+import           Settings (widgetFile, Extra (..))
+import           Model
+import           Text.Jasmine (minifym)
+import           Web.ClientSession (getKey)
+import           Text.Hamlet (hamletFile)
 
 -- Custom imports
-import Control.Arrow ((&&&))
-import Control.Applicative
-import Data.Text (Text)
-import Data.Time
-import Text.Blaze (ToHtml)
-import System.Locale
-import Yesod.Markdown
-import Yesod.AtomFeed
-import Settings.StaticFiles
+import           Control.Applicative
+import           Control.Arrow ((&&&))
+import           Data.Text (Text)
+import           Data.Time
+import           Settings.StaticFiles
+import           System.Locale
+import           Text.Blaze (ToMarkup(..))
+import           Text.Blaze.Internal (preEscapedText)
+import           Yesod.AtomFeed
+import           Yesod.Markdown
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -64,7 +64,7 @@ data Homepage = Homepage
 mkMessage "Homepage" "messages" "en"
 
 -- This is where we define all of the routes in our application. For a full
--- explanation of the syntax, please see:
+-- explanation of the syntax, please see:`toMarkup' is not a (visible) method of class `ToMarkup'
 -- http://www.yesodweb.com/book/handler
 --
 -- This function does three things:
@@ -181,8 +181,8 @@ instance YesodAuth Homepage where
 instance RenderMessage Homepage FormMessage where
     renderMessage _ _ = defaultFormMessage
 
-instance ToHtml UTCTime where
-  toHtml = toHtml . formatTime defaultTimeLocale "%e.%m.%Y"
+instance ToMarkup UTCTime where
+  toMarkup = toMarkup . formatTime defaultTimeLocale "%e.%m.%Y"
 
 parents :: Maybe (Route Homepage) -> Maybe (Route Homepage)
 parents (Just ImpressumR) = Nothing
