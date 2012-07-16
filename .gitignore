@@ -4,5 +4,6 @@ deploy
 dist
 config/postgres.yml
 config/client_session_key.aes
+cabal-dev
 
 TAGS
