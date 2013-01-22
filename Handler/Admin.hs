@@ -4,9 +4,9 @@ module Handler.Admin
        , postAdminR
        ) where
 
-import Import
-import Database.Persist.Store
-import Control.Arrow ((&&&))
+import           Control.Arrow          ((&&&))
+import           Database.Persist.Store
+import           Import
 
 formletCat :: Maybe Category -> Form Category
 formletCat mparams = renderDivs $ Category

@@ -245,7 +245,7 @@ getUploadFileR catName curIdent = do
        FormSuccess (file, descr) -> do
           now <- liftIO $ getCurrentTime
           _ <- runDB $ insert $ Attachment (fileName file) (entityKey e) descr now
-          liftIO $ BS.writeFile (buildFileName $ fileName file) (fileContent file)
+          liftIO $ fileMove file (buildFileName $ fileName file)
           redirect $  EntryR catName curIdent
        _ -> return ()
   atts <- runDB $ selectList [AttachmentEntry ==. (entityKey e)] [Asc AttachmentDescr]
@@ -272,7 +272,7 @@ getMoveFileR catName curIdent aid = do
        FormSuccess (file, descr) -> do
           now <- liftIO $ getCurrentTime
           _ <- runDB $ insert $ Attachment (fileName file) (attachmentEntry a) descr now
-          liftIO $ BS.writeFile (buildFileName $ fileName file) (fileContent file)
+          liftIO $ fileMove file (buildFileName $ fileName file)
           redirect $  EntryR catName curIdent
        _ -> return ()
   defaultLayout $
@@ -282,10 +282,10 @@ postMoveFileR :: Text -> Text -> AttachmentId -> Handler RepHtml
 postMoveFileR = getMoveFileR
 
 -- Helper functions
-buildFileName :: Text -> String
+buildFileName :: Text -> FilePath
 buildFileName name = Settings.staticDir ++ [pathSeparator] ++ unpack name
 
-tagsForEntry :: Key backend (EntryGeneric backend) -> [(b, [Entity (TaggedGeneric backend)])] -> [b]
+tagsForEntry :: Key Entry -> [(b, [Entity Tagged])] -> [b]
 tagsForEntry eid = map fst . filter (any ((== eid) . taggedEntry . entityVal) . snd)
 
 insertTags :: CategoryId -> EntryId -> [Text] -> Handler ()

@@ -16,7 +16,7 @@ import Database.Persist.Store
 -- You can find more information on persistent and how to declare entities
 -- at:
 -- http://www.yesodweb.com/book/persistent/
-share [mkPersist sqlSettings, mkMigrate "migrateAll", mkDeleteCascade]
+share [mkPersist sqlOnlySettings, mkMigrate "migrateAll", mkDeleteCascade sqlOnlySettings]
      $(persistFileWith lowerCaseSettings "config/models")
 
 
