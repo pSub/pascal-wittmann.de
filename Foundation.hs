@@ -20,14 +20,12 @@ import           Prelude
 import           Yesod
 import           Yesod.Static
 import           Yesod.Auth
-import           Yesod.Auth.HashDB (UserGeneric)
 import           Yesod.Auth.GoogleEmail
 import           Yesod.Default.Config
 import           Yesod.Default.Util (addStaticContentExternal)
 import           Network.HTTP.Conduit (Manager)
 import qualified Settings
 import           Settings.Development (development)
-import qualified Data.ByteString.Lazy as L
 import qualified Database.Persist.Store
 import           Database.Persist.GenericSql
 import           Settings (widgetFile, Extra (..))
@@ -41,12 +39,10 @@ import           Control.Applicative
 import           Control.Arrow ((&&&))
 import           Data.Text (Text)
 import           Data.Time
-import           Settings.StaticFiles
 import           System.Locale
 import           Text.Blaze (ToMarkup(..))
 import           Text.Blaze.Internal (preEscapedText)
 import           Yesod.AtomFeed
-import           Yesod.Markdown
 
 -- | The site argument for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -95,7 +91,7 @@ instance Yesod App where
     -- default session idle timeout is 120 minutes
     makeSessionBackend _ = do
         key <- getKey "config/client_session_key_aes"
-        return . Just $ clientSessionBackend key 120
+        return . Just $ clientSessionBackend2 key 120
 
     defaultLayout widget = do
         master <- getYesod

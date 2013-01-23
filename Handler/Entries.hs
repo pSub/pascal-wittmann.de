@@ -22,13 +22,11 @@ import           Import
 import qualified Settings
 import           Yesod.RST
 import           Yesod.Markdown
-import           Yesod.Static
 import           Database.Persist.Store (deleteCascade)
 import           Database.Persist.Query.Join     (selectOneMany, SelectOneMany(..))
 import           Database.Persist.Query.Join.Sql (runJoin)
 
 import           Control.Arrow ((&&&))
-import qualified Data.ByteString.Lazy            as BS (writeFile)
 import           Data.List                       (intersperse, sort)
 import qualified Data.List                       as L (delete)
 import           Data.Maybe
@@ -139,7 +137,6 @@ entryHandler catName curIdent mparent = do
   ((res, formEdit), enctype) <- runFormPost $ commentForm (maybe Nothing (userName . entityVal) mua) "" now mparent (entityKey entry)
   case res of
     FormSuccess comment -> do
-      now <- liftIO getCurrentTime
       _ <- runDB $ insert comment
       redirect $ EntryR catName curIdent
     _ -> return ()
