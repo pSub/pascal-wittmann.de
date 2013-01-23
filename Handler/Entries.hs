@@ -98,7 +98,8 @@ getEntriesByTagR catName tagNames = do
           , somOrderOne = [Asc TagName]
           }
   tags <- return $ map fst tagsEntries
-  comments <- map (\ (e,c) -> (entityKey e, length c)) <$> (runDB $ runJoin (selectOneMany (CommentEntry <-.) commentEntry))
+  comments <- map (\ (e,c) -> (entityKey e, length c)) <$> (runDB $ runJoin (selectOneMany (CommentEntry <-.) commentEntry)
+                                                                  { somFilterMany = [CommentDeleted ==. False]})
   entries <- if null tagNames
                 then runDB $ selectList [EntryCat ==. (entityKey category)] [Desc EntryDate]
                 else map fst <$> (runDB $ runJoin (selectOneMany (TaggedEntry <-.) taggedEntry)
@@ -130,7 +131,7 @@ entryHandler catName curIdent mparent = do
           , somOrderOne = [Asc TagName]
           }
   atts <- runDB $ selectList [AttachmentEntry ==. (entityKey entry)] [Asc AttachmentDescr]
-  comments <- buildComments <$> (runDB $ selectList [CommentEntry ==. (entityKey entry)] [Asc CommentDate])
+  comments <- buildComments <$> (runDB $ selectList [CommentEntry ==. (entityKey entry), CommentDeleted ==. False] [Asc CommentDate])
 
   now <- liftIO getCurrentTime
   ((_, formNew), _) <- runFormPost $ commentForm Nothing "" now Nothing (entityKey entry)

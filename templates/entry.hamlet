@@ -31,9 +31,6 @@ $if not (null comments)
          \
          <a href="@{DeleteCommentR catName curIdent cid}">löschen
       <blockquote>
-        $if (commentDeleted comment)
-         Kommentar wurde entfernt
-        $else
          #{markdownToHtml $ commentContent comment}
       $maybe parent' <- mparent
         $if (==) parent' cid
