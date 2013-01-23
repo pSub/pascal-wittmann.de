@@ -16,6 +16,7 @@ $if not $ null atts
 
 <h2>Kommentare
 Kommentare für diesen Eintrag als <a href=@{CommentFeedR (entityKey entry)}>RSS Feed</a>
+<br>
 $if not (null comments)
  $forall (indention, _comment) <- comments
   $with Entity cid comment <- _comment
