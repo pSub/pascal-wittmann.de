@@ -2,16 +2,14 @@ module Handler.News
        ( getNewsFeedR
        ) where
 
-import Import
-import Data.Maybe
-import Data.Time  (getCurrentTime)
-import Data.List (find)
-import Yesod.RST (rstToHtml)
-import Yesod.Feed
+import           Data.List  (find)
+import           Data.Maybe
+import           Import
+import           Yesod.Feed
+import           Yesod.RST  (rstToHtml)
 
 getNewsFeedR :: Handler RepAtomRss
 getNewsFeedR = do
-    now <- liftIO getCurrentTime
     categories <- runDB $ selectList [] []
     entries <- runDB $ selectList [] [Desc EntryDate, LimitTo 30] >>= (mapM $ \(Entity _ e) -> return FeedEntry
             { feedEntryLink = EntryR (findCategory (entryCat e) categories) (entryIdent e)
@@ -26,8 +24,7 @@ getNewsFeedR = do
        , feedLinkHome = RootR
        , feedDescription = "RSS/Atom Feed von pascal-wittmann.de"
        , feedLanguage = "en"
-       -- TODO use the appropriated date
-       , feedUpdated = now
+       , feedUpdated = maximum $ map feedEntryUpdated entries
        , feedEntries = entries
        }
    where findCategory eid = categoryName . entityVal . fromJust . find ((eid ==) . entityKey)
