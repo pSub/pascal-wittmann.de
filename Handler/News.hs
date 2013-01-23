@@ -21,12 +21,11 @@ getNewsFeedR = do
             })
     newsFeed Feed
        { feedTitle = "pascal-wittmann.de"
-       -- TODO add feedAuthor field
+       , feedAuthor = "Pascal Wittmann"
        , feedLinkSelf = NewsFeedR
        , feedLinkHome = RootR
        , feedDescription = "RSS/Atom Feed von pascal-wittmann.de"
-       -- TODO change language to en
-       , feedLanguage = "de"
+       , feedLanguage = "en"
        -- TODO use the appropriated date
        , feedUpdated = now
        , feedEntries = entries
