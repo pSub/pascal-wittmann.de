@@ -2,11 +2,11 @@ module Handler.Sitemap
        ( getSitemapR
        ) where
 
-import Import
-import Data.Time.Clock
-import Data.Maybe (fromJust)
-import Data.List (find)
-import Yesod.Sitemap
+import           Data.List       (find)
+import           Data.Maybe      (fromJust)
+import           Data.Time.Clock
+import           Import
+import           Yesod.Sitemap
 
 getSitemapR :: Handler RepXml
 getSitemapR = do
@@ -15,7 +15,7 @@ getSitemapR = do
     entries <- runDB $ selectList [] []
     categories_urls <- return $ map (\(Entity _ v) -> SitemapUrl
                     { sitemapLoc = EntriesR $ categoryName v
-                    , sitemapLastMod = maximum $ map (entryLastMod . entityVal) entries
+                    , sitemapLastMod = lastChange entries
                     , sitemapChangeFreq = Weekly
                     , sitemapPriority = 0.7
                     }) categories
@@ -31,7 +31,9 @@ getSitemapR = do
             , sitemapChangeFreq = Never
             , sitemapPriority = 0.8
             })
-    sitemap $ [ SitemapUrl RootR time Monthly 1.0
-              , SitemapUrl ImpressumR time Yearly 0.2
+    sitemap $ [ SitemapUrl RootR (lastChange entries) Monthly 1.0
+                -- TODO: This approximation is still rather bad
+              , SitemapUrl ImpressumR (lastChange entries) Yearly 0.2
               ] ++ categories_urls ++ entries_urls ++ statics
    where findCategory eid = categoryName . entityVal . fromJust . find ((eid ==) . entityKey)
+         lastChange = maximum . map (entryLastMod . entityVal)
