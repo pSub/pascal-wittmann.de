@@ -23,3 +23,4 @@
 /move-file/#Text/#Text/#AttachmentId                    MoveFileR GET POST
 /profile                                                ProfileR GET POST
 /news                                                   NewsFeedR GET
+/feeds/comments/#EntryId                                CommentFeedR GET

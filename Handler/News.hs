@@ -1,12 +1,14 @@
 module Handler.News
        ( getNewsFeedR
+       , getCommentFeedR
        ) where
 
-import           Data.List  (find)
+import           Data.List      (find)
 import           Data.Maybe
 import           Import
 import           Yesod.Feed
-import           Yesod.RST  (rstToHtml)
+import           Yesod.Markdown (markdownToHtml)
+import           Yesod.RST      (rstToHtml)
 
 getNewsFeedR :: Handler RepAtomRss
 getNewsFeedR = do
@@ -27,4 +29,28 @@ getNewsFeedR = do
        , feedUpdated = maximum $ map feedEntryUpdated entries
        , feedEntries = entries
        }
-   where findCategory eid = categoryName . entityVal . fromJust . find ((eid ==) . entityKey)
+
+
+getCommentFeedR :: Key Entry -> Handler RepAtomRss
+getCommentFeedR key = do
+    e <- runDB $ get404 key
+    categories <- runDB $ selectList [] []
+    comments <- runDB $ selectList [CommentEntry ==. key] [Asc CommentDate] >>= (mapM $ \(Entity _ c) -> return FeedEntry
+             { feedEntryLink = EntryR (findCategory (entryCat e) categories) (entryIdent e)
+             , feedEntryUpdated = commentDate c
+             , feedEntryTitle = (entryTitle e) `mappend` " -- " `mappend` (fromMaybe "anonymous" (commentAuthor c))
+             , feedEntryContent = markdownToHtml $ commentContent c
+             })
+    newsFeed Feed
+       { feedTitle = "Comments for entry '" `mappend` (entryTitle e) `mappend` "' on pascal-wittmann.de"
+       , feedAuthor = "…"
+       , feedLinkSelf = CommentFeedR key
+       , feedLinkHome = RootR
+       , feedDescription = "This feed contains all comments for this entry."
+       , feedLanguage = "en"
+       , feedUpdated = maximum $ map feedEntryUpdated comments
+       , feedEntries = comments
+       }
+
+findCategory :: Key Category -> [Entity Category] -> Text
+findCategory eid = categoryName . entityVal . fromJust . find ((eid ==) . entityKey)
