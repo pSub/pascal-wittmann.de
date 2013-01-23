@@ -8,7 +8,7 @@ synopsis:          Personal website
 description:       Personal website of Pascal Wittmann.
 category:          Web
 stability:         Experimental
-cabal-version:     >= 1.6
+cabal-version:     >= 1.8
 build-type:        Simple
 homepage:          https://www.pascal-wittmann.de
 
@@ -21,17 +21,13 @@ Flag library-only
     Default:       False
 
 library
-    if flag(library-only)
-        Buildable: True
-    else
-        Buildable: False
-
     exposed-modules: Application
-    other-modules:   Foundation
+                     Foundation
                      Import
                      Model
                      Settings
                      Settings.StaticFiles
+                     Settings.Development
                      Handler.Root
                      Handler.Impressum
                      Handler.Entries
@@ -40,46 +36,25 @@ library
                      Handler.News
                      Handler.Sitemap
 
-    ghc-options:   -Wall -threaded -O0
-    cpp-options:   -DDEVELOPMENT
-
-    extensions: TemplateHaskell
-                QuasiQuotes
-                OverloadedStrings
-                NoImplicitPrelude
-                CPP
-                MultiParamTypeClasses
-                TypeFamilies
-                GADTs
-                GeneralizedNewtypeDeriving
-                FlexibleContexts
-                EmptyDataDecls
-
-executable         homepage
-    if flag(library-only)
-        Buildable: False
-
-    if flag(dev)
+    if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT
-        ghc-options:   -Wall -threaded -O0
+        ghc-options:   -Wall -O0
     else
-        ghc-options:   -Wall -threaded -O2
-
-    main-is:       main.hs
+        ghc-options:   -Wall -O2
 
     extensions: TemplateHaskell
                 QuasiQuotes
                 OverloadedStrings
                 NoImplicitPrelude
                 CPP
-                OverloadedStrings
                 MultiParamTypeClasses
                 TypeFamilies
                 GADTs
                 GeneralizedNewtypeDeriving
                 FlexibleContexts
                 EmptyDataDecls
-
+                NoMonomorphismRestriction
+                
     build-depends: base                          >= 4          && < 5
 --                 , yesod-platform                >= 1.1      && < 1.2
                  , yesod                         >= 1.1        && < 1.2
@@ -117,3 +92,15 @@ executable         homepage
                  , old-locale
                  , filepath
                  , directory
+
+executable         homepage
+    if flag(library-only)
+        Buildable: False
+
+    main-is:            main.hs
+    hs-source-dirs:     app
+    build-depends:      base
+                      , homepage
+                      , yesod-default
+                      
+    ghc-options:      -threaded -O2
