@@ -10,7 +10,6 @@ import           Yesod.Sitemap
 
 getSitemapR :: Handler RepXml
 getSitemapR = do
-    time <- liftIO getCurrentTime
     categories <- runDB $ selectList [] []
     entries <- runDB $ selectList [] []
     categories_urls <- return $ map (\(Entity _ v) -> SitemapUrl
