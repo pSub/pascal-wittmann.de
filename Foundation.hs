@@ -55,6 +55,10 @@ data App = App
     , httpManager :: Manager
     , persistConfig :: Settings.PersistConfig
     }
+          
+plural :: Int -> String -> String -> String
+plural 1 x _ = x
+plural _ _ y = y
 
 -- Set up i18n messages. See the message folder.
 mkMessage "App" "messages" "en"
@@ -184,6 +188,9 @@ instance RenderMessage App FormMessage where
 
 instance ToMarkup UTCTime where
   toMarkup = toMarkup . formatTime defaultTimeLocale "%e.%m.%Y"
+  
+instance ToMessage UTCTime where
+  toMessage = toMessage . formatTime defaultTimeLocale "%e.%m.%Y"
 
 parents :: Maybe (Route App) -> Maybe (Route App)
 parents (Just ImpressumR) = Nothing

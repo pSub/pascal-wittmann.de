@@ -4,9 +4,9 @@
         ^{catForm}
         <tr>
             <td colspan="2">
-                <input type="submit" value="hinzufügen">
+                <input type="submit" value="_{MsgAdd}">
 
-<p>Kategorien löschen
+<p>_{MsgDeleteCategories}
 <form enctype=#{deleteEnctype} method="get">
       ^{deleteCatForm}
       <p>

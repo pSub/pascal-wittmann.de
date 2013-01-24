@@ -1,20 +1,20 @@
 $maybe _ <- mu
   <span .right>
-    <a href="@{DeleteEntryR catName (entityKey entry)}">Löschen
+    <a href="@{DeleteEntryR catName (entityKey entry)}">_{MsgDelete}
     \
-    <a href="@{EditEntryR catName curIdent}">Bearbeiten
+    <a href="@{EditEntryR catName curIdent}">_{MsgEdit}
     \
-    <a href="@{UploadFileR catName curIdent}">Anhang
+    <a href="@{UploadFileR catName curIdent}">_{MsgAttachment}
 <h2>#{entryTitle $ entityVal entry}
 #{rstToHtml $ entryContent $ entityVal entry}
 
 $if not $ null atts
-  <h2>Anhänge
+  <h2>_{MsgAttachments}
   $forall Entity _ att <- atts
        <a href="@{StaticR $ createStaticRoute $ attachmentFile att}">#{attachmentDescr att}
        <br>
 
-<h2>Kommentare
+<h2>_{MsgComments}
 Kommentare für diesen Eintrag als <a href=@{CommentFeedR (entityKey entry)}>RSS Feed</a>
 <br>
 $if not (null comments)
@@ -25,12 +25,12 @@ $if not (null comments)
       $maybe author' <- commentAuthor comment
              <b>#{author'}
       $nothing
-             <b>Anonymous
+             <b>_{MsgAnonymous}
       \
-      <a href="@{EntryCommentR catName curIdent cid}">antworten
+      <a href="@{EntryCommentR catName curIdent cid}">_{MsgReply}
       $maybe _ <- mu
          \
-         <a href="@{DeleteCommentR catName curIdent cid}">löschen
+         <a href="@{DeleteCommentR catName curIdent cid}">_{MsgDelete}
       <blockquote>
          #{markdownToHtml $ commentContent comment}
       $maybe parent' <- mparent
@@ -38,13 +38,13 @@ $if not (null comments)
           <form enctype=#{enctype} method=post>
             ^{formEdit}
             <p>
-              <input type=submit value="Veröffentlichen"> #
-              <a href=@{EntryR catName curIdent}>abbrechen
+              <input type=submit value="_{MsgSubmit}"> #
+              <a href=@{EntryR catName curIdent}>_{MsgCancel}
 $else
-  Keine Kommentare vorhanden
+  _{MsgNoComments}
 
-<h2>Neuer Kommentar
+<h2>_{MsgNewComment}
 <form enctype="#{enctype}" method="post">
       ^{formNew}
       <p>
-        <input type="submit" value="Veröffentlichen">
+        <input type="submit" value="_{MsgSubmit}">
