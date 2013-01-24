@@ -14,4 +14,3 @@ Attachments: Attachments
 Attachment: Attachment
 Delete': Delete
 Edit: Edit
-# WroteOn date@UTCTime (author@Maybe Text): on #{date} #{fromMaybe "Anonymous" author} wrote 
