@@ -14,3 +14,10 @@ Attachments: Attachments
 Attachment: Attachment
 Delete': Delete
 Edit: Edit
+Name: Name
+Comment: Comment
+Title: Title
+Ident: Ident
+Tags: Tags
+Summary: Summary
+Text: Text

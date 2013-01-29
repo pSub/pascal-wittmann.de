@@ -14,3 +14,10 @@ Attachments: Anhänge
 Attachment: Anhang
 Delete': Löschen
 Edit: Bearbeiten
+Name: Name
+Comment: Kommentar
+Title: Titel
+Ident: Ident
+Tags: Tags
+Summary: Zusammenfassung
+Text: Text

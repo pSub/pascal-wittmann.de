@@ -50,18 +50,18 @@ data PEntry = PEntry
 -- | Form for entering a new entry.
 entryForm ::  Maybe PEntry -> CategoryId -> Form PEntry
 entryForm mparams category = renderDivs $ PEntry
-    <$> areq textField "Title" (title <$> mparams)
-    <*> areq textField "Ident" (ident <$> mparams)
+    <$> areq textField (fieldSettingsLabel MsgTitle) (title <$> mparams)
+    <*> areq textField (fieldSettingsLabel MsgIdent) (ident <$> mparams)
     <*> pure category
-    <*> areq textField "Tags" (tag <$> mparams)
-    <*> areq textField "Summary" (recap <$> mparams)
-    <*> areq rstField "Text" (text <$> mparams)
+    <*> areq textField (fieldSettingsLabel MsgTags) (tag <$> mparams)
+    <*> areq textField (fieldSettingsLabel MsgSummary) (recap <$> mparams)
+    <*> areq rstField  (fieldSettingsLabel MsgText) (text <$> mparams)
 
 -- | Form to add comments to an entry
 commentForm :: Maybe Text -> Markdown -> UTCTime -> Maybe CommentId -> EntryId -> Form Comment
 commentForm author comment now parentKey entryKey = renderDivs $ Comment
-    <$> aopt textField "Name" (Just author)
-    <*> areq markdownField "Kommentar" (Just comment)
+    <$> aopt textField (fieldSettingsLabel MsgName) (Just author)
+    <*> areq markdownField (fieldSettingsLabel MsgComment) (Just comment)
     <*> pure now
     <*> pure parentKey
     <*> pure entryKey
@@ -70,8 +70,8 @@ commentForm author comment now parentKey entryKey = renderDivs $ Comment
 -- | Form to upload attachments to an entry
 fileForm :: Text -> Form (FileInfo, Text)
 fileForm name = renderDivs $ (,)
-         <$> fileAFormReq "Anhang"
-         <*> areq textField "Name" (Just name)
+         <$> fileAFormReq (fieldSettingsLabel MsgAttachment)
+         <*> areq textField (fieldSettingsLabel MsgName) (Just name)
 
 -- | Form to delete (multiple) attachments
 deleteFileForm :: [(Text, AttachmentId)] -> Form ([AttachmentId])

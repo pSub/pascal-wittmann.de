@@ -1,5 +1,5 @@
 <ul #tag-list>
-   <li>Tags: #
+   <li>_{MsgTags}: #
   $forall Entity _ tag' <- tags
     <li>
      $with activeTags <- sort $ toggleTag (tagName tag') tagNames
@@ -26,10 +26,11 @@
                     _{MsgNoComments}
                 \ / #
                <span .tags>
-                   Tags: #
+                   _{MsgTags}: #
                    $forall Entity _ tag' <- tagsForEntry eid tagsEntries
                       #{tagName tag'} #
         <span .left>
              <span .title>#{entryTitle entry}
              <br>
              <span .recap>#{entryRecap entry}
+
