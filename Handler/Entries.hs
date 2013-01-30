@@ -173,7 +173,6 @@ getNewEntryR :: Text -> Handler RepHtml
 getNewEntryR catName = do
   requireAdmin
   category <- runDB $ getBy404 $ UniqueCategory catName
-  tags <- return []
   ((res, form), enctype) <- runFormPost $ entryForm Nothing (entityKey category)
   case res of
     FormSuccess p -> do
