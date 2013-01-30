@@ -3,10 +3,10 @@ module Handler.Profile
        , postProfileR
        ) where
 
-import Import
+import           Import
 
 profileForm :: Maybe Text -> Form Text
-profileForm name = renderDivs $ areq textField "Name" name
+profileForm name = renderDivs $ areq textField (fieldSettingsLabel MsgName) name
 
 getProfileR :: Handler RepHtml
 getProfileR = do
@@ -18,7 +18,7 @@ getProfileR = do
             redirect ProfileR
          _ -> return ()
     defaultLayout $ do
-       setTitle "Profil"
+       setTitle "Profile"
        $(widgetFile "profile")
 
 postProfileR :: Handler RepHtml

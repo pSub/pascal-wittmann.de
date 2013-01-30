@@ -10,7 +10,7 @@ import           Import
 
 formletCat :: Maybe Category -> Form Category
 formletCat mparams = renderDivs $ Category
-    <$> areq textField "Kategorie" (categoryName <$> mparams)
+    <$> areq textField (fieldSettingsLabel MsgCategory) (categoryName <$> mparams)
 
 deleteCatForm :: [(Text, CategoryId)] -> Form [CategoryId]
 deleteCatForm cats = renderDivs $ areq (multiSelectFieldList cats) "" Nothing

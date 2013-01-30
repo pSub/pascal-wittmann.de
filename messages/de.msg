@@ -21,3 +21,4 @@ Ident: Ident
 Tags: Tags
 Summary: Zusammenfassung
 Text: Text
+Category: Category
