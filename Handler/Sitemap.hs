@@ -2,9 +2,8 @@ module Handler.Sitemap
        ( getSitemapR
        ) where
 
-import           Data.List       (find)
-import           Data.Maybe      (fromJust)
-import           Data.Time.Clock
+import           Data.List     (find)
+import           Data.Maybe    (fromJust)
 import           Import
 import           Yesod.Sitemap
 

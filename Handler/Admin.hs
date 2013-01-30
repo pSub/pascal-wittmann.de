@@ -12,8 +12,8 @@ formletCat :: Maybe Category -> Form Category
 formletCat mparams = renderDivs $ Category
     <$> areq textField (fieldSettingsLabel MsgCategory) (categoryName <$> mparams)
 
-deleteCatForm :: [(Text, CategoryId)] -> Form [CategoryId]
-deleteCatForm cats = renderDivs $ areq (multiSelectFieldList cats) "" Nothing
+deleteCatFormlet :: [(Text, CategoryId)] -> Form [CategoryId]
+deleteCatFormlet cats = renderDivs $ areq (multiSelectFieldList cats) "" Nothing
 
 getAdminR :: Handler RepHtml
 getAdminR = do
@@ -28,7 +28,7 @@ getAdminR = do
   cats <- runDB $ selectList [] [Asc CategoryName]
   let opts = map ((categoryName . entityVal) &&& entityKey) cats
   -- FIXME: used formGet because the identifiers of both forms clash
-  ((deleteRes, deleteCatForm), deleteEnctype) <- runFormGet $ deleteCatForm opts
+  ((deleteRes, deleteCatForm), deleteEnctype) <- runFormGet $ deleteCatFormlet opts
   case deleteRes of
     FormSuccess ckeys -> do
       runDB $ deleteCascadeWhere [FilterOr $ map (CategoryId ==.) ckeys]
