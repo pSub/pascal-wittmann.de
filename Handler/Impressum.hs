@@ -3,7 +3,7 @@ module Handler.Impressum
          getImpressumR
          ) where
 
-import Import
+import           Import
 
 getImpressumR :: Handler RepHtml
 getImpressumR = defaultLayout $ do
