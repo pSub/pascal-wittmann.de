@@ -237,8 +237,8 @@ getUploadFileR :: Text -> Text -> Handler RepHtml
 getUploadFileR catName curIdent = do
   requireAdmin
   e <- runDB $ getBy404 $ UniqueEntry curIdent
-  ((res, newFileFormView), enctype) <- runFormPost $ fileForm ""
-  case res of
+  ((resCreate, newFileFormView), enctype) <- runFormPost $ fileForm ""
+  case resCreate of
        FormSuccess (file, descr) -> do
           now <- liftIO $ getCurrentTime
           _ <- runDB $ insert $ Attachment (fileName file) (entityKey e) descr now
@@ -246,8 +246,8 @@ getUploadFileR catName curIdent = do
           redirect $  EntryR catName curIdent
        _ -> return ()
   atts <- runDB $ selectList [AttachmentEntry ==. (entityKey e)] [Asc AttachmentDescr]
-  ((res, deleteFileFormView), _) <- runFormPost $ deleteFileForm $ map ((attachmentDescr . entityVal) &&& entityKey) atts
-  case res of
+  ((resDelete, deleteFileFormView), _) <- runFormPost $ deleteFileForm $ map ((attachmentDescr . entityVal) &&& entityKey) atts
+  case resDelete of
        FormSuccess aids -> do
          as <- runDB $ selectList [FilterOr $ map (AttachmentId ==.) aids] []
          runDB $ deleteWhere [FilterOr $ map (AttachmentId ==.) aids]
