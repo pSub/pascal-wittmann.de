@@ -1,9 +1,15 @@
 *[~#]
 static/tmp
 deploy
+deploy.sh
 dist
 config/postgres.yml
+config/keter.yaml
 config/client_session_key.aes
+config/client_session_key_aes
 cabal-dev
+yesod-devel
+
+*.keter
 
 TAGS
