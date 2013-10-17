@@ -10,6 +10,9 @@ config/client_session_key_aes
 cabal-dev
 yesod-devel
 
+.cabal-sandbox
+cabal.sandbox.config
+
 *.keter
 
 TAGS
