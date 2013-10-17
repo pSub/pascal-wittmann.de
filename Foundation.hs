@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+
 module Foundation
     ( App (..)
     , Route (..)
@@ -16,23 +18,23 @@ module Foundation
     , maybeAdmin
     ) where
 
-import           Prelude
-import           Yesod
-import           Yesod.Static
-import           Yesod.Auth
-import           Yesod.Auth.GoogleEmail
-import           Yesod.Default.Config
-import           Yesod.Default.Util (addStaticContentExternal)
-import           Network.HTTP.Conduit (Manager)
+import Prelude
+import Yesod
+import Yesod.Static
+import Yesod.Auth
+import Yesod.Auth.GoogleEmail
+import Yesod.Default.Config
+import Yesod.Default.Util (addStaticContentExternal)
+import Network.HTTP.Conduit (Manager)
 import qualified Settings
-import           Settings.Development (development)
-import qualified Database.Persist.Store
-import           Database.Persist.GenericSql
-import           Settings (widgetFile, Extra (..))
-import           Model
-import           Text.Jasmine (minifym)
-import           Web.ClientSession (getKey)
-import           Text.Hamlet (hamletFile)
+import Settings.Development (development)
+import qualified Database.Persist
+import Database.Persist.Sql (SqlPersistT)
+import Settings (widgetFile, Extra (..))
+import Model
+import Text.Jasmine (minifym)
+import Text.Hamlet (hamletFile)
+import System.Log.FastLogger (Logger)
 
 -- Custom imports
 import           Control.Applicative
@@ -51,9 +53,10 @@ import           Yesod.AtomFeed
 data App = App
     { settings :: AppConfig DefaultEnv Extra
     , getStatic :: Static -- ^ Settings for static file serving.
-    , connPool :: Database.Persist.Store.PersistConfigPool Settings.PersistConfig -- ^ Database connection pool.
+    , connPool :: Database.Persist.PersistConfigPool Settings.PersistConf -- ^ Database connection pool.
     , httpManager :: Manager
-    , persistConfig :: Settings.PersistConfig
+    , persistConfig :: Settings.PersistConf
+    , appLogger :: Logger
     }
           
 plural :: Int -> String -> String -> String
@@ -84,7 +87,7 @@ mkMessage "App" "messages" "en"
 -- split these actions into two functions and place them in separate files.
 mkYesodData "App" $(parseRoutesFile "config/routes")
 
-type Form x = Html -> MForm App App (FormResult x, Widget)
+type Form x = Html -> MForm (HandlerT App IO) (FormResult x, Widget)
 
 -- Please see the documentation for the Yesod typeclass. There are a number
 -- of settings which can be configured by overriding methods here.
@@ -93,21 +96,17 @@ instance Yesod App where
 
     -- Store session data on the client in encrypted cookies,
     -- default session idle timeout is 120 minutes
-    makeSessionBackend _ = do
-        key <- getKey "config/client_session_key_aes"
-        let timeout = 120 * 60
-        (getCachedDate, _closeDataCache) <- clientSessionDateCacher timeout
-        return . Just $ clientSessionBackend2 key getCachedDate
+    makeSessionBackend _ = fmap Just $ defaultClientSessionBackend
+        (120 * 60) -- 120 minutes
+        "config/client_session_key.aes"
 
     defaultLayout widget = do
         master <- getYesod
         mmsg <- getMessage
 
         muser <- maybeAuth
-        current <- getCurrentRoute
-        toMaster <- getRouteToMaster
         cats <- runDB $ selectList [] [Asc CategoryName]
-        let currentRoute = toMaster <$> current
+        currentRoute <- getCurrentRoute
         let isCurrent x = (currentRoute == Just x) || ((parents currentRoute) == Just x)
         let categories = map (name &&& EntriesR . name) cats
 
@@ -124,7 +123,7 @@ instance Yesod App where
         pc <- widgetToPageContent $ do
             atomLink NewsFeedR "Newsfeed von pascal-wittmann.de"
             $(widgetFile "default-layout")
-        hamletToRepHtml $(hamletFile "templates/default-layout-wrapper.hamlet")
+        giveUrlRenderer $(hamletFile "templates/default-layout-wrapper.hamlet")
         where name = categoryName . entityVal
 
     -- This is done to provide an optimization for serving static files from
@@ -153,10 +152,10 @@ instance Yesod App where
 
 -- How to run database actions.
 instance YesodPersist App where
-    type YesodPersistBackend App = SqlPersist
+    type YesodPersistBackend App = SqlPersistT
     runDB f = do
         master <- getYesod
-        Database.Persist.Store.runPool
+        Database.Persist.runPool
             (persistConfig master)
             f
             (connPool master)

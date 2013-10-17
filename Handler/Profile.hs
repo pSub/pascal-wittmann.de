@@ -8,7 +8,7 @@ import           Import
 profileForm :: Maybe Text -> Form Text
 profileForm name = renderDivs $ areq textField (fieldSettingsLabel MsgName) name
 
-getProfileR :: Handler RepHtml
+getProfileR :: Handler Html
 getProfileR = do
     Entity uid u <- requireAuth
     ((res, form), enctype) <- runFormPost $ profileForm $ userName u
@@ -21,5 +21,5 @@ getProfileR = do
        setTitle "Profile"
        $(widgetFile "profile")
 
-postProfileR :: Handler RepHtml
+postProfileR :: Handler Html
 postProfileR = getProfileR

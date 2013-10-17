@@ -5,21 +5,21 @@
 -- declared in the Foundation.hs file.
 module Settings where
 
-import Control.Applicative
-import Data.Default (def)
-import Data.Text (Text)
-import Data.Yaml
-import Database.Persist.Postgresql (PostgresConf)
-import Language.Haskell.TH.Syntax
 import Prelude
-import Settings.Development
-import Text.Hamlet
 import Text.Shakespeare.Text (st)
+import Language.Haskell.TH.Syntax
+import Database.Persist.Postgresql (PostgresConf)
 import Yesod.Default.Config
 import Yesod.Default.Util
+import Data.Text (Text)
+import Data.Yaml
+import Control.Applicative
+import Settings.Development
+import Data.Default (def)
+import Text.Hamlet
 
 -- | Which Persistent backend this site is using.
-type PersistConfig = PostgresConf
+type PersistConf = PostgresConf
 
 -- Static setting below. Changing these requires a recompile
 
@@ -41,10 +41,15 @@ staticDir = "static"
 -- have to make a corresponding change here.
 --
 -- To see how this value is used, see urlRenderOverride in Foundation.hs
-staticRoot :: AppConfig DefaultEnv Extra ->  Text
+staticRoot :: AppConfig DefaultEnv x -> Text
 staticRoot conf = [st|#{appRoot conf}/static|]
- -- | Settings for 'widgetFile', such as which template languages to support and
+
+-- | Settings for 'widgetFile', such as which template languages to support and
 -- default Hamlet settings.
+--
+-- For more information on modifying behavior, see:
+--
+-- https://github.com/yesodweb/yesod/wiki/Overriding-widgetFile
 widgetFileSettings :: WidgetFileSettings
 widgetFileSettings = def
     { wfsHamletSettings = defaultHamletSettings
@@ -58,7 +63,7 @@ widgetFileSettings = def
 widgetFile :: String -> Q Exp
 widgetFile = (if development then widgetFileReload
                              else widgetFileNoReload)
-             widgetFileSettings
+              widgetFileSettings
 
 data Extra = Extra
     { extraCopyright :: Text

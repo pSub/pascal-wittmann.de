@@ -5,7 +5,7 @@ module Handler.Impressum
 
 import           Import
 
-getImpressumR :: Handler RepHtml
+getImpressumR :: Handler Html
 getImpressumR = defaultLayout $ do
   setTitle "Impressum"
   $(widgetFile "impressum")

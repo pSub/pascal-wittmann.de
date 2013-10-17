@@ -6,7 +6,7 @@ $maybe _ <- mu
     \
     <a href="@{UploadFileR catName curIdent}">_{MsgAttachment}
 <h2>#{entryTitle $ entityVal entry}
-#{rstToHtml $ entryContent $ entityVal entry}
+#{markdownToHtml $ entryContent $ entityVal entry}
 
 $if not $ null atts
   <h2>_{MsgAttachments}

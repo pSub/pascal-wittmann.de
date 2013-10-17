@@ -6,18 +6,18 @@ module Handler.News
 import           Data.List      (find)
 import           Data.Maybe
 import           Import
+import           Yesod.AtomFeed
 import           Yesod.Feed
 import           Yesod.Markdown (markdownToHtml)
-import           Yesod.RST      (rstToHtml)
 
-getNewsFeedR :: Handler RepAtomRss
+getNewsFeedR :: Handler TypedContent
 getNewsFeedR = do
     categories <- runDB $ selectList [] []
     entries <- runDB $ selectList [] [Desc EntryDate, LimitTo 30] >>= (mapM $ \(Entity _ e) -> return FeedEntry
             { feedEntryLink = EntryR (findCategory (entryCat e) categories) (entryIdent e)
             , feedEntryUpdated = entryDate e
             , feedEntryTitle = entryTitle e
-            , feedEntryContent = rstToHtml $ entryContent e
+            , feedEntryContent = markdownToHtml $ entryContent e
             })
     newsFeed Feed
        { feedTitle = "pascal-wittmann.de"
@@ -31,7 +31,7 @@ getNewsFeedR = do
        }
 
 
-getCommentFeedR :: Key Entry -> Handler RepAtomRss
+getCommentFeedR :: Key Entry -> Handler TypedContent
 getCommentFeedR key = do
     e <- runDB $ get404 key
     categories <- runDB $ selectList [] []

@@ -18,13 +18,10 @@ module Handler.Entries
        , postMoveFileR
        ) where
 
+import qualified Database.Esqueleto as E
 import           Import
 import qualified Settings
-import           Yesod.RST
 import           Yesod.Markdown
-import           Database.Persist.Store (deleteCascade)
-import           Database.Persist.Query.Join     (selectOneMany, SelectOneMany(..))
-import           Database.Persist.Query.Join.Sql (runJoin)
 
 import           Control.Arrow ((&&&))
 import           Data.List                       (intersperse, sort)
@@ -44,7 +41,7 @@ data PEntry = PEntry
      , cat :: CategoryId
      , tag :: Text
      , recap :: Text
-     , text :: RST
+     , text :: Markdown
      }
 
 -- | Form for entering a new entry.
@@ -55,7 +52,7 @@ entryForm mparams category = renderDivs $ PEntry
     <*> pure category
     <*> areq textField (fieldSettingsLabel MsgTags) (tag <$> mparams)
     <*> areq textField (fieldSettingsLabel MsgSummary) (recap <$> mparams)
-    <*> areq rstField  (fieldSettingsLabel MsgText) (text <$> mparams)
+    <*> areq markdownField  (fieldSettingsLabel MsgText) (text <$> mparams)
 
 -- | Form to add comments to an entry
 commentForm :: Maybe Text -> Markdown -> UTCTime -> Maybe CommentId -> EntryId -> Form Comment
@@ -79,7 +76,7 @@ deleteFileForm atts = renderDivs $ areq (multiSelectFieldList atts) "" Nothing
 
 -- | Calls the central entries handler ('getEntriesByTag') without a restriction
 -- on tags.
-getEntriesR :: Text -> Handler RepHtml
+getEntriesR :: Text -> Handler Html
 getEntriesR catName = getEntriesByTagR catName []
 
 -- | Central handler for showing a list of entries of a category.
@@ -88,24 +85,27 @@ getEntriesR catName = getEntriesByTagR catName []
 -- list of tags. If this list is not empty, every entry which is assigned
 -- to at least one tag from the list (given it is in the right category)
 -- is shown
-getEntriesByTagR :: Text -> [Text] -> Handler RepHtml
+getEntriesByTagR :: Text -> [Text] -> Handler Html
 getEntriesByTagR catName tagNames = do
   mu <- maybeAdmin
   category <- runDB $ getBy404 $ UniqueCategory catName
   currentTags <- mapMaybe (entityKey <$>) <$> mapM (\ n -> runDB $ getBy $ UniqueTag n (entityKey category)) tagNames
-  tagsEntries <- runDB $ runJoin (selectOneMany (TaggedTag <-.) taggedTag)
-          { somFilterOne = [TagCategory ==. (entityKey category)]
-          , somOrderOne = [Asc TagName]
-          }
-  tags <- return $ map fst tagsEntries
-  comments <- map (\ (e,c) -> (entityKey e, length c)) <$> (runDB $ runJoin (selectOneMany (CommentEntry <-.) commentEntry)
-                                                                  { somFilterMany = [CommentDeleted ==. False]})
+  tagging <- runDB $ E.select $ E.from $ \(t `E.InnerJoin` s) -> do
+                     E.on $ t E.^. TagId E.==. s E.^. TaggedTag
+                     E.orderBy [E.asc (t E.^. TagName)]
+                     return (t, s)
+  tags <- runDB $ selectList [TagCategory ==. entityKey category] []
+  comments <- map (\(E.Value e, E.Value c) -> (e, c)) <$> (runDB $ E.select $ E.from $ \(e `E.InnerJoin` c) -> do
+                      E.on $ e E.^. EntryId E.==. c E.^. CommentEntry
+                      E.groupBy $ e E.^. EntryId
+                      return (e E.^. EntryId, E.countRows))
+                      
   entries <- if null tagNames
                 then runDB $ selectList [EntryCat ==. (entityKey category)] [Desc EntryDate]
-                else map fst <$> (runDB $ runJoin (selectOneMany (TaggedEntry <-.) taggedEntry)
-                     { somFilterMany = [FilterOr . map (TaggedTag ==.) $ currentTags]
-                     , somOrderOne = [Desc EntryDate]
-                     })
+                else runDB $ E.select $ E.from $ \(e `E.InnerJoin` t) -> do
+                             E.on $ e E.^. EntryId E.==. t E.^. TaggedEntry
+                             mapM_ (E.where_ . (t E.^. TaggedTag E.==.) . E.val) currentTags
+                             return e
   defaultLayout $ do
     if null tagNames
        then setTitle $ toHtml catName
@@ -121,15 +121,11 @@ toggleTag t ts
 
 -- | This handler is responsible for building pages showing an
 -- entry in full length including attachments and comments.
-entryHandler :: Text -> Text -> Maybe CommentId -> Handler RepHtml
+entryHandler :: Text -> Text -> Maybe CommentId -> Handler Html
 entryHandler catName curIdent mparent = do
   mu <- maybeAdmin
   mua <- maybeAuth
   entry <- runDB $ getBy404 $ UniqueEntry curIdent
-  tags <- runDB $ runJoin $ (selectOneMany (TaggedTag <-.) taggedTag)
-          { somFilterMany = [TaggedEntry ==. (entityKey entry)]
-          , somOrderOne = [Asc TagName]
-          }
   atts <- runDB $ selectList [AttachmentEntry ==. (entityKey entry)] [Asc AttachmentDescr]
   comments <- buildComments <$> (runDB $ selectList [CommentEntry ==. (entityKey entry), CommentDeleted ==. False] [Asc CommentDate])
 
@@ -145,16 +141,16 @@ entryHandler catName curIdent mparent = do
     setTitle $ toHtml $ entryTitle $ entityVal entry
     $(widgetFile "entry")
 
-getEntryCommentR :: Text -> Text -> CommentId -> Handler RepHtml
+getEntryCommentR :: Text -> Text -> CommentId -> Handler Html
 getEntryCommentR catName curIdent curParent = entryHandler catName curIdent (Just curParent)
 
-postEntryCommentR :: Text -> Text -> CommentId -> Handler RepHtml
+postEntryCommentR :: Text -> Text -> CommentId -> Handler Html
 postEntryCommentR = getEntryCommentR
 
-getEntryR :: Text -> Text ->  Handler RepHtml
+getEntryR :: Text -> Text ->  Handler Html
 getEntryR catName curIdent = entryHandler catName curIdent Nothing
 
-postEntryR :: Text -> Text -> Handler RepHtml
+postEntryR :: Text -> Text -> Handler Html
 postEntryR = getEntryR
 
 
@@ -169,7 +165,7 @@ getDeleteTagR category tid = do
 -- | This handler builds a page with a form to
 -- create a new article. It needs the identifier
 -- of the Category, the entry should be placed in.
-getNewEntryR :: Text -> Handler RepHtml
+getNewEntryR :: Text -> Handler Html
 getNewEntryR catName = do
   requireAdmin
   category <- runDB $ getBy404 $ UniqueCategory catName
@@ -185,21 +181,22 @@ getNewEntryR catName = do
     setTitle "New Entry"
     $(widgetFile "new-entry")
 
-postNewEntryR :: Text -> Handler RepHtml
+postNewEntryR :: Text -> Handler Html
 postNewEntryR = getNewEntryR
 
 
 -- | Handler that fills all fields of an entry
 -- that is specified by the second parameter.
 -- The first parameter is the Category.
-getEditEntryR :: Text -> Text -> Handler RepHtml
+getEditEntryR :: Text -> Text -> Handler Html
 getEditEntryR catName eid = do
   requireAdmin
   Entity eKey eVal <- runDB $ getBy404 $ UniqueEntry eid
-  tags <- showTags <$> (runDB $ runJoin $ (selectOneMany (TaggedTag <-.) taggedTag)
-          { somFilterMany = [TaggedEntry ==. eKey]
-          , somOrderOne = [Asc TagName]
-          })
+  tags <- showTags <$> (runDB $ E.select $ E.from $ \(t `E.InnerJoin` s) -> do
+                                E.on $ t E.^. TaggedTag E.==. s E.^. TagId
+                                E.where_ $ t E.^. TaggedEntry E.==. E.val eKey
+                                E.orderBy [E.asc (s E.^. TagName)]
+                                return s)
   ((res, form), enctype) <- runFormPost $ entryForm (Just $ PEntry (entryTitle eVal) (entryIdent eVal) (entryCat eVal) tags (entryRecap eVal) (entryContent eVal)) (entryCat eVal)
   case res of
       FormSuccess p -> do
@@ -213,12 +210,12 @@ getEditEntryR catName eid = do
   defaultLayout $ do
        setTitle "Edit Entry"
        $(widgetFile "new-entry")
-  where showTags = pack . concat . intersperse ", " . map (unpack . tagName . entityVal . fst)
+  where showTags = pack . concat . intersperse ", " . map (unpack . tagName . entityVal)
 
 buildTagList :: PEntry -> [Text]
 buildTagList = map strip . splitOn "," . tag
 
-postEditEntryR :: Text -> Text -> Handler RepHtml
+postEditEntryR :: Text -> Text -> Handler Html
 postEditEntryR = getEditEntryR
 
 getDeleteEntryR :: Text -> EntryId -> Handler ()
@@ -233,7 +230,7 @@ getDeleteCommentR catName curIdent cid = do
   runDB $ update cid [CommentDeleted =. True]
   redirect $  EntryR catName curIdent
 
-getUploadFileR :: Text -> Text -> Handler RepHtml
+getUploadFileR :: Text -> Text -> Handler Html
 getUploadFileR catName curIdent = do
   requireAdmin
   e <- runDB $ getBy404 $ UniqueEntry curIdent
@@ -254,13 +251,12 @@ getUploadFileR catName curIdent = do
          liftIO $ mapM_ (removeFile . buildFileName . attachmentFile . entityVal) as
          redirect $ EntryR catName curIdent
        _ -> return ()
-  defaultLayout $
-      $(widgetFile "upload-file")
+  defaultLayout $(widgetFile "upload-file")
 
-postUploadFileR :: Text -> Text -> Handler RepHtml
+postUploadFileR :: Text -> Text -> Handler Html
 postUploadFileR = getUploadFileR
 
-getMoveFileR :: Text -> Text -> AttachmentId -> Handler RepHtml
+getMoveFileR :: Text -> Text -> AttachmentId -> Handler Html
 getMoveFileR catName curIdent aid = do
   requireAdmin
   a <- runDB $ get404 aid
@@ -273,17 +269,17 @@ getMoveFileR catName curIdent aid = do
           redirect $  EntryR catName curIdent
        _ -> return ()
   defaultLayout $
-      $(widgetFile "move-file")
+       $(widgetFile "move-file")
 
-postMoveFileR :: Text -> Text -> AttachmentId -> Handler RepHtml
+postMoveFileR :: Text -> Text -> AttachmentId -> Handler Html
 postMoveFileR = getMoveFileR
 
 -- Helper functions
 buildFileName :: Text -> FilePath
 buildFileName name = Settings.staticDir ++ [pathSeparator] ++ unpack name
 
-tagsForEntry :: Key Entry -> [(b, [Entity Tagged])] -> [b]
-tagsForEntry eid = map fst . filter (any ((== eid) . taggedEntry . entityVal) . snd)
+tagsForEntry :: Key Entry -> [(b, Entity Tagged)] -> [b]
+tagsForEntry eid = map fst . filter (((== eid) . taggedEntry . entityVal) . snd)
 
 insertTags :: CategoryId -> EntryId -> [Text] -> Handler ()
 insertTags category eid = mapM_ insertTag . filter (not . T.null)

@@ -27,10 +27,13 @@
                 \ / #
                <span .tags>
                    _{MsgTags}: #
-                   $forall Entity _ tag' <- tagsForEntry eid tagsEntries
-                      #{tagName tag'} #
+                   $forall Entity _ tag <- tagsForEntry eid tagging
+                      #{tagName tag} #
         <span .left>
              <span .title>#{entryTitle entry}
              <br>
              <span .recap>#{entryRecap entry}
+
+
+
 

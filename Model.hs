@@ -5,11 +5,10 @@ module Model where
 import Prelude
 import Yesod
 import Yesod.Markdown (Markdown)
-import Yesod.RST (RST)
 import Data.Time (UTCTime)
 import Data.Text (Text)
+import Data.Typeable
 import Database.Persist.Quasi
-import Database.Persist.Store
 
 
 -- You can define all of your database entities in the entities file.
@@ -17,6 +16,6 @@ import Database.Persist.Store
 -- at:
 -- http://www.yesodweb.com/book/persistent/
 share [mkPersist sqlOnlySettings, mkMigrate "migrateAll", mkDeleteCascade sqlOnlySettings]
-     $(persistFileWith lowerCaseSettings "config/models")
+      $(persistFileWith lowerCaseSettings "config/models")
 
 

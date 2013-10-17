@@ -3,7 +3,7 @@ module Handler.Root where
 import           Data.List (find)
 import           Import
 
-getRootR :: Handler RepHtml
+getRootR :: Handler Html
 getRootR = do
   posts <- runDB $ selectList [] [Desc EntryDate, LimitTo 5]
   cats <- runDB $ selectList [] [Asc CategoryName]

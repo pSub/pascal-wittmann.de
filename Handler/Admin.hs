@@ -4,8 +4,7 @@ module Handler.Admin
        , postAdminR
        ) where
 
-import           Control.Arrow          ((&&&))
-import           Database.Persist.Store
+import           Control.Arrow ((&&&))
 import           Import
 
 formletCat :: Maybe Category -> Form Category
@@ -15,7 +14,7 @@ formletCat mparams = renderDivs $ Category
 deleteCatFormlet :: [(Text, CategoryId)] -> Form [CategoryId]
 deleteCatFormlet cats = renderDivs $ areq (multiSelectFieldList cats) "" Nothing
 
-getAdminR :: Handler RepHtml
+getAdminR :: Handler Html
 getAdminR = do
   requireAdmin
   ((res, catForm), catEnctype) <- runFormPost $ formletCat Nothing
@@ -39,7 +38,7 @@ getAdminR = do
     setTitle "Admin"
     $(widgetFile "admin")
 
-postAdminR :: Handler RepHtml
+postAdminR :: Handler Html
 postAdminR = getAdminR
 
 getDeleteCategoryR :: CategoryId -> Handler ()
