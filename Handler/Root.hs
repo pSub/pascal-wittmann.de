@@ -5,8 +5,13 @@ import           Import
 
 getRootR :: Handler Html
 getRootR = do
-  posts <- runDB $ selectList [] [Desc EntryDate, LimitTo 5]
-  cats <- runDB $ selectList [] [Asc CategoryName]
+  posts <- runDB $ select $ from $ \e -> do
+                   orderBy [desc (e ^. EntryDate)]
+                   limit 5
+                   return e
+  cats <- runDB $ select $ from $ \c -> do
+                  orderBy [asc (c ^. CategoryName)]
+                  return c
   defaultLayout $ do
     setTitle "Pascal Wittmann"
     $(widgetFile "root")

@@ -7,7 +7,6 @@ module Application
 
 import           Control.Monad.Logger                 (runLoggingT)
 import qualified Database.Persist
-import           Database.Persist.Sql                 (runMigration)
 import           Import
 import           Network.HTTP.Conduit                 (def, newManager)
 import           Network.Wai.Middleware.RequestLogger

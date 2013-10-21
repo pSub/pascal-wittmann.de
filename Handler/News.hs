@@ -12,13 +12,17 @@ import           Yesod.Markdown (markdownToHtml)
 
 getNewsFeedR :: Handler TypedContent
 getNewsFeedR = do
-    categories <- runDB $ selectList [] []
-    entries <- runDB $ selectList [] [Desc EntryDate, LimitTo 30] >>= (mapM $ \(Entity _ e) -> return FeedEntry
-            { feedEntryLink = EntryR (findCategory (entryCat e) categories) (entryIdent e)
-            , feedEntryUpdated = entryDate e
-            , feedEntryTitle = entryTitle e
-            , feedEntryContent = markdownToHtml $ entryContent e
-            })
+    categories <- runDB $ select $ from $ \c -> return c
+    entries <- runDB $ select $ from $ \e -> do
+                        orderBy [desc (e ^. EntryDate)]
+                        limit 30
+                        return e
+    feeds <- mapM (\(Entity _ e) -> return FeedEntry
+                   { feedEntryLink = EntryR (findCategory (entryCat e) categories) (entryIdent e)
+                   , feedEntryUpdated = entryDate e
+                   , feedEntryTitle = entryTitle e
+                   , feedEntryContent = markdownToHtml $ entryContent e
+                   }) entries
     newsFeed Feed
        { feedTitle = "pascal-wittmann.de"
        , feedAuthor = "Pascal Wittmann"
@@ -26,16 +30,19 @@ getNewsFeedR = do
        , feedLinkHome = RootR
        , feedDescription = "RSS/Atom Feed von pascal-wittmann.de"
        , feedLanguage = "en"
-       , feedUpdated = maximum $ map feedEntryUpdated entries
-       , feedEntries = entries
+       , feedUpdated = maximum $ map feedEntryUpdated feeds
+       , feedEntries = feeds
        }
 
 
 getCommentFeedR :: Key Entry -> Handler TypedContent
 getCommentFeedR key = do
     e <- runDB $ get404 key
-    categories <- runDB $ selectList [] []
-    comments <- runDB $ selectList [CommentEntry ==. key] [Asc CommentDate] >>= (mapM $ \(Entity _ c) -> return FeedEntry
+    categories <- runDB $ select $ from $ \c -> return c
+    comments <- (runDB $ select $ from $ \c -> do
+                        where_ (c ^. CommentEntry ==. val key)
+                        orderBy [asc (c ^. CommentDate)]
+                        return c) >>= (mapM $ \(Entity _ c) -> return FeedEntry
              { feedEntryLink = EntryR (findCategory (entryCat e) categories) (entryIdent e)
              , feedEntryUpdated = commentDate c
              , feedEntryTitle = (entryTitle e) `mappend` " -- " `mappend` (fromMaybe "anonymous" (commentAuthor c))

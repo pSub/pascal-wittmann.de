@@ -9,8 +9,8 @@ import           Yesod.Sitemap
 
 getSitemapR :: Handler TypedContent
 getSitemapR = do
-    categories <- runDB $ selectList [] []
-    entries <- runDB $ selectList [] []
+    categories <- runDB $ select $ from return
+    entries <- runDB $ select $ from return
     categories_urls <- return $ map (\(Entity _ v) -> SitemapUrl
                     { sitemapLoc = EntriesR $ categoryName v
                     , sitemapLastMod = lastChange entries
@@ -23,7 +23,7 @@ getSitemapR = do
             , sitemapChangeFreq = Just $ Monthly
             , sitemapPriority = Just 0.9
             }) entries
-    statics <- runDB $ selectList [] [] >>= return . map(\(Entity _ v) -> SitemapUrl
+    statics <- (runDB $ select $ from return) >>= return . map(\(Entity _ v) -> SitemapUrl
             { sitemapLoc = StaticR $ StaticRoute [attachmentFile v] []
             , sitemapLastMod = Just $ attachmentLastMod v
             , sitemapChangeFreq = Just $ Never

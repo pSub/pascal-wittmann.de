@@ -18,30 +18,30 @@ module Handler.Entries
        , postMoveFileR
        ) where
 
-import qualified Database.Esqueleto as E
 import           Import
 import qualified Settings
 import           Yesod.Markdown
 
-import           Control.Arrow ((&&&))
-import           Data.List                       (intersperse, sort)
-import qualified Data.List                       as L (delete)
-import           Data.Maybe
-import           Data.Text                       (unpack, pack, strip, splitOn)
-import qualified Data.Text                       as T
+import           Control.Arrow         ((&&&))
+import           Data.List             (intersperse, sort)
+import qualified Data.List             as L (delete)
+import           Data.Maybe            hiding (isNothing)
+import qualified Data.Maybe            as M
+import           Data.Text             (pack, splitOn, strip, unpack)
+import qualified Data.Text             as T
 import           Data.Time
 import           Data.Tree
-import           Prelude                         hiding (unwords)
+import           Prelude               hiding (unwords)
 import           System.Directory
 import           System.FilePath.Posix
 
 data PEntry = PEntry
      { title :: Text
      , ident :: Text
-     , cat :: CategoryId
-     , tag :: Text
+     , cat   :: CategoryId
+     , tag   :: Text
      , recap :: Text
-     , text :: Markdown
+     , text  :: Markdown
      }
 
 -- | Form for entering a new entry.
@@ -90,21 +90,25 @@ getEntriesByTagR catName tagNames = do
   mu <- maybeAdmin
   category <- runDB $ getBy404 $ UniqueCategory catName
   currentTags <- mapMaybe (entityKey <$>) <$> mapM (\ n -> runDB $ getBy $ UniqueTag n (entityKey category)) tagNames
-  tagging <- runDB $ E.select $ E.from $ \(t `E.InnerJoin` s) -> do
-                     E.on $ t E.^. TagId E.==. s E.^. TaggedTag
-                     E.orderBy [E.asc (t E.^. TagName)]
+  tagging <- runDB $ select $ from $ \(t `InnerJoin` s) -> do
+                     on $ t ^. TagId ==. s ^. TaggedTag
+                     orderBy [asc (t ^. TagName)]
                      return (t, s)
-  tags <- runDB $ selectList [TagCategory ==. entityKey category] []
-  comments <- map (\(E.Value e, E.Value c) -> (e, c)) <$> (runDB $ E.select $ E.from $ \(e `E.InnerJoin` c) -> do
-                      E.on $ e E.^. EntryId E.==. c E.^. CommentEntry
-                      E.groupBy $ e E.^. EntryId
-                      return (e E.^. EntryId, E.countRows))
-                      
+
+  tags <- runDB $ select $ from $ \t -> where_ (t ^. TagCategory ==. val (entityKey category)) >> return t
+  comments <- map (\(Value e, Value c) -> (e, c)) <$> (runDB $ select $ from $ \(e `InnerJoin` c) -> do
+                      on $ e ^. EntryId ==. c ^. CommentEntry
+                      groupBy $ e ^. EntryId
+                      return (e ^. EntryId, countRows))
+
   entries <- if null tagNames
-                then runDB $ selectList [EntryCat ==. (entityKey category)] [Desc EntryDate]
-                else runDB $ E.select $ E.from $ \(e `E.InnerJoin` t) -> do
-                             E.on $ e E.^. EntryId E.==. t E.^. TaggedEntry
-                             mapM_ (E.where_ . (t E.^. TaggedTag E.==.) . E.val) currentTags
+                then runDB $ select $ from $ \e -> do
+                             where_ (e ^. EntryCat ==. val (entityKey category))
+                             orderBy [desc (e ^. EntryDate)]
+                             return e
+                else runDB $ select $ from $ \(e `InnerJoin` t) -> do
+                             on $ e ^. EntryId ==. t ^. TaggedEntry
+                             mapM_ (where_ . (t ^. TaggedTag ==.) . val) currentTags
                              return e
   defaultLayout $ do
     if null tagNames
@@ -126,9 +130,15 @@ entryHandler catName curIdent mparent = do
   mu <- maybeAdmin
   mua <- maybeAuth
   entry <- runDB $ getBy404 $ UniqueEntry curIdent
-  atts <- runDB $ selectList [AttachmentEntry ==. (entityKey entry)] [Asc AttachmentDescr]
-  comments <- buildComments <$> (runDB $ selectList [CommentEntry ==. (entityKey entry), CommentDeleted ==. False] [Asc CommentDate])
-
+  atts <- runDB $ select $ from $ \a -> do
+                  where_ (a ^. AttachmentEntry ==. val (entityKey entry))
+                  orderBy [asc (a ^. AttachmentDescr)]
+                  return a
+  comments <- buildComments <$> (runDB $ select $ from $ \c -> do
+                                         where_ (c ^. CommentEntry ==. val (entityKey entry))
+                                         where_ (c ^. CommentDeleted ==. val False)
+                                         orderBy [asc (c ^. CommentDate)]
+                                         return c)
   now <- liftIO getCurrentTime
   ((_, formNew), _) <- runFormPost $ commentForm Nothing "" now Nothing (entityKey entry)
   ((res, formEdit), enctype) <- runFormPost $ commentForm (maybe Nothing (userName . entityVal) mua) "" now mparent (entityKey entry)
@@ -153,13 +163,12 @@ getEntryR catName curIdent = entryHandler catName curIdent Nothing
 postEntryR :: Text -> Text -> Handler Html
 postEntryR = getEntryR
 
-
 -- | Handler that deletes a Tag from an entry. The entry
 -- is identified by its Ident.
 getDeleteTagR :: Text -> TagId -> Handler ()
 getDeleteTagR category tid = do
   requireAdmin
-  runDB $ delete tid
+  runDB $ deleteKey tid
   redirect $  EntriesR category
 
 -- | This handler builds a page with a form to
@@ -184,7 +193,6 @@ getNewEntryR catName = do
 postNewEntryR :: Text -> Handler Html
 postNewEntryR = getNewEntryR
 
-
 -- | Handler that fills all fields of an entry
 -- that is specified by the second parameter.
 -- The first parameter is the Category.
@@ -192,18 +200,30 @@ getEditEntryR :: Text -> Text -> Handler Html
 getEditEntryR catName eid = do
   requireAdmin
   Entity eKey eVal <- runDB $ getBy404 $ UniqueEntry eid
-  tags <- showTags <$> (runDB $ E.select $ E.from $ \(t `E.InnerJoin` s) -> do
-                                E.on $ t E.^. TaggedTag E.==. s E.^. TagId
-                                E.where_ $ t E.^. TaggedEntry E.==. E.val eKey
-                                E.orderBy [E.asc (s E.^. TagName)]
+  tags <- showTags <$> (runDB $ select $ from $ \(t `InnerJoin` s) -> do
+                                on $ t ^. TaggedTag ==. s ^. TagId
+                                where_ $ t ^. TaggedEntry ==. val eKey
+                                orderBy [asc (s ^. TagName)]
                                 return s)
-  ((res, form), enctype) <- runFormPost $ entryForm (Just $ PEntry (entryTitle eVal) (entryIdent eVal) (entryCat eVal) tags (entryRecap eVal) (entryContent eVal)) (entryCat eVal)
+  ((res, form), enctype) <- runFormPost $ entryForm (Just $ PEntry (entryTitle eVal)
+                                                                   (entryIdent eVal)
+                                                                   (entryCat eVal)
+                                                                    tags
+                                                                   (entryRecap eVal)
+                                                                   (entryContent eVal))
+                                                    (entryCat eVal)
   case res of
       FormSuccess p -> do
         category <- runDB $ get404 $ cat p
         now <- liftIO $ getCurrentTime
-        runDB $ update eKey [EntryTitle =. (title p), EntryIdent =. (ident p), EntryContent =. (text p), EntryRecap =. (recap p), EntryLastMod =. now]
-        runDB $ deleteWhere [TaggedEntry ==. eKey]
+        runDB $ update $ \e -> do
+                set e [ EntryTitle =. val (title p)
+                      , EntryIdent =. val (ident p)
+                      , EntryContent =. val (text p)
+                      , EntryRecap =. val (recap p)
+                      , EntryLastMod =. val now]
+                where_ (e ^. EntryId ==. val eKey)
+        runDB $ delete $ from $ \t -> where_ (t ^. TaggedEntry ==.  val eKey)
         insertTags (cat p) (eKey) (buildTagList p)
         redirect $  EntryR (categoryName category) (ident p)
       _ -> return ()
@@ -222,13 +242,15 @@ getDeleteEntryR :: Text -> EntryId -> Handler ()
 getDeleteEntryR category eid = do
   requireAdmin
   runDB $ deleteCascade eid
-  redirect $  EntriesR category
+  redirect $ EntriesR category
 
 getDeleteCommentR :: Text -> Text -> CommentId -> Handler ()
 getDeleteCommentR catName curIdent cid = do
   requireAdmin
-  runDB $ update cid [CommentDeleted =. True]
-  redirect $  EntryR catName curIdent
+  runDB $ update $ \c -> do
+        set c [CommentDeleted =. val True]
+        where_ (c ^. CommentId ==. val cid)
+  redirect $ EntryR catName curIdent
 
 getUploadFileR :: Text -> Text -> Handler Html
 getUploadFileR catName curIdent = do
@@ -242,12 +264,17 @@ getUploadFileR catName curIdent = do
           liftIO $ fileMove file (buildFileName $ fileName file)
           redirect $  EntryR catName curIdent
        _ -> return ()
-  atts <- runDB $ selectList [AttachmentEntry ==. (entityKey e)] [Asc AttachmentDescr]
+  atts <- runDB $ select $ from $ \a -> do
+                  where_ (a ^. AttachmentEntry ==. val (entityKey e))
+                  orderBy [asc (a ^. AttachmentDescr)]
+                  return a
   ((resDelete, deleteFileFormView), _) <- runFormPost $ deleteFileForm $ map ((attachmentDescr . entityVal) &&& entityKey) atts
   case resDelete of
        FormSuccess aids -> do
-         as <- runDB $ selectList [FilterOr $ map (AttachmentId ==.) aids] []
-         runDB $ deleteWhere [FilterOr $ map (AttachmentId ==.) aids]
+         as <- runDB $ select $ from $ \a -> do
+                       mapM_ (where_ . (a ^. AttachmentId ==.) . val ) aids
+                       return a
+         runDB $ delete $ from $ \a -> mapM_ (where_ . (a ^. AttachmentId ==.) . val) aids
          liftIO $ mapM_ (removeFile . buildFileName . attachmentFile . entityVal) as
          redirect $ EntryR catName curIdent
        _ -> return ()
@@ -284,16 +311,16 @@ tagsForEntry eid = map fst . filter (((== eid) . taggedEntry . entityVal) . snd)
 insertTags :: CategoryId -> EntryId -> [Text] -> Handler ()
 insertTags category eid = mapM_ insertTag . filter (not . T.null)
            where insertTag t = do
-                 mtag <- runDB $ getBy $ UniqueTag t category
-                 tid <- (runDB $ insert $ Tag t category) -|- (entityKey <$> mtag)
-                 runDB $ insert $ Tagged tid eid
+                  mtag <- runDB $ getBy $ UniqueTag t category
+                  tid <- (runDB $ insert $ Tag t category) -|- (entityKey <$> mtag)
+                  runDB $ insert $ Tagged tid eid
 
 buildComments :: [Entity Comment] -> [(Integer, Entity Comment)]
 buildComments cs = concat $ map flatten $ unfoldForest (id &&& getChilds) roots
       where
-        roots = zip [0,0..] (filter (isNothing . commentParent . entityVal) cs)
+        roots = zip [0,0..] (filter (M.isNothing . commentParent . entityVal) cs)
         getChilds (depth, c) = zip (repeat $ succ depth) (filter (isChild c) cs)
-        isChild (Entity key _) (Entity _ val) = maybe False (key ==) (commentParent val)
+        isChild (Entity key _) (Entity _ value) = maybe False (key ==) (commentParent value)
 
 createStaticRoute :: Text -> StaticRoute
 createStaticRoute name = StaticRoute [name] []

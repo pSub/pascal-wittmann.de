@@ -14,7 +14,9 @@ getProfileR = do
     ((res, form), enctype) <- runFormPost $ profileForm $ userName u
     case res of
          FormSuccess name -> do
-            runDB $ update uid [UserName =. (Just name)]
+            runDB $ update $ \user -> do
+                    set user [UserName =. val (Just name)]
+                    where_ (user ^. UserId ==. val uid)
             redirect ProfileR
          _ -> return ()
     defaultLayout $ do
