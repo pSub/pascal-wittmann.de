@@ -34,7 +34,6 @@ getNewsFeedR = do
        , feedEntries = feeds
        }
 
-
 getCommentFeedR :: Key Entry -> Handler TypedContent
 getCommentFeedR key = do
     e <- runDB $ get404 key

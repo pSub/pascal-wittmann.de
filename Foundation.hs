@@ -18,32 +18,32 @@ module Foundation
     , maybeAdmin
     ) where
 
-import Prelude
-import Yesod
-import Yesod.Static
-import Yesod.Auth
-import Yesod.Auth.GoogleEmail
-import Yesod.Default.Config
-import Yesod.Default.Util (addStaticContentExternal)
-import Network.HTTP.Conduit (Manager)
-import qualified Settings
-import Settings.Development (development)
 import qualified Database.Persist
-import Database.Persist.Sql (SqlPersistT)
-import Settings (widgetFile, Extra (..))
-import Model
-import Text.Jasmine (minifym)
-import Text.Hamlet (hamletFile)
-import System.Log.FastLogger (Logger)
+import           Database.Persist.Sql   (SqlPersistT)
+import           Model
+import           Network.HTTP.Conduit   (Manager)
+import           Prelude
+import           Settings               (Extra (..), widgetFile)
+import qualified Settings
+import           Settings.Development   (development)
+import           System.Log.FastLogger  (Logger)
+import           Text.Hamlet            (hamletFile)
+import           Text.Jasmine           (minifym)
+import           Yesod
+import           Yesod.Auth
+import           Yesod.Auth.GoogleEmail
+import           Yesod.Default.Config
+import           Yesod.Default.Util     (addStaticContentExternal)
+import           Yesod.Static
 
 -- Custom imports
 import           Control.Applicative
-import           Control.Arrow ((&&&))
-import           Data.Text (Text)
+import           Control.Arrow          ((&&&))
+import           Data.Text              (Text)
 import           Data.Time
 import           System.Locale
-import           Text.Blaze (ToMarkup(..))
-import           Text.Blaze.Internal (preEscapedText)
+import           Text.Blaze             (ToMarkup (..))
+import           Text.Blaze.Internal    (preEscapedText)
 import           Yesod.AtomFeed
 
 -- | The site argument for your application. This can be a good place to
@@ -51,14 +51,15 @@ import           Yesod.AtomFeed
 -- starts running, such as database connections. Every handler will have
 -- access to the data present here.
 data App = App
-    { settings :: AppConfig DefaultEnv Extra
-    , getStatic :: Static -- ^ Settings for static file serving.
-    , connPool :: Database.Persist.PersistConfigPool Settings.PersistConf -- ^ Database connection pool.
-    , httpManager :: Manager
+    { settings      :: AppConfig DefaultEnv Extra
+    , getStatic     :: Static -- ^ Settings for static file serving.
+    , connPool      :: Database.Persist.PersistConfigPool Settings.PersistConf -- ^ Database connection pool.
+    , httpManager   :: Manager
     , persistConfig :: Settings.PersistConf
-    , appLogger :: Logger
+    , appLogger     :: Logger
     }
-          
+
+-- TODO Swap this function into a utility module.
 plural :: Int -> String -> String -> String
 plural 1 x _ = x
 plural _ _ y = y
@@ -187,7 +188,7 @@ instance RenderMessage App FormMessage where
 
 instance ToMarkup UTCTime where
   toMarkup = toMarkup . formatTime defaultTimeLocale "%e.%m.%Y"
-  
+
 instance ToMessage UTCTime where
   toMessage = toMessage . formatTime defaultTimeLocale "%e.%m.%Y"
 

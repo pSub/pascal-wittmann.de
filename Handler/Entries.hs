@@ -18,10 +18,6 @@ module Handler.Entries
        , postMoveFileR
        ) where
 
-import           Import
-import qualified Settings
-import           Yesod.Markdown
-
 import           Control.Arrow         ((&&&))
 import           Data.List             (intersperse, sort)
 import qualified Data.List             as L (delete)
@@ -31,9 +27,12 @@ import           Data.Text             (pack, splitOn, strip, unpack)
 import qualified Data.Text             as T
 import           Data.Time
 import           Data.Tree
+import           Import
 import           Prelude               hiding (unwords)
+import qualified Settings
 import           System.Directory
 import           System.FilePath.Posix
+import           Yesod.Markdown
 
 data PEntry = PEntry
      { title :: Text
