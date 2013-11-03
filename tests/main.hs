@@ -1,19 +1,26 @@
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
+{-# LANGUAGE OverloadedStrings         #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Main where
 
-import Import
-import Yesod.Default.Config
-import Yesod.Test
-import Application (makeFoundation)
+import           Application          (makeFoundation)
+import           Import
+import           Test.Hspec           (hspec)
+import           Yesod.Default.Config
+import           Yesod.Test
 
-import HomeTest
+import           HomeTest
 
-main :: IO ()
-main = do
-    conf <- loadConfig $ (configSettings Testing) { csParseExtra = parseExtra }
-    foundation <- makeFoundation conf
-    app <- toWaiAppPlain foundation
-    runTests app (connPool foundation) homeSpecs
+
+main = return ()
+
+-- main :: IO ()
+-- main = do
+--     conf <- Yesod.Default.Config.loadConfig $ (configSettings Testing)
+--                 { csParseExtra = parseExtra
+--                 }
+--     foundation <- makeFoundation conf
+--     hspec $ do
+--         yesodSpec foundation $ do
+--             homeSpecs
