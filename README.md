@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/pSub/pascal-wittmann.de.png)](https://travis-ci.org/pSub/pascal-wittmann.de)
+
 Personal website with Yesod
 ---------------------------
 
