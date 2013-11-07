@@ -1,4 +1,6 @@
 *[~#]
+pkg
+!pkg/build.sh
 static/tmp
 deploy
 deploy.sh
