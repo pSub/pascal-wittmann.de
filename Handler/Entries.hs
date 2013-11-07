@@ -97,6 +97,7 @@ getEntriesByTagR catName tagNames = do
   tags <- runDB $ select $ from $ \t -> where_ (t ^. TagCategory ==. val (entityKey category)) >> return t
   comments <- map (\(Value e, Value c) -> (e, c)) <$> (runDB $ select $ from $ \(e `InnerJoin` c) -> do
                       on $ e ^. EntryId ==. c ^. CommentEntry
+                      where_ (c ^. CommentDeleted ==. val False)
                       groupBy $ e ^. EntryId
                       return (e ^. EntryId, countRows))
 
