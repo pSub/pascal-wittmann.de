@@ -8,6 +8,8 @@ $forall Entity _ post <- posts
 Über den <a href=@{NewsFeedR}>Newsfeed</a> erfährt man stets ob, auf dieser Webseite neue Artikel veröffentlicht wurden.
 <h2>Yesod
 Diese Webseite wurde in <a href="http://www.haskell.org">Haskell</a> mit Hilfe des Webframeworks <a href="http://www.yesodweb.com/">Yesod</a> erstellt. Der Quellcode ist auf Github <a href="https://github.com/pSub/pascal-wittmann.de">einsehbar</a>. Das "powered by Yesod"-Logo ist eine Modifikation der <a href="http://de.wikipedia.org/wiki/MIT-Lizenz">MIT</a> lizenzierten <a href="https://github.com/github/media/tree/master/ribbons">Github Ribbons</a>.
+<h2>NixOS
+Auf diesem Webserver ist die GNU/Linux Distribution <a href="http://nixos.org/nixos/">NixOS</a> installiert. Die Konfiguration des Webservers findet sich auf <a href="https://github.com/pSub/configs/blob/master/server/configuration.nix">Github</a>.
 <h2>Code & Configs
 <p>Über meinen <a href="https://github.com/psub">Github</a> und <a href="https://bitbucket.org/psub">Bitbucket</a> Account findet man Projekte an denen ich mich beteilige und Teile meiner Systemkonfiguration.
 <h2>Organisationen
