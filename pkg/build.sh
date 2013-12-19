@@ -1,7 +1,11 @@
 #!/bin/sh
-cp ../dist/build/homepage/homepage . 
-rm -rf lib/
+rm -rf archive
+mkdir -p archive
+cd archive
+cp ../../dist/build/homepage/homepage .
 ldd-copy homepage lib/
 patchelf --set-rpath lib/ homepage
 patchelf --set-interpreter lib/ld* homepage
-apack -f homepage.tar.bz2 homepage lib/
+cd ..
+apack -f homepage.tar.bz2 archive
+rm -rf archive
