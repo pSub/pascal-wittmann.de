@@ -58,10 +58,12 @@ commentForm :: Maybe Text -> Markdown -> UTCTime -> Maybe CommentId -> EntryId -
 commentForm author comment now parentKey entryKey = renderDivs $ Comment
     <$> aopt textField (fieldSettingsLabel MsgName) (Just author)
     <*> areq markdownField (fieldSettingsLabel MsgComment) (Just comment)
+    <*> aopt doNotFillHiddenField "" Nothing
     <*> pure now
     <*> pure parentKey
     <*> pure entryKey
     <*> pure False -- If an entry is edited it becomes visible again.
+  where doNotFillHiddenField = checkBool T.null ("You Shall Not Pass!!!" :: Text) hiddenField
 
 -- | Form to upload attachments to an entry
 fileForm :: Text -> Form (FileInfo, Text)

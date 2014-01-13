@@ -42,6 +42,7 @@ Tagged
 Comment
   author Text Maybe
   content Markdown
+  spam Text Maybe
   date UTCTime
   parent CommentId Maybe
   entry EntryId
