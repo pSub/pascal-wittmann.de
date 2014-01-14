@@ -26,7 +26,7 @@ import           Prelude
 import           Settings               (Extra (..), widgetFile)
 import qualified Settings
 import           Settings.Development   (development)
-import           System.Log.FastLogger  (Logger)
+import           Yesod.Core.Types       (Logger)
 import           Text.Hamlet            (hamletFile)
 import           Text.Jasmine           (minifym)
 import           Yesod
