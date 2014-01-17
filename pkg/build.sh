@@ -2,7 +2,7 @@
 rm -rf archive
 mkdir -p archive
 cd archive
-cp ../../dist/build/homepage/homepage .
+cp ../../.cabal-sandbox/bin/homepage .
 ldd-copy homepage lib/
 patchelf --set-rpath lib/ homepage
 patchelf --set-interpreter lib/ld* homepage
