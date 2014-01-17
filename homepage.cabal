@@ -100,6 +100,7 @@ library
                  , clientsession                 >= 0.9
                  , esqueleto
                  , yesod-persistent
+                 , regex-compat
 
 executable         homepage
     if flag(library-only)

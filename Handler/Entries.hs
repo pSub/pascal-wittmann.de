@@ -33,6 +33,7 @@ import qualified Settings
 import           System.Directory
 import           System.FilePath.Posix
 import           Yesod.Markdown
+import           Text.Regex
 
 data PEntry = PEntry
      { title :: Text
@@ -42,6 +43,9 @@ data PEntry = PEntry
      , recap :: Text
      , text  :: Markdown
      }
+
+-- Simple regex to match urls
+urlRegex = mkRegex "\\b(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_|]"
 
 -- | Form for entering a new entry.
 entryForm ::  Maybe PEntry -> CategoryId -> Form PEntry
@@ -57,13 +61,16 @@ entryForm mparams category = renderDivs $ PEntry
 commentForm :: Maybe Text -> Markdown -> UTCTime -> Maybe CommentId -> EntryId -> Form Comment
 commentForm author comment now parentKey entryKey = renderDivs $ Comment
     <$> aopt textField (fieldSettingsLabel MsgName) (Just author)
-    <*> areq markdownField (fieldSettingsLabel MsgComment) (Just comment)
+    <*> areq noURLsMarkdownField (fieldSettingsLabel MsgComment) (Just comment)
     <*> aopt doNotFillHiddenField "" Nothing
     <*> pure now
     <*> pure parentKey
     <*> pure entryKey
     <*> pure False -- If an entry is edited it becomes visible again.
   where doNotFillHiddenField = checkBool T.null ("You Shall Not Pass!!!" :: Text) hiddenField
+        noURLsMarkdownField = checkBool (\t -> matchRegex urlRegex (unpack $ unMarkdown t) == Nothing)
+                                    ("URLs are not allowed." :: Text)
+                                    markdownField
 
 -- | Form to upload attachments to an entry
 fileForm :: Text -> Form (FileInfo, Text)
