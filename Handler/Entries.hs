@@ -32,8 +32,8 @@ import           Prelude               hiding (unwords)
 import qualified Settings
 import           System.Directory
 import           System.FilePath.Posix
-import           Yesod.Markdown
 import           Text.Regex
+import           Yesod.Markdown
 
 data PEntry = PEntry
      { title :: Text
@@ -58,8 +58,8 @@ entryForm mparams category = renderDivs $ PEntry
     <*> areq markdownField  (fieldSettingsLabel MsgText) (text <$> mparams)
 
 -- | Form to add comments to an entry
-commentForm :: Maybe Text -> Markdown -> UTCTime -> Maybe CommentId -> EntryId -> Form Comment
-commentForm author comment now parentKey entryKey = renderDivs $ Comment
+commentForm :: Boolean -> Maybe Text -> Markdown -> UTCTime -> Maybe CommentId -> EntryId -> Form Comment
+commentForm loggedin author comment now parentKey entryKey = renderDivs $ Comment
     <$> aopt textField (fieldSettingsLabel MsgName) (Just author)
     <*> areq noURLsMarkdownField (fieldSettingsLabel MsgComment) (Just comment)
     <*> aopt doNotFillHiddenField "" Nothing
@@ -68,7 +68,7 @@ commentForm author comment now parentKey entryKey = renderDivs $ Comment
     <*> pure entryKey
     <*> pure False -- If an entry is edited it becomes visible again.
   where doNotFillHiddenField = checkBool T.null ("You Shall Not Pass!!!" :: Text) hiddenField
-        noURLsMarkdownField = checkBool (\t -> matchRegex urlRegex (unpack $ unMarkdown t) == Nothing)
+        noURLsMarkdownField = checkBool (\t -> loggedin || matchRegex urlRegex (unpack $ unMarkdown t) == Nothing)
                                     ("URLs are not allowed." :: Text)
                                     markdownField
 
@@ -149,8 +149,8 @@ entryHandler catName curIdent mparent = do
                                          orderBy [asc (c ^. CommentDate)]
                                          return c)
   now <- liftIO getCurrentTime
-  ((_, formNew), _) <- runFormPost $ commentForm Nothing "" now Nothing (entityKey entry)
-  ((res, formEdit), enctype) <- runFormPost $ commentForm (maybe Nothing (userName . entityVal) mua) "" now mparent (entityKey entry)
+  ((_, formNew), _) <- runFormPost $ commentForm (isJust mua) Nothing "" now Nothing (entityKey entry)
+  ((res, formEdit), enctype) <- runFormPost $ commentForm (isJust mua) (maybe Nothing (userName . entityVal) mua) "" now mparent (entityKey entry)
   case res of
     FormSuccess comment -> do
       _ <- runDB $ insert comment
