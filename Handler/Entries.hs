@@ -58,7 +58,7 @@ entryForm mparams category = renderDivs $ PEntry
     <*> areq markdownField  (fieldSettingsLabel MsgText) (text <$> mparams)
 
 -- | Form to add comments to an entry
-commentForm :: Boolean -> Maybe Text -> Markdown -> UTCTime -> Maybe CommentId -> EntryId -> Form Comment
+commentForm :: Bool -> Maybe Text -> Markdown -> UTCTime -> Maybe CommentId -> EntryId -> Form Comment
 commentForm loggedin author comment now parentKey entryKey = renderDivs $ Comment
     <$> aopt textField (fieldSettingsLabel MsgName) (Just author)
     <*> areq noURLsMarkdownField (fieldSettingsLabel MsgComment) (Just comment)
