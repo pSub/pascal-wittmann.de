@@ -22,3 +22,6 @@ nofacebookme_png = StaticRoute ["no-facebook-me.png"] []
 
 haskeller_logo :: StaticRoute
 haskeller_logo = StaticRoute ["haskeller.png"] []
+
+ilovefs :: StaticRoute
+ilovefs = StaticRoute ["ilovefs-banner-extralarge.png"] []
