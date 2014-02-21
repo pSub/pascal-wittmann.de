@@ -112,7 +112,7 @@ textarea
     border-right: 0.1em solid #fff
 
 #navigation #active
-    border-bottom: 0.1em solid #fff
+    border-bottom: 0.2em solid #fff
 
 #content
     clear: both
