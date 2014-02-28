@@ -19,31 +19,31 @@ module Foundation
     ) where
 
 import qualified Database.Persist
-import           Database.Persist.Sql   (SqlPersistT)
+import           Database.Persist.Sql (SqlPersistT)
 import           Model
-import           Network.HTTP.Conduit   (Manager)
+import           Network.HTTP.Conduit (Manager)
 import           Prelude
-import           Settings               (Extra (..), widgetFile)
+import           Settings             (Extra (..), widgetFile)
 import qualified Settings
-import           Settings.Development   (development)
-import           Yesod.Core.Types       (Logger)
-import           Text.Hamlet            (hamletFile)
-import           Text.Jasmine           (minifym)
+import           Settings.Development (development)
+import           Text.Hamlet          (hamletFile)
+import           Text.Jasmine         (minifym)
 import           Yesod
 import           Yesod.Auth
 import           Yesod.Auth.BrowserId
+import           Yesod.Core.Types     (Logger)
 import           Yesod.Default.Config
-import           Yesod.Default.Util     (addStaticContentExternal)
+import           Yesod.Default.Util   (addStaticContentExternal)
 import           Yesod.Static
 
 -- Custom imports
 import           Control.Applicative
-import           Control.Arrow          ((&&&))
-import           Data.Text              (Text)
+import           Control.Arrow        ((&&&))
+import           Data.Text            (Text)
 import           Data.Time
 import           System.Locale
-import           Text.Blaze             (ToMarkup (..))
-import           Text.Blaze.Internal    (preEscapedText)
+import           Text.Blaze           (ToMarkup (..))
+import           Text.Blaze.Internal  (preEscapedText)
 import           Yesod.AtomFeed
 
 -- | The site argument for your application. This can be a good place to
