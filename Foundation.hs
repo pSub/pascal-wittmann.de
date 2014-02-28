@@ -31,7 +31,7 @@ import           Text.Hamlet            (hamletFile)
 import           Text.Jasmine           (minifym)
 import           Yesod
 import           Yesod.Auth
-import           Yesod.Auth.GoogleEmail
+import           Yesod.Auth.BrowserId
 import           Yesod.Default.Config
 import           Yesod.Default.Util     (addStaticContentExternal)
 import           Yesod.Static
@@ -177,7 +177,7 @@ instance YesodAuth App where
                 fmap Just $ insert $ User (credsIdent creds) Nothing Nothing False
 
     -- You can add other plugins like BrowserID, email or OAuth here
-    authPlugins _ = [authGoogleEmail]
+    authPlugins _ = [authBrowserId def]
 
     authHttpManager = httpManager
 
