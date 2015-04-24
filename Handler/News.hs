@@ -3,7 +3,7 @@ module Handler.News
        , getCommentFeedR
        ) where
 
-import           Data.List      (find)
+import           Data.List as L      (find, maximum)
 import           Data.Maybe
 import           Import
 import           Yesod.AtomFeed
@@ -30,7 +30,7 @@ getNewsFeedR = do
        , feedLinkHome = RootR
        , feedDescription = "RSS/Atom Feed von pascal-wittmann.de"
        , feedLanguage = "en"
-       , feedUpdated = maximum $ map feedEntryUpdated feeds
+       , feedUpdated = L.maximum $ map feedEntryUpdated feeds
        , feedEntries = feeds
        }
 
@@ -54,9 +54,9 @@ getCommentFeedR key = do
        , feedLinkHome = RootR
        , feedDescription = "This feed contains all comments for this entry."
        , feedLanguage = "en"
-       , feedUpdated = maximum $ map feedEntryUpdated comments
+       , feedUpdated = L.maximum $ map feedEntryUpdated comments
        , feedEntries = comments
        }
 
 findCategory :: Key Category -> [Entity Category] -> Text
-findCategory eid = categoryName . entityVal . fromJust . find ((eid ==) . entityKey)
+findCategory eid = categoryName . entityVal . fromJust . L.find ((eid ==) . entityKey)

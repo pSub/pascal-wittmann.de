@@ -21,13 +21,15 @@ Flag library-only
     Default:       False
 
 library
+    hs-source-dirs: ., app
     exposed-modules: Application
                      Foundation
                      Import
+--                     Import.NoFoundation
                      Model
                      Settings
                      Settings.StaticFiles
-                     Settings.Development
+--                     Settings.Development
                      Handler.Root
                      Handler.Impressum
                      Handler.Entries
@@ -38,9 +40,9 @@ library
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT
-        ghc-options:   -Wall -O0
+        ghc-options:   -Wall -fwarn-tabs -O0
     else
-        ghc-options:   -Wall -O2
+        ghc-options:   -Wall -fwarn-tabs -O2
 
     extensions: TemplateHaskell
                 QuasiQuotes
@@ -55,38 +57,51 @@ library
                 EmptyDataDecls
                 NoMonomorphismRestriction
                 DeriveDataTypeable
+                ViewPatterns
+                TupleSections
+                RecordWildCards
                 
     build-depends: base                          >= 4          && < 5
-                 , yesod                         >= 1.2        && < 1.3
-                 , yesod-core                    >= 1.2        && < 1.3
-                 , yesod-auth                    >= 1.2        && < 1.3
-                 , yesod-static                  >= 1.2        && < 1.3
-                 , yesod-form                    >= 1.3        && < 1.4
+                 , yesod                         >= 1.4.1      && < 1.5
+                 , yesod-core                    >= 1.4.6      && < 1.5
+                 , yesod-auth                    >= 1.4.0      && < 1.5
+                 , yesod-static                  >= 1.4.0.3    && < 1.5
+                 , yesod-form                    >= 1.4.0      && < 1.5
+                 , classy-prelude                >= 0.10.2
+                 , classy-prelude-conduit        >= 0.10.2
+                 , classy-prelude-yesod          >= 0.10.2
                  , bytestring                    >= 0.9        && < 0.11
                  , text                          >= 0.11       && < 2.0
-                 , persistent                    >= 1.2        && < 1.3
-                 , persistent-postgresql         >= 1.2        && < 1.3
-                 , persistent-template           >= 1.2        && < 1.3
+                 , persistent                    >= 2.0        && < 2.2
+                 , persistent-postgresql         >= 2.1.1      && < 2.2
+                 , persistent-template           >= 2.0        && < 2.2
                  , template-haskell
-                 , hamlet                        >= 1.1        && < 1.2
-                 , shakespeare-css               >= 1.0        && < 1.1
-                 , shakespeare-js                >= 1.2        && < 1.3
-                 , shakespeare-text              >= 1.0        && < 1.1
+                 , shakespeare                   >= 2.0        && < 2.1
+--                 , hamlet                        >= 1.1        && < 1.2
+--                 , shakespeare-css               >= 1.0        && < 1.1
+--                 , shakespeare-js                >= 1.2        && < 1.3
+--                 , shakespeare-text              >= 1.0        && < 1.1
                  , hjsmin                        >= 0.1        && < 0.2
-                 , monad-control                 >= 0.3        && < 0.4
-                 , wai-extra                     >= 2.0        && < 2.1
+                 , monad-control                 >= 0.3        && < 1.1
+                 , wai-extra                     >= 3.0        && < 3.1
                  , yaml                          >= 0.8        && < 0.9
-                 , http-conduit                  >= 2.0        && < 2.1
+                 , http-conduit                  >= 2.1        && < 2.2
                  , directory                     >= 1.1        && < 1.3
-                 , warp                          >= 2.0        && < 2.1
+                 , warp                          >= 3.0        && < 3.1
                  , data-default
-                 , aeson                         >= 0.6        && < 0.8
+                 , aeson                         >= 0.6        && < 0.9
                  , conduit                       >= 1.0        && < 2.0
                  , monad-logger                  >= 0.3        && < 0.4
-                 , fast-logger                   >= 2.1        && < 2.2
-                 , wai-logger                    >= 2.1        && < 2.2
+                 , fast-logger                   >= 2.2        && < 2.4
+                 , wai-logger                    >= 2.2        && < 2.3
+                 , file-embed
+                 , safe
+                 , unordered-containers
+                 , containers
+                 , vector
+                 , time
 
-                 -- -- Custom dependencies
+                 -- Custom dependencies
                  , yesod-markdown                >= 0.8
                  , yesod-newsfeed                >= 1.2
                  , yesod-sitemap                 >= 1.2
@@ -110,9 +125,9 @@ executable         homepage
     hs-source-dirs:     app
     build-depends:      base
                       , homepage
-                      , yesod
+                    --  , yesod
                       
-    ghc-options:      -threaded -O2
+    ghc-options:      -threaded -O2 -rtsopts -with-rtsopts=-N
 
 test-suite test
     type:              exitcode-stdio-1.0

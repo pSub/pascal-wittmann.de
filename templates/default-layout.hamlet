@@ -29,6 +29,6 @@ $maybe msg <- mmsg
                $nothing
                    <a href="@{AuthR LoginR}">Login
           <div #right>
-               #{preEscapedText $ extraCopyright $ appExtra $ settings master}
+               #{preEscapedText $ appCopyright $ appSettings master}
                \ | #
                <a href=@{ImpressumR} title="Impressum">Impressum

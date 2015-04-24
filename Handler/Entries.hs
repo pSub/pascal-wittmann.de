@@ -19,19 +19,17 @@ module Handler.Entries
        ) where
 
 import           Control.Arrow         ((&&&))
-import           Data.List             (intersperse, sort)
-import qualified Data.List             as L (delete)
+import qualified Data.List             as L (delete, intersperse)
 import           Data.Maybe            hiding (isNothing)
 import qualified Data.Maybe            as M
-import           Data.Text             (pack, splitOn, strip, unpack)
+import           Data.Text             (splitOn, strip)
 import qualified Data.Text             as T
 import           Data.Time
 import           Data.Tree
 import           Import
-import           Prelude               hiding (unwords)
-import qualified Settings
+import qualified GHC.IO
 import           System.Directory
-import           System.FilePath.Posix
+import           System.FilePath.Posix (pathSeparator)
 import           Text.Regex
 import           Yesod.Markdown
 
@@ -122,7 +120,7 @@ getEntriesByTagR catName tagNames = do
   defaultLayout $ do
     if null tagNames
        then setTitle $ toHtml catName
-       else setTitle $ toHtml $ catName <> " :: " <> (T.concat $ intersperse ", " tagNames)
+       else setTitle $ toHtml $ catName <> " :: " <> (T.concat $ L.intersperse ", " tagNames)
     $(widgetFile "entries")
 
 -- | If the element is not contained in the list it is added,
@@ -239,7 +237,7 @@ getEditEntryR catName eid = do
   defaultLayout $ do
        setTitle "Edit Entry"
        $(widgetFile "new-entry")
-  where showTags = pack . concat . intersperse ", " . map (unpack . tagName . entityVal)
+  where showTags = pack . concat . L.intersperse ", " . map (unpack . tagName . entityVal)
 
 buildTagList :: PEntry -> [Text]
 buildTagList = map strip . splitOn "," . tag
@@ -269,8 +267,9 @@ getUploadFileR catName curIdent = do
   case resCreate of
        FormSuccess (file, descr) -> do
           now <- liftIO $ getCurrentTime
+          app <- getYesod
           _ <- runDB $ insert $ Attachment (fileName file) (entityKey e) descr now
-          liftIO $ fileMove file (buildFileName $ fileName file)
+          liftIO $ fileMove file (buildFileName app $ fileName file)
           redirect $  EntryR catName curIdent
        _ -> return ()
   atts <- runDB $ select $ from $ \a -> do
@@ -280,11 +279,12 @@ getUploadFileR catName curIdent = do
   ((resDelete, deleteFileFormView), _) <- runFormPost $ deleteFileForm $ map ((attachmentDescr . entityVal) &&& entityKey) atts
   case resDelete of
        FormSuccess aids -> do
+         app <- getYesod
          as <- runDB $ select $ from $ \a -> do
                        mapM_ (where_ . (a ^. AttachmentId ==.) . val ) aids
                        return a
          runDB $ delete $ from $ \a -> mapM_ (where_ . (a ^. AttachmentId ==.) . val) aids
-         liftIO $ mapM_ (removeFile . buildFileName . attachmentFile . entityVal) as
+         liftIO $ mapM_ (removeFile . buildFileName app . attachmentFile . entityVal) as
          redirect $ EntryR catName curIdent
        _ -> return ()
   defaultLayout $(widgetFile "upload-file")
@@ -300,8 +300,9 @@ getMoveFileR catName curIdent aid = do
   case res of
        FormSuccess (file, descr) -> do
           now <- liftIO $ getCurrentTime
+          app <- getYesod
           _ <- runDB $ insert $ Attachment (fileName file) (attachmentEntry a) descr now
-          liftIO $ fileMove file (buildFileName $ fileName file)
+          liftIO $ fileMove file (buildFileName app $ fileName file)
           redirect $  EntryR catName curIdent
        _ -> return ()
   defaultLayout $
@@ -311,8 +312,8 @@ postMoveFileR :: Text -> Text -> AttachmentId -> Handler Html
 postMoveFileR = getMoveFileR
 
 -- Helper functions
-buildFileName :: Text -> FilePath
-buildFileName name = Settings.staticDir ++ [pathSeparator] ++ unpack name
+buildFileName :: App -> Text -> GHC.IO.FilePath
+buildFileName app name = (appStaticDir $ appSettings app)  ++ [pathSeparator] ++ unpack name
 
 tagsForEntry :: Key Entry -> [(b, Entity Tagged)] -> [b]
 tagsForEntry eid = map fst . filter (((== eid) . taggedEntry . entityVal) . snd)
@@ -323,6 +324,7 @@ insertTags category eid = mapM_ insertTag . filter (not . T.null)
                   mtag <- runDB $ getBy $ UniqueTag t category
                   tid <- (runDB $ insert $ Tag t category) -|- (entityKey <$> mtag)
                   runDB $ insert $ Tagged tid eid
+                  return ()
 
 buildComments :: [Entity Comment] -> [(Integer, Entity Comment)]
 buildComments cs = concat $ map flatten $ unfoldForest (id &&& getChilds) roots

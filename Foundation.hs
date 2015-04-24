@@ -1,40 +1,15 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-module Foundation
-    ( App (..)
-    , Route (..)
-    , AppMessage (..)
-    , resourcesApp
-    , Handler
-    , Widget
-    , Form
-    , maybeAuth
-    , requireAuth
-    , module Settings
-    , module Model
-    , StaticRoute
-    , AuthRoute
-    , requireAdmin
-    , maybeAdmin
-    ) where
+module Foundation where
 
-import qualified Database.Persist
-import           Database.Persist.Sql (SqlPersistT)
-import           Model
-import           Network.HTTP.Conduit (Manager)
-import           Prelude
-import           Settings             (Extra (..), widgetFile)
-import qualified Settings
-import           Settings.Development (development)
-import           Text.Hamlet          (hamletFile)
-import           Text.Jasmine         (minifym)
-import           Yesod
-import           Yesod.Auth
-import           Yesod.Auth.BrowserId
-import           Yesod.Core.Types     (Logger)
-import           Yesod.Default.Config
-import           Yesod.Default.Util   (addStaticContentExternal)
-import           Yesod.Static
+import Import.NoFoundation
+import Database.Persist.Sql (ConnectionPool, runSqlPool)
+import Text.Hamlet          (hamletFile)
+import Text.Jasmine         (minifym)
+import Yesod.Auth.BrowserId (authBrowserId)
+import Yesod.Default.Util   (addStaticContentExternal)
+import Yesod.Core.Types     (Logger)
+import qualified Yesod.Core.Unsafe as Unsafe
 
 -- Custom imports
 import           Control.Applicative
@@ -46,18 +21,31 @@ import           Text.Blaze           (ToMarkup (..))
 import           Text.Blaze.Internal  (preEscapedText)
 import           Yesod.AtomFeed
 
--- | The site argument for your application. This can be a good place to
+-- | The foundation datatype for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
 -- starts running, such as database connections. Every handler will have
 -- access to the data present here.
 data App = App
-    { settings      :: AppConfig DefaultEnv Extra
-    , getStatic     :: Static -- ^ Settings for static file serving.
-    , connPool      :: Database.Persist.PersistConfigPool Settings.PersistConf -- ^ Database connection pool.
-    , httpManager   :: Manager
-    , persistConfig :: Settings.PersistConf
-    , appLogger     :: Logger
+    { appSettings    :: AppSettings
+    , appStatic      :: Static -- ^ Settings for static file serving.
+    , appConnPool    :: ConnectionPool -- ^ Database connection pool.
+    , appHttpManager :: Manager
+    , appLogger      :: Logger
     }
+    
+instance HasHttpManager App where
+         getHttpManager = appHttpManager
+         
+-- This is where we define all of the routes in our application. For a full
+-- explanation of the syntax, please see:
+-- http://www.yesodweb.com/book/routing-and-handlers
+--
+-- Note that this is really half the story; in Application.hs, mkYesodDispatch
+-- generates the rest of the code. Please see the linked documentation for an
+-- explanation for this split.
+mkYesodData "App" $(parseRoutesFile "config/routes")
+
+type Form x = Html -> MForm (HandlerT App IO) (FormResult x, Widget)
 
 -- TODO Swap this function into a utility module.
 plural :: Int -> String -> String -> String
@@ -67,39 +55,18 @@ plural _ _ y = y
 -- Set up i18n messages. See the message folder.
 mkMessage "App" "messages" "en"
 
--- This is where we define all of the routes in our application. For a full
--- explanation of the syntax, please see:`toMarkup' is not a (visible) method of class `ToMarkup'
--- http://www.yesodweb.com/book/handler
---
--- This function does three things:
---
--- * Creates the route datatype AppRoute. Every valid URL in your
---   application can be represented as a value of this type.
--- * Creates the associated type:
---       type instance Route App = AppRoute
--- * Creates the value resourcesApp which contains information on the
---   resources declared below. This is used in Handler.hs by the call to
---   mkYesodDispatch
---
--- What this function does *not* do is create a YesodSite instance for
--- App. Creating that instance requires all of the handler functions
--- for our application to be in scope. However, the handler functions
--- usually require access to the AppRoute datatype. Therefore, we
--- split these actions into two functions and place them in separate files.
-mkYesodData "App" $(parseRoutesFile "config/routes")
-
-type Form x = Html -> MForm (HandlerT App IO) (FormResult x, Widget)
-
 -- Please see the documentation for the Yesod typeclass. There are a number
 -- of settings which can be configured by overriding methods here.
 instance Yesod App where
-    approot = ApprootMaster $ appRoot . settings
+    -- Controls the base of generated URLs. For more information on modifying,
+    -- see: https://github.com/yesodweb/yesod/wiki/Overriding-approot
+    approot = ApprootMaster $ appRoot . appSettings
 
     -- Store session data on the client in encrypted cookies,
     -- default session idle timeout is 120 minutes
-    makeSessionBackend _ = fmap Just $ defaultClientSessionBackend
-        (120 * 60) -- 120 minutes
-        "config/client_session_key.aes"
+    makeSessionBackend _ = Just <$> defaultClientSessionBackend
+         120 -- timeout in minutes
+         "config/client_session_key.aes"
 
     defaultLayout widget = do
         master <- getYesod
@@ -127,39 +94,55 @@ instance Yesod App where
         giveUrlRenderer $(hamletFile "templates/default-layout-wrapper.hamlet")
         where name = categoryName . entityVal
 
-    -- This is done to provide an optimization for serving static files from
-    -- a separate domain. Please see the staticRoot setting in Settings.hs
-    urlRenderOverride y (StaticR s) =
-        Just $ uncurry (joinPath y (Settings.staticRoot $ settings y)) $ renderRoute s
-    urlRenderOverride _ _ = Nothing
-
     -- The page to be redirected to when authentication is required.
     authRoute _ = Just $ AuthR LoginR
+    
+    -- Routes not requiring authentication.
+--    isAuthorized (AuthR _) _ = return Authorized
+--    isAuthorized FaviconR _ = return Authorized
+--    isAuthorized RobotsR _ = return Authorized
+    -- Default to Authorized for now.
+--    isAuthorized _ _ = return Authorized
 
     -- This function creates static content files in the static folder
     -- and names them based on a hash of their content. This allows
     -- expiration dates to be set far in the future without worry of
     -- users receiving stale content.
-    addStaticContent = addStaticContentExternal minifym base64md5 Settings.staticDir (StaticR . flip StaticRoute [])
+    addStaticContent ext mime content = do
+        master <- getYesod
+        let staticDir = appStaticDir $ appSettings master
+        addStaticContentExternal
+            minifym
+            genFileName
+            staticDir
+            (StaticR . flip StaticRoute [])
+            ext
+            mime
+            content
+      where
+        -- Generate a unique filename based on the content itself
+        genFileName lbs = "autogen-" ++ base64md5 lbs
 
     -- Place Javascript at bottom of the body tag so the rest of the page loads first
     jsLoader _ = BottomOfBody
 
     -- What messages should be logged. The following includes all messages when
     -- in development, and warnings and errors in production.
-    shouldLog _ _source level =
-        development || level == LevelWarn || level == LevelError
+    shouldLog app _source level =
+        appShouldLogAll (appSettings app)
+            || level == LevelWarn
+            || level == LevelError
 
 
 -- How to run database actions.
 instance YesodPersist App where
-    type YesodPersistBackend App = SqlPersistT
-    runDB f = do
+    type YesodPersistBackend App = SqlBackend
+    runDB action = do
         master <- getYesod
-        Database.Persist.runPool
-            (persistConfig master)
-            f
-            (connPool master)
+        runSqlPool action $ appConnPool master
+        
+instance YesodPersistRunner App where
+    getDBRunner = defaultGetDBRunner appConnPool
 
 instance YesodAuth App where
     type AuthId App = UserId
@@ -179,12 +162,17 @@ instance YesodAuth App where
     -- You can add other plugins like BrowserID, email or OAuth here
     authPlugins _ = [authBrowserId def]
 
-    authHttpManager = httpManager
+    authHttpManager = getHttpManager
+    
+instance YesodAuthPersist App
 
 -- This instance is required to use forms. You can modify renderMessage to
 -- achieve customized and internationalized form validation messages.
 instance RenderMessage App FormMessage where
     renderMessage _ _ = defaultFormMessage
+      
+unsafeHandler :: App -> Handler a -> IO a
+unsafeHandler = Unsafe.fakeHandlerGetLogger appLogger    
 
 instance ToMarkup UTCTime where
   toMarkup = toMarkup . formatTime defaultTimeLocale "%e.%m.%Y"

@@ -1,21 +1,29 @@
-Default: &defaults
-  host: "localhost"
-  port: 3000
-  copyright: Dieser Inhalt steht unter einer <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/de/" title="Lizenz">Creative Commons Lizenz</a>
-  #analytics: Don't use Google Analytics!
+# Values formatted like "_env:ENV_VAR_NAME:default_value" can be overridden by the specified environment variable.
+# See https://github.com/yesodweb/yesod/wiki/Configuration#overriding-configuration-values-with-environment-variables
 
-Development:
-  approot: "http://localhost:3000"
-  <<: *defaults
+static-dir:     "_env:STATIC_DIR:static"
+host:           "_env:HOST:*4" # any IPv4 host
+port:           "_env:PORT:3000"
+approot:        "_env:APPROOT:http://localhost:3000"
+ip-from-header: "_env:IP_FROM_HEADER:false"
 
-Testing:
-  <<: *defaults
+# Optional values with the following production defaults.
+# In development, they default to the inverse.
+#
+# development: false
+# detailed-logging: false
+# should-log-all: false
+# reload-templates: false
+# mutable-static: false
+# skip-combining: false
 
-Staging:
-  <<: *defaults
+database:
+  user:     "_env:PGUSER:Test"
+  password: "_env:PGPASS:Test"
+  host:     "_env:PGHOST:localhost"
+  port:     "_env:PGPORT:5432"
+  database: "_env:PGDATABASE:Test"
+  poolsize: "_env:PGPOOLSIZE:10"
 
-Production:
-  approot: "https://www.pascal-wittmann.de"
-  host: "127.0.0.1"
-  port: 3001
-  <<: *defaults
+copyright: Dieser Inhalt steht unter einer <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/de/" title="Lizenz">Creative Commons Lizenz</a>
+#analytics: UA-YOURCODE

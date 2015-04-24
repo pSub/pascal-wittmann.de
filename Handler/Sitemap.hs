@@ -2,7 +2,7 @@ module Handler.Sitemap
        ( getSitemapR
        ) where
 
-import           Data.List     (find)
+import qualified Data.List as L
 import           Data.Maybe    (fromJust)
 import           Import
 import           Yesod.Sitemap
@@ -33,5 +33,5 @@ getSitemapR = do
                 -- TODO: This approximation is still rather bad
               , SitemapUrl ImpressumR (lastChange entries) (Just Yearly) (Just 0.2)
               ] ++ categories_urls ++ entries_urls ++ statics
-   where findCategory eid = categoryName . entityVal . fromJust . find ((eid ==) . entityKey)
-         lastChange = Just . maximum . map (entryLastMod . entityVal)
+   where findCategory eid = categoryName . entityVal . fromJust . L.find ((eid ==) . entityKey)
+         lastChange = Just . L.maximum . map (entryLastMod . entityVal)
