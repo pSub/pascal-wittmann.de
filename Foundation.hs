@@ -16,7 +16,7 @@ import           Control.Applicative
 import           Control.Arrow        ((&&&))
 import           Data.Text            (Text)
 import           Data.Time
-import           System.Locale
+import           System.Locale        hiding (defaultTimeLocale)
 import           Text.Blaze           (ToMarkup (..))
 import           Text.Blaze.Internal  (preEscapedText)
 import           Yesod.AtomFeed
