@@ -22,15 +22,13 @@ $forall Entity _ post <- posts
 <div .multi-column>
  <ul>
   <li>
-    <a href="http://alpenverein-darmstadt.de/">Alpenverein Darmstadt-Starkenburg
+    <a href="http://alpenverein-darmstadt.de/">Alpenverein Sektion Hamburg
   <li>
-    <a href="https://www.fairnopoly.de/">Fairnopoly
+    <a href="https://www.fairmondo.de/">Fairmondo
   <li>
     <a href="https://www.fsf.org/">Free Software Foundation
   <li>
     <a href="https://fsfe.org/">Free Software Foundation Europe
-  <li>
-    <a href="http://www.ff-stettbach.de/">Freiwillige Feuerwehr Stettbach
   <li>
     <a href="https://www.sos-kinderdoerfer.de/">SOS Kinderdörfer
   <li>
