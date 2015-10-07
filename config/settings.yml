@@ -18,11 +18,11 @@ ip-from-header: "_env:IP_FROM_HEADER:false"
 # skip-combining: false
 
 database:
-  user:     "_env:PGUSER:Test"
-  password: "_env:PGPASS:Test"
+  user:     "_env:PGUSER:homepage"
+  password: "_env:PGPASS:homepage"
   host:     "_env:PGHOST:localhost"
   port:     "_env:PGPORT:5432"
-  database: "_env:PGDATABASE:Test"
+  database: "_env:PGDATABASE:homepage"
   poolsize: "_env:PGPOOLSIZE:10"
 
 copyright: Dieser Inhalt steht unter einer <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/de/" title="Lizenz">Creative Commons Lizenz</a>
