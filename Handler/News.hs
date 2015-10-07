@@ -21,7 +21,7 @@ getNewsFeedR = do
                    { feedEntryLink = EntryR (findCategory (entryCat e) categories) (entryIdent e)
                    , feedEntryUpdated = entryDate e
                    , feedEntryTitle = entryTitle e
-                   , feedEntryContent = markdownToHtml $ entryContent e
+                   , feedEntryContent = either (const "Error") id $ markdownToHtml $ entryContent e
                    }) entries
     newsFeed Feed
        { feedTitle = "pascal-wittmann.de"
@@ -45,7 +45,7 @@ getCommentFeedR key = do
              { feedEntryLink = EntryR (findCategory (entryCat e) categories) (entryIdent e)
              , feedEntryUpdated = commentDate c
              , feedEntryTitle = (entryTitle e) `mappend` " -- " `mappend` (fromMaybe "anonymous" (commentAuthor c))
-             , feedEntryContent = markdownToHtml $ commentContent c
+             , feedEntryContent = either (const "Error") id $ markdownToHtml $ commentContent c
              })
     newsFeed Feed
        { feedTitle = "Comments for entry '" `mappend` (entryTitle e) `mappend` "' on pascal-wittmann.de"

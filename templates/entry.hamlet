@@ -6,7 +6,7 @@ $maybe _ <- mu
     \
     <a href="@{UploadFileR catName curIdent}">_{MsgAttachment}
 <h2>#{entryTitle $ entityVal entry}
-#{markdownToHtml $ entryContent $ entityVal entry}
+#{either (const "Error") id $ markdownToHtml $ entryContent $ entityVal entry}
 
 $if not $ null atts
   <h2>_{MsgAttachments}
@@ -32,7 +32,7 @@ $if not (null comments)
          \
          <a href="@{DeleteCommentR catName curIdent cid}">_{MsgDelete}
       <blockquote>
-         #{markdownToHtml $ commentContent comment}
+         #{either (const "Error") id $ markdownToHtml $ commentContent comment}
       $maybe parent' <- mparent
         $if (==) parent' cid
           <form enctype=#{enctype} method=post>
