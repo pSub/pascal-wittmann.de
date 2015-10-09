@@ -4,7 +4,6 @@ module Handler.Admin
        , postAdminR
        ) where
 
-import           Control.Arrow ((&&&))
 import           Import
 
 formletCat :: Maybe Category -> Form Category

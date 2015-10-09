@@ -18,7 +18,6 @@ module Handler.Entries
        , postMoveFileR
        ) where
 
-import           Control.Arrow         ((&&&))
 import qualified Data.List             as L (delete, intersperse)
 import           Data.Maybe            hiding (isNothing)
 import qualified Data.Maybe            as M

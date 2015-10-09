@@ -3,7 +3,6 @@
 module Foundation where
 
 import Import.NoFoundation
-import Database.Persist.Sql (ConnectionPool, runSqlPool)
 import Text.Hamlet          (hamletFile)
 import Text.Jasmine         (minifym)
 import Yesod.Auth.BrowserId (authBrowserId)
@@ -12,11 +11,6 @@ import Yesod.Core.Types     (Logger)
 import qualified Yesod.Core.Unsafe as Unsafe
 
 -- Custom imports
-import           Control.Applicative
-import           Control.Arrow        ((&&&))
-import           Data.Text            (Text)
-import           Data.Time
-import           System.Locale        hiding (defaultTimeLocale)
 import           Text.Blaze           (ToMarkup (..))
 import           Text.Blaze.Internal  (preEscapedText)
 import           Yesod.AtomFeed
@@ -91,7 +85,7 @@ instance Yesod App where
         pc <- widgetToPageContent $ do
             atomLink NewsFeedR "Newsfeed von pascal-wittmann.de"
             $(widgetFile "default-layout")
-        giveUrlRenderer $(hamletFile "templates/default-layout-wrapper.hamlet")
+        withUrlRenderer $(hamletFile "templates/default-layout-wrapper.hamlet")
         where name = categoryName . entityVal
 
     -- The page to be redirected to when authentication is required.
