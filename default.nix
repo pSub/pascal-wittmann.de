@@ -1,56 +1,38 @@
-{ stdenv, haskellngPackages }:
-
-let
-  env = haskellngPackages.ghcWithPackages (p: with p; [
-    aeson
-    esqueleto
-    bytestring
-    cabal-install
-    classy-prelude
-    classy-prelude-conduit
-    classy-prelude-yesod
-    conduit
-    containers
-    data-default
-    directory
-    fast-logger
-    file-embed
-    hjsmin
-    http-conduit
-    monad-control
-    monad-logger
-    persistent
-    persistent-postgresql
-    persistent-template
-    regex-compat
-    safe
-    shakespeare
-    template-haskell
-    text
-    time
-    unordered-containers
-    vector
-    wai-extra
-    wai-logger
-    warp
-    yaml
-    yesod
-    yesod-auth
-    yesod-bin
-    yesod-core
-    yesod-form
-    yesod-static
-    yesod-markdown
-    yesod-sitemap
-  ]);
-in
-  stdenv.mkDerivation {
-    name        = "project-name";
-    buildInputs = [env];
-    shellHook   = ''
-      export NIX_GHC="${env}/bin/ghc"
-      export NIX_GHCPKG="${env}/bin/ghc-pkg"
-      export NIX_GHC_DOCDIR="${env}/share/doc/ghc/html"
-      export NIX_GHC_LIBDIR=$( $NIX_GHC --print-libdir )
-    '';
-  }
+{ mkDerivation, aeson, base, blaze-html, blaze-markup, bytestring
+, classy-prelude, classy-prelude-conduit, classy-prelude-yesod
+, clientsession, conduit, containers, data-default, directory
+, esqueleto, fast-logger, file-embed, filepath, hjsmin, hspec
+, http-conduit, monad-control, monad-logger, old-locale, persistent
+, persistent-postgresql, persistent-template, regex-compat
+, resourcet, safe, shakespeare, stdenv, template-haskell, text
+, time, transformers, unordered-containers, vector, wai-extra
+, wai-logger, warp, yaml, yesod, yesod-auth, yesod-core, yesod-form
+, yesod-markdown, yesod-newsfeed, yesod-persistent, yesod-sitemap
+, yesod-static, yesod-test
+}:
+mkDerivation {
+  pname = "homepage";
+  version = "0.0.0";
+  src = ./.;
+  isLibrary = true;
+  isExecutable = true;
+  libraryHaskellDepends = [
+    aeson base blaze-html blaze-markup bytestring classy-prelude
+    classy-prelude-conduit classy-prelude-yesod clientsession conduit
+    containers data-default directory esqueleto fast-logger file-embed
+    filepath hjsmin http-conduit monad-control monad-logger old-locale
+    persistent persistent-postgresql persistent-template regex-compat
+    safe shakespeare template-haskell text time unordered-containers
+    vector wai-extra wai-logger warp yaml yesod yesod-auth yesod-core
+    yesod-form yesod-markdown yesod-newsfeed yesod-persistent
+    yesod-sitemap yesod-static
+  ];
+  executableHaskellDepends = [ base ];
+  testHaskellDepends = [
+    base hspec monad-logger persistent persistent-postgresql resourcet
+    transformers yesod yesod-core yesod-test
+  ];
+  homepage = "https://www.pascal-wittmann.de";
+  description = "Personal website";
+  license = stdenv.lib.licenses.bsd3;
+}
