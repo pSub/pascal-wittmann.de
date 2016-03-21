@@ -2,5 +2,5 @@
 
 (import ./default.nix) {
     stdenv            = pkgs.stdenv;
-    haskellngPackages = pkgs.haskellngPackages;
+    haskellPackages = pkgs.haskellPackages;
   }
