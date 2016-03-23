@@ -1,6 +1,2 @@
-{ pkgs ? (import <nixpkgs> {}) }:
-
-(import ./default.nix) {
-    stdenv            = pkgs.stdenv;
-    haskellPackages = pkgs.haskellPackages;
-  }
+{ nixpkgs ? import <nixpkgs> {} }:
+(import ./default.nix { compiler = "ghc7103"; inherit nixpkgs; }).env
