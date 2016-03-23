@@ -32,3 +32,7 @@ $maybe msg <- mmsg
                #{preEscapedText $ appCopyright $ appSettings master}
                \ | #
                <a href=@{ImpressumR} title="Impressum">Impressum
+<div #netcup>
+     <a href="http://www.netcup.de"><img src="http://www.netcup.de/werbemittel/netcup-oekostrom.png" alt="netcup Ökostrom" /></a>
+
+

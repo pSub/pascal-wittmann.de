@@ -195,3 +195,7 @@ label
 
 #footer #right
     float: right
+
+#netcup
+    padding-top: 1em
+    text-align: center
