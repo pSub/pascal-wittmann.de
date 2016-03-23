@@ -29,7 +29,6 @@ library
                      Model
                      Settings
                      Settings.StaticFiles
---                     Settings.Development
                      Handler.Root
                      Handler.Impressum
                      Handler.Entries
@@ -44,23 +43,24 @@ library
     else
         ghc-options:   -Wall -fwarn-tabs -O2
 
-    extensions: TemplateHaskell
+    extensions:
+                TemplateHaskell
                 QuasiQuotes
                 OverloadedStrings
                 NoImplicitPrelude
-                CPP
                 MultiParamTypeClasses
                 TypeFamilies
                 GADTs
                 GeneralizedNewtypeDeriving
                 FlexibleContexts
+                FlexibleInstances
                 EmptyDataDecls
                 NoMonomorphismRestriction
                 DeriveDataTypeable
                 ViewPatterns
                 TupleSections
                 RecordWildCards
-                
+
     build-depends: base                          >= 4          && < 5
                  , yesod                         >= 1.4.1      && < 1.5
                  , yesod-core                    >= 1.4.6      && < 1.5
@@ -134,15 +134,37 @@ test-suite test
     main-is:           main.hs
     hs-source-dirs:    tests
     ghc-options:       -Wall
+    
+    extensions:
+                TemplateHaskell
+                QuasiQuotes
+                OverloadedStrings
+                NoImplicitPrelude
+                CPP
+                MultiParamTypeClasses
+                TypeFamilies
+                GADTs
+                GeneralizedNewtypeDeriving
+                FlexibleContexts
+                FlexibleInstances
+                EmptyDataDecls
+                NoMonomorphismRestriction
+                DeriveDataTypeable
+                ViewPatterns
+                TupleSections
 
     build-depends: base
                  , homepage
-                 , yesod-test
+                 , yesod-test >= 1.5.0.1 && < 1.6
                  , yesod-core
                  , yesod
                  , persistent
                  , persistent-postgresql
                  , resourcet
                  , monad-logger
+                 , shakespeare
                  , transformers
-                 , hspec
+                 , hspec >= 2.0.0
+                 , classy-prelude
+                 , classy-prelude-yesod
+                 , aeson
