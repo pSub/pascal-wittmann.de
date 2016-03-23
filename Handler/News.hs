@@ -32,6 +32,7 @@ getNewsFeedR = do
        , feedDescription = "RSS/Atom Feed von pascal-wittmann.de"
        , feedLanguage = "en"
        , feedUpdated = L.maximum $ map feedEntryUpdated feeds
+       , feedLogo = Nothing
        , feedEntries = feeds
        }
 
@@ -57,6 +58,7 @@ getCommentFeedR key = do
        , feedDescription = "This feed contains all comments for this entry."
        , feedLanguage = "en"
        , feedUpdated = L.maximum $ map feedEntryUpdated comments
+       , feedLogo = Nothing
        , feedEntries = comments
        }
 
