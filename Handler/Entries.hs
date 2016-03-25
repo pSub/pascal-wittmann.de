@@ -204,7 +204,7 @@ postNewEntryR = getNewEntryR
 -- that is specified by the second parameter.
 -- The first parameter is the Category.
 getEditEntryR :: Text -> Text -> Handler Html
-getEditEntryR catName eid = do
+getEditEntryR _ eid = do
   requireAdmin
   Entity eKey eVal <- runDB $ getBy404 $ UniqueEntry eid
   tags <- showTags <$> (runDB $ select $ from $ \(t `InnerJoin` s) -> do
@@ -323,7 +323,7 @@ insertTags category eid = mapM_ insertTag . filter (not . T.null)
            where insertTag t = do
                   mtag <- runDB $ getBy $ UniqueTag t category
                   tid <- (runDB $ insert $ Tag t category) -|- (entityKey <$> mtag)
-                  runDB $ insert $ Tagged tid eid
+                  _ <- runDB $ insert $ Tagged tid eid
                   return ()
 
 buildComments :: [Entity Comment] -> [(Integer, Entity Comment)]

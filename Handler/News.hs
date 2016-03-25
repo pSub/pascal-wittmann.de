@@ -6,8 +6,6 @@ module Handler.News
 import           Data.List as L      (find, maximum)
 import           Data.Maybe
 import           Import
-import           Yesod.AtomFeed
-import           Yesod.Feed
 import           Yesod.Markdown (markdownToHtml)
 
 getNewsFeedR :: Handler TypedContent
