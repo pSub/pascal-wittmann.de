@@ -42,6 +42,7 @@ data PEntry = PEntry
      }
 
 -- Simple regex to match urls
+urlRegex :: Regex
 urlRegex = mkRegex "\\b(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_|]"
 
 -- | Form for entering a new entry.
