@@ -19,7 +19,7 @@ EOF
 
 elif [[ $1 == build ]]; then
     source $HOME/.nix-profile/etc/profile.d/nix.sh
-    nix-build --argstr compiler "ghc7103"
+    nix-build
 else
     echo "$0: Unknown option $1" >&2
     false
