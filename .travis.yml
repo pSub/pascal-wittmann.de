@@ -1,1 +1,3 @@
-language: haskell
+sudo: required
+install: ./exec.sh nix
+script: ./exec.sh build
