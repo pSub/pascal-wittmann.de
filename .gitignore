@@ -5,3 +5,4 @@ config/postgres.yml
 config/client_session_key.aes
 config/client_session_key_aes
 yesod-devel
+result
