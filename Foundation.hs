@@ -5,7 +5,6 @@ module Foundation where
 import Import.NoFoundation
 import Text.Hamlet          (hamletFile)
 import Text.Jasmine         (minifym)
-import Yesod.Auth.BrowserId (authBrowserId)
 import Yesod.Auth.OAuth2.Github
 import Yesod.Default.Util   (addStaticContentExternal)
 import Yesod.Core.Types     (Logger)
@@ -159,11 +158,10 @@ instance YesodAuth App where
                 fmap Just $ insert $ User (credsIdent creds) Nothing Nothing False
 
     -- You can add other plugins like BrowserID, email or OAuth here
-    authPlugins m = [authBrowserId def
-                     , oauth2Github
-                         (oauthKeysClientId $ appGithubOAuthKeys m)
-                         (oauthKeysClientSecret $ appGithubOAuthKeys m)
-                     ]
+    authPlugins m = [ oauth2Github
+                        (oauthKeysClientId $ appGithubOAuthKeys m)
+                        (oauthKeysClientSecret $ appGithubOAuthKeys m)
+                    ]
 
     authHttpManager = getHttpManager
 
