@@ -6,6 +6,7 @@ import Import.NoFoundation
 import Text.Hamlet          (hamletFile)
 import Text.Jasmine         (minifym)
 import Yesod.Auth.BrowserId (authBrowserId)
+import Yesod.Auth.OAuth2.Github
 import Yesod.Default.Util   (addStaticContentExternal)
 import Yesod.Core.Types     (Logger)
 import qualified Yesod.Core.Unsafe as Unsafe
@@ -25,6 +26,7 @@ data App = App
     , appConnPool    :: ConnectionPool -- ^ Database connection pool.
     , appHttpManager :: Manager
     , appLogger      :: Logger
+    , appGithubOAuthKeys :: OAuthKeys
     }
     
 instance HasHttpManager App where
@@ -157,10 +159,14 @@ instance YesodAuth App where
                 fmap Just $ insert $ User (credsIdent creds) Nothing Nothing False
 
     -- You can add other plugins like BrowserID, email or OAuth here
-    authPlugins _ = [authBrowserId def]
+    authPlugins m = [authBrowserId def
+                     , oauth2Github
+                         (oauthKeysClientId $ appGithubOAuthKeys m)
+                         (oauthKeysClientSecret $ appGithubOAuthKeys m)
+                     ]
 
     authHttpManager = getHttpManager
-    
+
 instance YesodAuthPersist App
 
 -- This instance is required to use forms. You can modify renderMessage to

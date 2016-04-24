@@ -28,6 +28,9 @@ import Network.Wai.Middleware.RequestLogger (Destination (Logger),
 import System.Log.FastLogger                (defaultBufSize, newStdoutLoggerSet,
                                              toLogStr)
 import Yesod.Default.Handlers
+import LoadEnv
+import System.Environment (getEnv)
+import qualified Data.Text as T
 
 -- Import all relevant handler modules here.
 import           Handler.Admin
@@ -49,6 +52,10 @@ mkYesodDispatch "App" resourcesApp
 -- migrations handled by Yesod.
 makeFoundation :: AppSettings -> IO App
 makeFoundation appSettings = do
+    loadEnv
+
+    appGithubOAuthKeys <- getOAuthKeys
+
     -- Some basic initializations: HTTP connection manager, logger, and static
     -- subsite.
     appHttpManager <- newManager
@@ -76,6 +83,13 @@ makeFoundation appSettings = do
 
     -- Return the foundation
     return $ mkFoundation pool
+
+    where
+      getEnvT = fmap T.pack . getEnv
+      getOAuthKeys :: IO OAuthKeys
+      getOAuthKeys = OAuthKeys
+        <$> getEnvT "GITHUB_OAUTH_CLIENT_ID"
+        <*> getEnvT "GITHUB_OAUTH_CLIENT_SECRET"
 
 -- | Convert our foundation to a WAI Application by calling @toWaiAppPlain@ and
 -- applyng some additional middlewares.

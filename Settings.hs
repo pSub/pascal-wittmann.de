@@ -19,6 +19,10 @@ import Yesod.Default.Config2       (applyEnvValue, configSettingsYml)
 import Yesod.Default.Util          (WidgetFileSettings, widgetFileNoReload,
                                     widgetFileReload)
 
+data OAuthKeys = OAuthKeys
+               { oauthKeysClientId  :: Text
+               , oauthKeysClientSecret :: Text }
+
 -- | Runtime settings to configure this application. These settings can be
 -- loaded from various sources: defaults, environment variables, config files,
 -- theoretically even a database.
