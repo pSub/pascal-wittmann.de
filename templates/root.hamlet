@@ -25,6 +25,8 @@ $forall Entity _ post <- posts
 <div .multi-column>
  <ul>
   <li>
+    <a href="http://www.acm.org/">ACM
+  <li>
     <a href="http://www.dav-hamburg.de/">Alpenverein Sektion Hamburg
   <li>
     <a href="https://www.fairmondo.de/">Fairmondo
@@ -33,11 +35,11 @@ $forall Entity _ post <- posts
   <li>
     <a href="https://fsfe.org/">Free Software Foundation Europe
   <li>
+    <a href="https://nixos.org/nixos/foundation.html">NixOS Foundation
+  <li>
     <a href="https://www.sos-kinderdoerfer.de/">SOS Kinderdörfer
   <li>
     <a href="https://www.wwf.de/">WWF
-  <li>
-    <a href="https://nixos.org/nixos/foundation.html">NixOS Foundation
   <br>
 <h2>Soziale Netzwerke & Sonstiges
 <p>
