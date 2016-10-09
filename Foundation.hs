@@ -55,10 +55,7 @@ mkMessage "App" "messages" "en"
 instance Yesod App where
     -- Controls the base of generated URLs. For more information on modifying,
     -- see: https://github.com/yesodweb/yesod/wiki/Overriding-approot
-    approot = ApprootRequest $ \app req ->
-        case appRoot $ appSettings app of
-            Nothing -> getApprootText guessApproot app req
-            Just root -> root
+    approot = ApprootRelative
 
     -- Store session data on the client in encrypted cookies,
     -- default session idle timeout is 120 minutes
