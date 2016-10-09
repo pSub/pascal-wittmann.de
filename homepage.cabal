@@ -118,6 +118,7 @@ library
                  , regex-compat
                  , load-env
                  , yesod-auth-oauth2
+                 , yesod-csp
 
 executable         homepage
     if flag(library-only)

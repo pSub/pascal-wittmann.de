@@ -9,6 +9,8 @@ import Yesod.Auth.OAuth2.Github
 import Yesod.Default.Util   (addStaticContentExternal)
 import Yesod.Core.Types     (Logger)
 import qualified Yesod.Core.Unsafe as Unsafe
+import           Yesod.Csp
+import           Yesod.Csp.TH
 
 -- Custom imports
 import           Text.Blaze           (ToMarkup (..))
@@ -64,6 +66,7 @@ instance Yesod App where
          "config/client_session_key.aes"
 
     defaultLayout widget = do
+        cspPolicy [csp|img-src 'self' https://www.netcup.de; script-src 'none'; style-src 'self'; default-src 'none'|]
         master <- getYesod
         mmsg <- getMessage
 

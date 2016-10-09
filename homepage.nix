@@ -9,7 +9,7 @@
 , wai-logger, warp, yaml, yesod, yesod-auth, yesod-core, yesod-form
 , yesod-markdown, yesod-newsfeed, yesod-persistent, yesod-sitemap
 , yesod-static, yesod-test, cabal-install, yesod-bin, load-env
-, yesod-auth-oauth2
+, yesod-auth-oauth2, yesod-csp
 }:
 mkDerivation {
   pname = "homepage";
@@ -27,7 +27,7 @@ mkDerivation {
     safe shakespeare template-haskell text time unordered-containers
     vector wai-extra wai-logger warp yaml yesod yesod-auth yesod-core
     yesod-form yesod-markdown yesod-newsfeed yesod-persistent
-    yesod-sitemap yesod-static load-env yesod-auth-oauth2
+    yesod-sitemap yesod-static load-env yesod-auth-oauth2 yesod-csp
   ];
   executableHaskellDepends = [ base ];
   testHaskellDepends = [
