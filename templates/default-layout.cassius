@@ -19,6 +19,9 @@ body
     color: #ffffff
     text-align: center
 
+#quote footer
+    opacity: 0.5
+
 img
     border: 0px
 
