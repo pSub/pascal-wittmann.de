@@ -19,13 +19,12 @@ module Handler.Entries
        ) where
 
 import qualified Data.List             as L (delete, intersperse)
-import           Data.Maybe            hiding (isNothing)
-import qualified Data.Maybe            as M
+import           Data.Maybe
 import           Data.Text             (splitOn, strip)
 import qualified Data.Text             as T
 import           Data.Time
 import           Data.Tree
-import           Import
+import           Import                hiding (isNothing)
 import qualified GHC.IO
 import           System.Directory
 import           System.FilePath.Posix (pathSeparator)
@@ -66,7 +65,7 @@ commentForm loggedin author comment now parentKey entryKey = renderDivs $ Commen
     <*> pure entryKey
     <*> pure False -- If an entry is edited it becomes visible again.
   where doNotFillHiddenField = checkBool T.null ("You Shall Not Pass!!!" :: Text) hiddenField
-        noURLsMarkdownField = checkBool (\t -> loggedin || M.isNothing (matchRegex urlRegex (unpack $ unMarkdown t)))
+        noURLsMarkdownField = checkBool (\t -> loggedin || isNothing (matchRegex urlRegex (unpack $ unMarkdown t)))
                                     ("URLs are not allowed." :: Text)
                                     markdownField
 
@@ -102,7 +101,7 @@ getEntriesByTagR catName tagNames = do
                      return (t, s)
 
   tags <- runDB $ select $ from $ \t -> where_ (t ^. TagCategory ==. val (entityKey category)) >> return t
-  comments <- map (\(Value e, Value c) -> (e, c)) <$> (runDB $ select $ from $ \(e `InnerJoin` c) -> do
+  comments <- map (\(Value e, Value c) -> (e, c)) <$> runDB (select $ from $ \(e `InnerJoin` c) -> do
                       on $ e ^. EntryId ==. c ^. CommentEntry
                       where_ (c ^. CommentDeleted ==. val False)
                       groupBy $ e ^. EntryId
@@ -120,7 +119,7 @@ getEntriesByTagR catName tagNames = do
   defaultLayout $ do
     if null tagNames
        then setTitle $ toHtml catName
-       else setTitle $ toHtml $ catName <> " :: " <> (T.concat $ L.intersperse ", " tagNames)
+       else setTitle $ toHtml $ catName <> " :: " <> T.concat (L.intersperse ", " tagNames)
     $(widgetFile "entries")
 
 -- | If the element is not contained in the list it is added,
@@ -141,7 +140,7 @@ entryHandler catName curIdent mparent = do
                   where_ (a ^. AttachmentEntry ==. val (entityKey entry))
                   orderBy [asc (a ^. AttachmentDescr)]
                   return a
-  comments <- buildComments <$> (runDB $ select $ from $ \c -> do
+  comments <- buildComments <$> runDB (select $ from $ \c -> do
                                          where_ (c ^. CommentEntry ==. val (entityKey entry))
                                          where_ (c ^. CommentDeleted ==. val False)
                                          orderBy [asc (c ^. CommentDate)]
@@ -207,7 +206,7 @@ getEditEntryR :: Text -> Text -> Handler Html
 getEditEntryR _ eid = do
   requireAdmin
   Entity eKey eVal <- runDB $ getBy404 $ UniqueEntry eid
-  tags <- showTags <$> (runDB $ select $ from $ \(t `InnerJoin` s) -> do
+  tags <- showTags <$> runDB (select $ from $ \(t `InnerJoin` s) -> do
                                 on $ t ^. TaggedTag ==. s ^. TagId
                                 where_ $ t ^. TaggedEntry ==. val eKey
                                 orderBy [asc (s ^. TagName)]
@@ -222,7 +221,7 @@ getEditEntryR _ eid = do
   case res of
       FormSuccess p -> do
         category <- runDB $ get404 $ cat p
-        now <- liftIO $ getCurrentTime
+        now <- liftIO getCurrentTime
         runDB $ update $ \e -> do
                 set e [ EntryTitle =. val (title p)
                       , EntryIdent =. val (ident p)
@@ -266,7 +265,7 @@ getUploadFileR catName curIdent = do
   ((resCreate, newFileFormView), enctype) <- runFormPost $ fileForm ""
   case resCreate of
        FormSuccess (file, descr) -> do
-          now <- liftIO $ getCurrentTime
+          now <- liftIO getCurrentTime
           app <- getYesod
           _ <- runDB $ insert $ Attachment (fileName file) (entityKey e) descr now
           liftIO $ fileMove file (buildFileName app $ fileName file)
@@ -313,7 +312,7 @@ postMoveFileR = getMoveFileR
 
 -- Helper functions
 buildFileName :: App -> Text -> GHC.IO.FilePath
-buildFileName app name = (appStaticDir $ appSettings app)  ++ [pathSeparator] ++ unpack name
+buildFileName app name = appStaticDir (appSettings app) ++ [pathSeparator] ++ unpack name
 
 tagsForEntry :: Key Entry -> [(b, Entity Tagged)] -> [b]
 tagsForEntry eid = map fst . filter (((== eid) . taggedEntry . entityVal) . snd)
@@ -322,14 +321,14 @@ insertTags :: CategoryId -> EntryId -> [Text] -> Handler ()
 insertTags category eid = mapM_ insertTag . filter (not . T.null)
            where insertTag t = do
                   mtag <- runDB $ getBy $ UniqueTag t category
-                  tid <- (runDB $ insert $ Tag t category) -|- (entityKey <$> mtag)
+                  tid <- runDB (insert $ Tag t category) -|- (entityKey <$> mtag)
                   _ <- runDB $ insert $ Tagged tid eid
                   return ()
 
 buildComments :: [Entity Comment] -> [(Integer, Entity Comment)]
 buildComments cs = concatMap flatten $ unfoldForest (id &&& getChilds) roots
       where
-        roots = zip [0,0..] (filter (M.isNothing . commentParent . entityVal) cs)
+        roots = zip [0,0..] (filter (isNothing . commentParent . entityVal) cs)
         getChilds (depth, c) = zip (repeat $ succ depth) (filter (isChild c) cs)
         isChild (Entity key _) (Entity _ value) = maybe False (key ==) (commentParent value)
 
