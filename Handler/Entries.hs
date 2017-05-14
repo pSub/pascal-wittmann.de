@@ -66,7 +66,7 @@ commentForm loggedin author comment now parentKey entryKey = renderDivs $ Commen
     <*> pure entryKey
     <*> pure False -- If an entry is edited it becomes visible again.
   where doNotFillHiddenField = checkBool T.null ("You Shall Not Pass!!!" :: Text) hiddenField
-        noURLsMarkdownField = checkBool (\t -> loggedin || matchRegex urlRegex (unpack $ unMarkdown t) == Nothing)
+        noURLsMarkdownField = checkBool (\t -> loggedin || M.isNothing (matchRegex urlRegex (unpack $ unMarkdown t)))
                                     ("URLs are not allowed." :: Text)
                                     markdownField
 
@@ -77,7 +77,7 @@ fileForm name = renderDivs $ (,)
          <*> areq textField (fieldSettingsLabel MsgName) (Just name)
 
 -- | Form to delete (multiple) attachments
-deleteFileForm :: [(Text, AttachmentId)] -> Form ([AttachmentId])
+deleteFileForm :: [(Text, AttachmentId)] -> Form [AttachmentId]
 deleteFileForm atts = renderDivs $ areq (multiSelectFieldList atts) "" Nothing
 
 -- | Calls the central entries handler ('getEntriesByTag') without a restriction
@@ -231,13 +231,13 @@ getEditEntryR _ eid = do
                       , EntryLastMod =. val now]
                 where_ (e ^. EntryId ==. val eKey)
         runDB $ delete $ from $ \t -> where_ (t ^. TaggedEntry ==.  val eKey)
-        insertTags (cat p) (eKey) (buildTagList p)
+        insertTags (cat p) eKey (buildTagList p)
         redirect $  EntryR (categoryName category) (ident p)
       _ -> return ()
   defaultLayout $ do
        setTitle "Edit Entry"
        $(widgetFile "new-entry")
-  where showTags = pack . concat . L.intersperse ", " . map (unpack . tagName . entityVal)
+  where showTags = pack . intercalate ", " . map (unpack . tagName . entityVal)
 
 buildTagList :: PEntry -> [Text]
 buildTagList = map strip . splitOn "," . tag
@@ -327,7 +327,7 @@ insertTags category eid = mapM_ insertTag . filter (not . T.null)
                   return ()
 
 buildComments :: [Entity Comment] -> [(Integer, Entity Comment)]
-buildComments cs = concat $ map flatten $ unfoldForest (id &&& getChilds) roots
+buildComments cs = concatMap flatten $ unfoldForest (id &&& getChilds) roots
       where
         roots = zip [0,0..] (filter (M.isNothing . commentParent . entityVal) cs)
         getChilds (depth, c) = zip (repeat $ succ depth) (filter (isChild c) cs)

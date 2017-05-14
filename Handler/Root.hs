@@ -17,7 +17,7 @@ getRootR = do
   defaultLayout $ do
     setTitle "Pascal Wittmann"
     $(widgetFile "root")
-  where findCat p cs = L.find (\ c -> entityKey c == entryCat p) cs
+  where findCat p = L.find (\ c -> entityKey c == entryCat p)
 
 isValentinesDay :: ZonedTime -> Bool
 isValentinesDay (ZonedTime (LocalTime localDay _) _) =
