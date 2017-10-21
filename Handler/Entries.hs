@@ -157,6 +157,9 @@ entryHandler catName curIdent mparent = do
     setTitle $ toHtml $ entryTitle $ entityVal entry
     $(widgetFile "entry")
 
+computeIndentionClass :: Integer -> [(String, String)]
+computeIndentionClass indention = [("class", "indent-" ++ (show $ (2 * indention) `mod` 10) ++ " comment")]
+
 getEntryCommentR :: Text -> Text -> CommentId -> Handler Html
 getEntryCommentR catName curIdent curParent = entryHandler catName curIdent (Just curParent)
 

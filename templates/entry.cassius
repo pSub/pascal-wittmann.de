@@ -16,3 +16,14 @@
 
 .comment:nth-child(2n) blockquote
         background-color: #efefef
+
+.indent-0
+  padding-left: 0em
+.indent-2
+  padding-left: 2em
+.indent-4
+  padding-left: 4em
+.indent-6
+  padding-left: 6em
+.indent-8
+  padding-left: 8em
