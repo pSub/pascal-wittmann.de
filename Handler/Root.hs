@@ -3,6 +3,7 @@ module Handler.Root where
 import           Data.List as L (find)
 import           Import
 import           Data.Time.LocalTime
+import           ILoveFS
 
 getRootR :: Handler Html
 getRootR = do
@@ -16,13 +17,8 @@ getRootR = do
   zonedTime <- liftIO getZonedTime
   defaultLayout $ do
     setTitle "Pascal Wittmann"
-    $(widgetFile "root")
+    $(widgetFile "root") >> ilovefs
   where findCat p = L.find (\ c -> entityKey c == entryCat p)
-
-isValentinesDay :: ZonedTime -> Bool
-isValentinesDay (ZonedTime (LocalTime localDay _) _) =
-  let (_, month, day) = toGregorian localDay
-      in month == 2 && day == 14
 
 nofacebookme_png :: StaticRoute
 nofacebookme_png = StaticRoute ["no-facebook-me.png"] []
@@ -30,5 +26,4 @@ nofacebookme_png = StaticRoute ["no-facebook-me.png"] []
 haskeller_logo :: StaticRoute
 haskeller_logo = StaticRoute ["haskeller.png"] []
 
-ilovefs :: StaticRoute
-ilovefs = StaticRoute ["ilovefs-banner-extralarge.png"] []
+

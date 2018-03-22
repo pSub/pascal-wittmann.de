@@ -1,6 +1,3 @@
-$if isValentinesDay zonedTime
-  <div style="text-align: center">
-    <a href="http://ilovefs.org"><img src=@{StaticR ilovefs} style="border: 0 !important;" alt="I love Free Software!"></a>
 <h2>Letzte Posts
 $forall Entity _ post <- posts
   $maybe Entity _ category <- findCat post cats
