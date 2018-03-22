@@ -46,6 +46,7 @@ textarea
     margin:0 auto
     padding-top: 3em
     padding-bottom: 3em
+    max-width: 60em
 
 .xtop, .xbottom
     clear:both
