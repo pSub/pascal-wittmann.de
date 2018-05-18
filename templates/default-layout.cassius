@@ -169,7 +169,7 @@ textarea
 
 label
     display: block
-    width: 7em
+    width: 10em
     float: left
 
 .multi-column

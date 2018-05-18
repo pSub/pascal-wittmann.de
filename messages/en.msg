@@ -14,7 +14,7 @@ Attachments: Attachments
 Attachment: Attachment
 Delete': Delete
 Edit: Edit
-Name: Name
+Name: Name (optional)
 Comment: Comment
 Title: Title
 Ident: Ident
