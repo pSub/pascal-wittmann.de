@@ -74,7 +74,7 @@ instance Yesod App where
          "config/client_session_key.aes"
 
     defaultLayout widget = do
-        cspPolicy [csp|img-src 'self' https://www.netcup.de; script-src 'none'; style-src 'self'; default-src 'none'|]
+        cspPolicy [csp|img-src 'self'; script-src 'none'; style-src 'self'; default-src 'none'|]
         master <- getYesod
         mmsg <- getMessage
 
@@ -87,6 +87,7 @@ instance Yesod App where
         -- static links to images
         let powered_by_logo = StaticRoute ["powered_by_yesod.png"] []
         let rss_logo = StaticRoute ["rss_logo.png"] []
+	let netcup_oekostrom = StaticRoute ["netcup-oekostrom.png"] []
 
         -- We break up the default layout into two components:
         -- default-layout is the contents of the body tag, and

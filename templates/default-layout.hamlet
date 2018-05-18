@@ -33,6 +33,6 @@ $maybe msg <- mmsg
                \ | #
                <a href=@{ImpressumR} title="Impressum">Impressum
 <div #netcup>
-     <a href="https://www.netcup.de"><img src="https://www.netcup.de/werbemittel/netcup-oekostrom.png" alt="netcup Ökostrom" /></a>
+     <a href="https://www.netcup.de"><img src="@{StaticR netcup_oekostrom}" alt="netcup Ökostrom" /></a>
 
 
