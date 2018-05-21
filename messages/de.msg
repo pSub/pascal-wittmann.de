@@ -22,3 +22,4 @@ Tags: Tags
 Summary: Zusammenfassung
 Text: Text
 Category: Category
+PrivacyPolicy: Datenschutz

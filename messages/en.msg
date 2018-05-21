@@ -22,3 +22,4 @@ Tags: Tags
 Summary: Summary
 Text: Text
 Category: Category
+PrivacyPolicy: Privacy Policy

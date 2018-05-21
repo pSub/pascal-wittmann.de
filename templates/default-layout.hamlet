@@ -23,7 +23,7 @@ $maybe msg <- mmsg
           <div #right>
             <a href=@{ImpressumR} title="Impressum">Impressum
             \ | #
-            <a href=@{DatenschutzR} title="Datenschutz">Datenschutz
+            <a href=@{DatenschutzR} title="_{MsgPrivacyPolicy}">_{MsgPrivacyPolicy}
 <div #netcup>
      <a href="https://www.netcup.de"><img src="@{StaticR netcup_oekostrom}" alt="netcup Ökostrom" /></a>
 
