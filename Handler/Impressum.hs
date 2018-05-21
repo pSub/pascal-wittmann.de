@@ -1,6 +1,7 @@
 module Handler.Impressum
        (
-         getImpressumR
+         getImpressumR,
+         getDatenschutzR
          ) where
 
 import           Import
@@ -13,3 +14,9 @@ getImpressumR = defaultLayout $ do
 -- TODO: Protect mail from spam
 encodeMail :: String -> Html
 encodeMail = toHtml
+
+getDatenschutzR :: Handler Html
+getDatenschutzR = defaultLayout $ do
+  setTitle "Datenschutzerklärung"
+  $(widgetFile "datenschutzerklaerung")
+
