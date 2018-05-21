@@ -19,15 +19,7 @@ $maybe msg <- mmsg
           ^{widget}
      <div #footer>
           <div #left>
-               $maybe Entity _ user <- muser
-                 $if userAdmin user
-                   <a href="@{AdminR}">Admin
-                   \ | #
-                 <a href=@{ProfileR}>Profil
-                 \ | #
-                 <a href="@{AuthR LogoutR}">Logout
-               $nothing
-                   <a href="@{AuthR LoginR}">Login
+            &nbsp;
           <div #right>
                #{preEscapedText $ appCopyright $ appSettings master}
                \ | #

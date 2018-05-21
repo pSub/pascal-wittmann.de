@@ -67,11 +67,8 @@ instance Yesod App where
     urlRenderOverride _ (AuthR _) = Nothing
     urlRenderOverride y r = Just $ uncurry (joinPath y "") $ renderRoute r
 
-    -- Store session data on the client in encrypted cookies,
-    -- default session idle timeout is 120 minutes
-    makeSessionBackend _ = sslOnlySessions $ Just <$> defaultClientSessionBackend
-         120 -- timeout in minutes
-         "config/client_session_key.aes"
+    -- Disable sessions for now due to DSGVO
+    makeSessionBackend _ = return Nothing
 
     defaultLayout widget = do
         cspPolicy [csp|img-src 'self'; script-src 'none'; style-src 'self'; default-src 'none'|]
