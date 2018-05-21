@@ -19,11 +19,9 @@ $maybe msg <- mmsg
           ^{widget}
      <div #footer>
           <div #left>
-            &nbsp;
+            #{preEscapedText $ appCopyright $ appSettings master}
           <div #right>
-               #{preEscapedText $ appCopyright $ appSettings master}
-               \ | #
-               <a href=@{ImpressumR} title="Impressum">Impressum
+            <a href=@{ImpressumR} title="Impressum">Impressum
 <div #netcup>
      <a href="https://www.netcup.de"><img src="@{StaticR netcup_oekostrom}" alt="netcup Ökostrom" /></a>
 
