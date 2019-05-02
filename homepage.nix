@@ -17,6 +17,7 @@ mkDerivation {
   src = ./.;
   isLibrary = true;
   isExecutable = true;
+  doHaddock = false; # https://github.com/haskell/haddock/issues/775
   buildTools = [ cabal-install yesod-bin ];
   libraryHaskellDepends = [
     aeson base blaze-html blaze-markup bytestring classy-prelude

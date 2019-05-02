@@ -5,7 +5,7 @@ module Foundation where
 import Import.NoFoundation
 import Text.Hamlet          (hamletFile)
 import Text.Jasmine         (minifym)
-import Yesod.Auth.OAuth2.Github
+import Yesod.Auth.OAuth2.GitHub
 import Yesod.Default.Util   (addStaticContentExternal)
 import Yesod.Core.Types     (Logger)
 import qualified Yesod.Core.Unsafe as Unsafe
@@ -62,10 +62,10 @@ instance Yesod App where
             Nothing -> getApprootText guessApproot app req
             Just root -> root
 
-    urlRenderOverride _ NewsFeedR = Nothing
-    urlRenderOverride _ (CommentFeedR _) = Nothing
-    urlRenderOverride _ (AuthR _) = Nothing
-    urlRenderOverride y r = Just $ uncurry (joinPath y "") $ renderRoute r
+    urlParamRenderOverride _ NewsFeedR _ = Nothing
+    urlParamRenderOverride _ (CommentFeedR _) _ = Nothing
+    urlParamRenderOverride _ (AuthR _) _ = Nothing
+    urlParamRenderOverride y r _ = Just $ uncurry (joinPath y "") $ renderRoute r
 
     -- Disable sessions for now due to DSGVO
     makeSessionBackend _ = return Nothing
@@ -130,14 +130,6 @@ instance Yesod App where
     -- Place Javascript at bottom of the body tag so the rest of the page loads first
     jsLoader _ = BottomOfBody
 
-    -- What messages should be logged. The following includes all messages when
-    -- in development, and warnings and errors in production.
-    shouldLog app _source level =
-        appShouldLogAll (appSettings app)
-            || level == LevelWarn
-            || level == LevelError
-
-
 -- How to run database actions.
 instance YesodPersist App where
     type YesodPersistBackend App = SqlBackend
@@ -156,20 +148,24 @@ instance YesodAuth App where
     -- Where to send a user after logout
     logoutDest _ = RootR
 
-    getAuthId creds = runDB $ do
+    authenticate :: (MonadHandler m, HandlerSite m ~ App)
+                 => Creds App -> m (AuthenticationResult App)
+    authenticate creds = liftHandler $ runDB $ do
         x <- getBy $ UniqueUser $ credsIdent creds
         case x of
-            Just (Entity uid _) -> return $ Just uid
-            Nothing -> do
-                fmap Just $ insert $ User (credsIdent creds) Nothing Nothing False
+            Just (Entity uid _) -> return $ Authenticated uid
+            Nothing -> Authenticated <$> insert User
+                { userIdent = credsIdent creds
+                , userPassword = Nothing
+                , userName = Nothing
+                , userAdmin = False
+                }
 
     -- You can add other plugins like BrowserID, email or OAuth here
-    authPlugins m = [ oauth2Github
+    authPlugins m = [ oauth2GitHub
                         (oauthKeysClientId $ appGithubOAuthKeys m)
                         (oauthKeysClientSecret $ appGithubOAuthKeys m)
                     ]
-
-    authHttpManager = getHttpManager
 
 instance YesodAuthPersist App
 
