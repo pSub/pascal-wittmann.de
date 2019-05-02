@@ -42,7 +42,7 @@ instance HasHttpManager App where
 -- explanation for this split.
 mkYesodData "App" $(parseRoutesFile "config/routes")
 
-type Form x = Html -> MForm (HandlerT App IO) (FormResult x, Widget)
+type Form x = Html -> MForm (HandlerFor App) (FormResult x, Widget)
 
 -- TODO Swap this function into a utility module.
 plural :: Int -> String -> String -> String
