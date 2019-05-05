@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/pSub/pascal-wittmann.de.png)](https://travis-ci.org/pSub/pascal-wittmann.de) [![Code Climate](https://codeclimate.com/github/pSub/pascal-wittmann.de/badges/gpa.svg)](https://codeclimate.com/github/pSub/pascal-wittmann.de)
+[![Build Status](https://travis-ci.org/pSub/pascal-wittmann.de.png)](https://travis-ci.org/pSub/pascal-wittmann.de)
 
 Personal website with Yesod
 ---------------------------
