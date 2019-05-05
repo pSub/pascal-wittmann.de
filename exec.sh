@@ -19,7 +19,7 @@ EOF
 
 elif [[ $1 == build ]]; then
     source $HOME/.nix-profile/etc/profile.d/nix.sh
-    nix-build -I nixpkgs=https://nixos.org/channels/nixos-$2/nixexprs.tar.xz
+    nix-build -I nixpkgs=https://nixos.org/channels/$2/nixexprs.tar.xz
 else
     echo "$0: Unknown option $1" >&2
     false
