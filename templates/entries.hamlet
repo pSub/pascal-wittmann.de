@@ -8,10 +8,6 @@
        $else
           <a :elem (tagName tag') tagNames:class=active href="@{EntriesByTagR catName activeTags}">#{tagName tag'}
 
-<span #new-entry>
-  $maybe _ <- mu
-       <a href="@{NewEntryR catName}">_{MsgAddNewEntry}
-
 <div .entries>
   $forall Entity eid entry <- entries
       <a .entry href=@{EntryR catName (entryIdent entry)}>

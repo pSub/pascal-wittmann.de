@@ -8,20 +8,9 @@
 
 /impressum                                              ImpressumR GET
 /datenschutz                                            DatenschutzR GET
-/login                                                  AuthR Auth getAuth
-/admin                                                  AdminR GET POST
-/admin/delete/#CategoryId                               DeleteCategoryR GET
 /category/#Text                                         EntriesR GET
 /category/#Text/tags/*Texts                             EntriesByTagR GET
 /category/#Text/entry/#Text                             EntryR GET POST
 /category/#Text/entry/#Text/reply-to/#CommentId         EntryCommentR GET POST
-/new-entry/#Text                                        NewEntryR GET POST
-/edit-entry/#Text/#Text                                 EditEntryR GET POST
-/delete-tag/#Text/#TagId                                DeleteTagR GET
-/delete-entry/#Text/#EntryId                            DeleteEntryR GET
-/delete-comment/#Text/#Text/#CommentId                  DeleteCommentR GET
-/upload-file-to/#Text/#Text                             UploadFileR GET POST
-/move-file/#Text/#Text/#AttachmentId                    MoveFileR GET POST
-/profile                                                ProfileR GET POST
 /news                                                   NewsFeedR GET
 /feeds/comments/#EntryId                                CommentFeedR GET

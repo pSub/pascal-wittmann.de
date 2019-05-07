@@ -2,7 +2,6 @@ module Handler.Root where
 
 import           Data.List as L (find)
 import           Import
-import           Data.Time.LocalTime
 import           ILoveFS
 
 getRootR :: Handler Html
@@ -14,7 +13,6 @@ getRootR = do
   cats <- runDB $ select $ from $ \c -> do
                   orderBy [asc (c ^. CategoryName)]
                   return c
-  zonedTime <- liftIO getZonedTime
   defaultLayout $ do
     setTitle "Pascal Wittmann"
     $(widgetFile "root") >> ilovefs

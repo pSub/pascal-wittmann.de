@@ -33,8 +33,6 @@ library
                      Handler.Root
                      Handler.Impressum
                      Handler.Entries
-                     Handler.Admin
-                     Handler.Profile
                      Handler.News
                      Handler.Sitemap
 

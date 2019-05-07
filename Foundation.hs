@@ -5,7 +5,6 @@ module Foundation where
 import Import.NoFoundation
 import Text.Hamlet          (hamletFile)
 import Text.Jasmine         (minifym)
-import Yesod.Auth.OAuth2.GitHub
 import Yesod.Default.Util   (addStaticContentExternal)
 import Yesod.Core.Types     (Logger)
 import qualified Yesod.Core.Unsafe as Unsafe
@@ -27,7 +26,6 @@ data App = App
     , appConnPool    :: ConnectionPool -- ^ Database connection pool.
     , appHttpManager :: Manager
     , appLogger      :: Logger
-    , appGithubOAuthKeys :: OAuthKeys
     }
     
 instance HasHttpManager App where
@@ -64,7 +62,6 @@ instance Yesod App where
 
     urlParamRenderOverride _ NewsFeedR _ = Nothing
     urlParamRenderOverride _ (CommentFeedR _) _ = Nothing
-    urlParamRenderOverride _ (AuthR _) _ = Nothing
     urlParamRenderOverride y r _ = Just $ uncurry (joinPath y "") $ renderRoute r
 
     -- Disable sessions for now due to DSGVO
@@ -75,7 +72,6 @@ instance Yesod App where
         master <- getYesod
         mmsg <- getMessage
 
-        muser <- maybeAuth
         cats <- runDB $ selectList [] [Asc CategoryName]
         currentRoute <- getCurrentRoute
         let isCurrent x = (currentRoute == Just x) || ((parents currentRoute) == Just x)
@@ -97,16 +93,6 @@ instance Yesod App where
             $(widgetFile "default-layout")
         withUrlRenderer $(hamletFile "templates/default-layout-wrapper.hamlet")
         where name = categoryName . entityVal
-
-    -- The page to be redirected to when authentication is required.
-    authRoute _ = Just $ AuthR LoginR
-    
-    -- Routes not requiring authentication.
---    isAuthorized (AuthR _) _ = return Authorized
---    isAuthorized FaviconR _ = return Authorized
---    isAuthorized RobotsR _ = return Authorized
-    -- Default to Authorized for now.
---    isAuthorized _ _ = return Authorized
 
     -- This function creates static content files in the static folder
     -- and names them based on a hash of their content. This allows
@@ -140,35 +126,6 @@ instance YesodPersist App where
 instance YesodPersistRunner App where
     getDBRunner = defaultGetDBRunner appConnPool
 
-instance YesodAuth App where
-    type AuthId App = UserId
-
-    -- Where to send a user after successful login
-    loginDest _ = RootR
-    -- Where to send a user after logout
-    logoutDest _ = RootR
-
-    authenticate :: (MonadHandler m, HandlerSite m ~ App)
-                 => Creds App -> m (AuthenticationResult App)
-    authenticate creds = liftHandler $ runDB $ do
-        x <- getBy $ UniqueUser $ credsIdent creds
-        case x of
-            Just (Entity uid _) -> return $ Authenticated uid
-            Nothing -> Authenticated <$> insert User
-                { userIdent = credsIdent creds
-                , userPassword = Nothing
-                , userName = Nothing
-                , userAdmin = False
-                }
-
-    -- You can add other plugins like BrowserID, email or OAuth here
-    authPlugins m = [ oauth2GitHub
-                        (oauthKeysClientId $ appGithubOAuthKeys m)
-                        (oauthKeysClientSecret $ appGithubOAuthKeys m)
-                    ]
-
-instance YesodAuthPersist App
-
 -- This instance is required to use forms. You can modify renderMessage to
 -- achieve customized and internationalized form validation messages.
 instance RenderMessage App FormMessage where
@@ -187,26 +144,6 @@ parents :: Maybe (Route App) -> Maybe (Route App)
 parents (Just ImpressumR) = Nothing
 parents (Just (EntriesByTagR cat _)) = Just $ EntriesR cat
 parents (Just (EntryR cat _)) = Just $ EntriesR cat
-parents (Just (NewEntryR cat)) = Just $ EntriesR cat
-parents (Just (UploadFileR cat _)) = Just $ EntriesR cat
 parents (Just (EntryCommentR cat _ _)) = Just $ EntriesR cat
-parents (Just (EditEntryR cat _)) = Just $ EntriesR cat
 parents (Just _) = Nothing
 parents Nothing = Nothing
-
-requireAdmin :: Handler ()
-requireAdmin = do
-     (Entity _ u) <- requireAuth
-     if userAdmin u
-       then return ()
-       else permissionDenied "You need admin privileges to do that"
-
-maybeAdmin :: Handler (Maybe User)
-maybeAdmin = do
-     mu <- maybeAuth
-     case mu of
-          Just (Entity _ u) -> do
-            if userAdmin u
-              then return $ Just u
-              else return Nothing
-          Nothing -> return Nothing
