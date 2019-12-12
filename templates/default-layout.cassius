@@ -163,6 +163,9 @@ textarea
 #content a[href^="@{RootR}"]:after
     content: ''
 
+#content a[href^="#{approotText}"]:after
+    content: ''
+
 #content .margin
     padding-left: 1em
     padding-right: 1em
