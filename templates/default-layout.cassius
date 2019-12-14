@@ -150,7 +150,7 @@ textarea
     text-decoration: none
 
 #content a:after
-    content: '⇡'
+    content: '🌎'
 
 #content a:hover, #content a:active
     text-decoration: none
