@@ -1,5 +1,0 @@
-<h2>Neuer Log-Eintrag
-<form enctype="#{enctype}" method="post">
-      ^{form}
-      <p>
-          <input type="submit" value="Veröffentlichen">
