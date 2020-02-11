@@ -9,7 +9,7 @@
 , wai-logger, warp, yaml, yesod, yesod-auth, yesod-core, yesod-form
 , yesod-markdown, yesod-newsfeed, yesod-persistent, yesod-sitemap
 , yesod-static, yesod-test, cabal-install, yesod-bin, load-env
-, yesod-auth-oauth2, yesod-csp
+, yesod-auth-oauth2, yesod-csp, ghcid, foreign-store
 }:
 mkDerivation {
   pname = "homepage";
@@ -18,7 +18,7 @@ mkDerivation {
   isLibrary = true;
   isExecutable = true;
   doHaddock = false; # https://github.com/haskell/haddock/issues/775
-  buildTools = [ cabal-install yesod-bin ];
+  buildTools = [ cabal-install yesod-bin ghcid ];
   libraryHaskellDepends = [
     aeson base blaze-html blaze-markup bytestring classy-prelude
     classy-prelude-conduit classy-prelude-yesod clientsession conduit
@@ -29,6 +29,7 @@ mkDerivation {
     vector wai-extra wai-logger warp yaml yesod yesod-auth yesod-core
     yesod-form yesod-markdown yesod-newsfeed yesod-persistent
     yesod-sitemap yesod-static load-env yesod-auth-oauth2 yesod-csp
+    foreign-store
   ];
   executableHaskellDepends = [ base ];
   testHaskellDepends = [
