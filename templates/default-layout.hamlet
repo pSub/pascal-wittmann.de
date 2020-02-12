@@ -2,10 +2,6 @@
    <img #powered-by src=@{StaticR powered_by_logo} alt="powered by Yesod">
 <a href=@{NewsFeedR}>
    <img #newsfeed src=@{StaticR rss_logo} alt="Newsfeed">
-<blockquote id="quote">
-  Tough times don't last, tough people do.
-  <footer>
-    Robert H. Schuller
 $maybe msg <- mmsg
        <div #message-box>
             <center>#{msg}

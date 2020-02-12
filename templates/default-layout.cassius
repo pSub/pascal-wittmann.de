@@ -15,13 +15,6 @@ body
     right: 10%
     border: 0
 
-#quote
-    color: #ffffff
-    text-align: center
-
-#quote footer
-    opacity: 0.5
-
 img
     border: 0px
 
