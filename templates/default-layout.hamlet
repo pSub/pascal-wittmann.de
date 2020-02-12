@@ -1,5 +1,3 @@
-<a href="http://www.yesodweb.com">
-   <img #powered-by src=@{StaticR powered_by_logo} alt="powered by Yesod">
 <a href=@{NewsFeedR}>
    <img #newsfeed src=@{StaticR rss_logo} alt="Newsfeed">
 $maybe msg <- mmsg
