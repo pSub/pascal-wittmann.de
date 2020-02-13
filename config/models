@@ -1,15 +1,10 @@
 Module
   name String
 
-Category
-  name Text
-  UniqueCategory name
-
 Entry
   title Text
   ident Text
   content Markdown
-  cat CategoryId
   recap Text
   meta_descr String
   date UTCTime
@@ -18,8 +13,7 @@ Entry
 
 Tag
   name Text
-  category CategoryId
-  UniqueTag name category
+  UniqueTag name
 
 Tagged
   tag TagId

@@ -3,20 +3,19 @@ module Handler.News
        , getCommentFeedR
        ) where
 
-import           Data.List as L      (find, maximum)
+import           Data.List as L      (maximum)
 import           Data.Maybe
 import           Import
 import           Yesod.Markdown (markdownToHtml)
 
 getNewsFeedR :: Handler TypedContent
 getNewsFeedR = do
-    categories <- runDB $ select $ from $ \c -> return c
     entries <- runDB $ select $ from $ \e -> do
                         orderBy [desc (e ^. EntryDate)]
                         limit 30
                         return e
     feeds <- mapM (\(Entity _ e) -> return FeedEntry
-                   { feedEntryLink = EntryR (findCategory (entryCat e) categories) (entryIdent e)
+                   { feedEntryLink = EntryR $ entryIdent e
                    , feedEntryUpdated = entryDate e
                    , feedEntryTitle = entryTitle e
                    , feedEntryContent = either (const "Error") id $ markdownToHtml $ entryContent e
@@ -26,7 +25,7 @@ getNewsFeedR = do
        { feedTitle = "pascal-wittmann.de"
        , feedAuthor = "Pascal Wittmann"
        , feedLinkSelf = NewsFeedR
-       , feedLinkHome = RootR
+       , feedLinkHome = EntriesR
        , feedDescription = "RSS/Atom Feed von pascal-wittmann.de"
        , feedLanguage = "en"
        , feedUpdated = L.maximum $ map feedEntryUpdated feeds
@@ -37,12 +36,11 @@ getNewsFeedR = do
 getCommentFeedR :: Key Entry -> Handler TypedContent
 getCommentFeedR key = do
     e <- runDB $ get404 key
-    categories <- runDB $ select $ from $ \c -> return c
     comments <- (runDB $ select $ from $ \c -> do
                         where_ (c ^. CommentEntry ==. val key)
                         orderBy [asc (c ^. CommentDate)]
                         return c) >>= (mapM $ \(Entity _ c) -> return FeedEntry
-             { feedEntryLink = EntryR (findCategory (entryCat e) categories) (entryIdent e)
+             { feedEntryLink = EntryR $ entryIdent e
              , feedEntryUpdated = commentDate c
              , feedEntryTitle = (entryTitle e) `mappend` " -- " `mappend` (fromMaybe "anonymous" (commentAuthor c))
              , feedEntryContent = either (const "Error") id $ markdownToHtml $ commentContent c
@@ -52,13 +50,10 @@ getCommentFeedR key = do
        { feedTitle = "Comments for entry '" `mappend` (entryTitle e) `mappend` "' on pascal-wittmann.de"
        , feedAuthor = "…"
        , feedLinkSelf = CommentFeedR key
-       , feedLinkHome = RootR
+       , feedLinkHome = EntriesR
        , feedDescription = "This feed contains all comments for this entry."
        , feedLanguage = "en"
        , feedUpdated = L.maximum $ map feedEntryUpdated comments
        , feedLogo = Nothing
        , feedEntries = comments
        }
-
-findCategory :: Key Category -> [Entity Category] -> Text
-findCategory eid = categoryName . entityVal . fromJust . L.find ((eid ==) . entityKey)

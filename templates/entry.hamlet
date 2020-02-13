@@ -21,7 +21,7 @@ $if not (null comments)
       $nothing
              <b>_{MsgAnonymous}
       \
-      <a href="@{EntryCommentR catName curIdent cid}">_{MsgReply}
+      <a href="@{EntryCommentR curIdent cid}">_{MsgReply}
       <blockquote>
          #{either (const "Error") id $ markdownToHtml $ commentContent comment}
       $maybe parent' <- mparent
@@ -30,7 +30,7 @@ $if not (null comments)
             ^{formEdit}
             <p>
               <input type=submit value="_{MsgSubmit}"> #
-              <a href=@{EntryR catName curIdent}>_{MsgCancel}
+              <a href=@{EntryR curIdent}>_{MsgCancel}
 $else
   _{MsgNoComments}
 

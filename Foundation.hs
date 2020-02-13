@@ -15,6 +15,8 @@ import           Yesod.Csp.TH
 import           Text.Blaze           (ToMarkup (..))
 import           Text.Blaze.Internal  (preEscapedText)
 import           Yesod.AtomFeed
+-- import ILoveFS
+
 
 -- | The foundation datatype for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -72,11 +74,6 @@ instance Yesod App where
         master <- getYesod
         mmsg <- getMessage
 
-        cats <- runDB $ selectList [] [Asc CategoryName]
-        currentRoute <- getCurrentRoute
-        let isCurrent x = (currentRoute == Just x) || ((parents currentRoute) == Just x)
-        let categories = map (name &&& EntriesR . name) cats
-
         -- static links to images
         let powered_by_logo = StaticRoute ["powered_by_yesod.png"] []
         let rss_logo = StaticRoute ["rss_logo.png"] []
@@ -93,9 +90,8 @@ instance Yesod App where
 
         pc <- widgetToPageContent $ do
             atomLink NewsFeedR "Newsfeed von pascal-wittmann.de"
-            $(widgetFile "default-layout")
+            $(widgetFile "default-layout") -- >> ilovefs
         withUrlRenderer $(hamletFile "templates/default-layout-wrapper.hamlet")
-        where name = categoryName . entityVal
 
     -- This function creates static content files in the static folder
     -- and names them based on a hash of their content. This allows
@@ -142,11 +138,3 @@ instance ToMarkup UTCTime where
 
 instance ToMessage UTCTime where
   toMessage = toMessage . formatTime defaultTimeLocale "%e.%m.%Y"
-
-parents :: Maybe (Route App) -> Maybe (Route App)
-parents (Just ImpressumR) = Nothing
-parents (Just (EntriesByTagR cat _)) = Just $ EntriesR cat
-parents (Just (EntryR cat _)) = Just $ EntriesR cat
-parents (Just (EntryCommentR cat _ _)) = Just $ EntriesR cat
-parents (Just _) = Nothing
-parents Nothing = Nothing

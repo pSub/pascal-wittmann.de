@@ -37,25 +37,22 @@ commentForm loggedin author comment now parentKey entryKey = renderDivs $ Commen
 
 -- | Calls the central entries handler ('getEntriesByTag') without a restriction
 -- on tags.
-getEntriesR :: Text -> Handler Html
-getEntriesR catName = getEntriesByTagR catName []
+getEntriesR :: Handler Html
+getEntriesR = getEntriesByTagR []
 
--- | Central handler for showing a list of entries of a category.
+-- | Central handler for showing a list of entries.
 -- Optionally filtered by tags.
--- The first argument is the category name, the second is a
--- list of tags. If this list is not empty, every entry which is assigned
--- to at least one tag from the list (given it is in the right category)
--- is shown
-getEntriesByTagR :: Text -> [Text] -> Handler Html
-getEntriesByTagR catName tagNames = do
-  category <- runDB $ getBy404 $ UniqueCategory catName
-  currentTags <- mapMaybe (entityKey <$>) <$> mapM (\ n -> runDB $ getBy $ UniqueTag n (entityKey category)) tagNames
+-- The first argument a list of tags. If this list is not empty, every entry which is assigned
+-- to at least one tag from the list is shown
+getEntriesByTagR :: [Text] -> Handler Html
+getEntriesByTagR tagNames = do
+  currentTags <- mapMaybe (entityKey <$>) <$> mapM (\ n -> runDB $ getBy $ UniqueTag n) tagNames
   tagging <- runDB $ select $ from $ \(t `InnerJoin` s) -> do
                      on $ t ^. TagId ==. s ^. TaggedTag
                      orderBy [asc (t ^. TagName)]
                      return (t, s)
 
-  tags <- runDB $ select $ from $ \t -> where_ (t ^. TagCategory ==. val (entityKey category)) >> return t
+  tags <- runDB $ select $ from $ \tag -> return tag
   comments <- map (\(Value e, Value c) -> (e, c)) <$> runDB (select $ from $ \(e `InnerJoin` c) -> do
                       on $ e ^. EntryId ==. c ^. CommentEntry
                       where_ (c ^. CommentDeleted ==. val False)
@@ -64,7 +61,6 @@ getEntriesByTagR catName tagNames = do
 
   entries <- if null tagNames
                 then runDB $ select $ from $ \e -> do
-                             where_ (e ^. EntryCat ==. val (entityKey category))
                              orderBy [desc (e ^. EntryDate)]
                              return e
                 else runDB $ select $ from $ \(e `InnerJoin` t) -> do
@@ -73,8 +69,8 @@ getEntriesByTagR catName tagNames = do
                              return e
   defaultLayout $ do
     if null tagNames
-       then setTitle $ toHtml catName
-       else setTitle $ toHtml $ catName <> " :: " <> T.concat (L.intersperse ", " tagNames)
+       then setTitle $ toHtml ("Blog" :: Text)
+       else setTitle $ toHtml $ T.concat (L.intersperse ", " tagNames) <> " :: "
     $(widgetFile "entries")
 
 -- | If the element is not contained in the list it is added,
@@ -86,8 +82,8 @@ toggleTag t ts
 
 -- | This handler is responsible for building pages showing an
 -- entry in full length including attachments and comments.
-entryHandler :: Text -> Text -> Maybe CommentId -> Handler Html
-entryHandler catName curIdent mparent = do
+entryHandler :: Text -> Maybe CommentId -> Handler Html
+entryHandler curIdent mparent = do
   entry <- runDB $ getBy404 $ UniqueEntry curIdent
   atts <- runDB $ select $ from $ \a -> do
                   where_ (a ^. AttachmentEntry ==. val (entityKey entry))
@@ -104,7 +100,7 @@ entryHandler catName curIdent mparent = do
   case res of
     FormSuccess comment -> do
       _ <- runDB $ insert comment
-      redirect $ EntryR catName curIdent
+      redirect $ EntryR curIdent
     _ -> return ()
   defaultLayout $ do
     setTitle $ toHtml $ entryTitle $ entityVal entry
@@ -113,16 +109,16 @@ entryHandler catName curIdent mparent = do
 computeIndentionClass :: Integer -> [(String, String)]
 computeIndentionClass indention = [("class", "indent-" ++ (show $ (2 * indention) `mod` 10) ++ " comment")]
 
-getEntryCommentR :: Text -> Text -> CommentId -> Handler Html
-getEntryCommentR catName curIdent curParent = entryHandler catName curIdent (Just curParent)
+getEntryCommentR :: Text -> CommentId -> Handler Html
+getEntryCommentR curIdent curParent = entryHandler curIdent (Just curParent)
 
-postEntryCommentR :: Text -> Text -> CommentId -> Handler Html
+postEntryCommentR :: Text -> CommentId -> Handler Html
 postEntryCommentR = getEntryCommentR
 
-getEntryR :: Text -> Text ->  Handler Html
-getEntryR catName curIdent = entryHandler catName curIdent Nothing
+getEntryR :: Text ->  Handler Html
+getEntryR curIdent = entryHandler curIdent Nothing
          
-postEntryR :: Text -> Text -> Handler Html
+postEntryR :: Text -> Handler Html
 postEntryR = getEntryR
 
 tagsForEntry :: Key Entry -> [(b, Entity Tagged)] -> [b]

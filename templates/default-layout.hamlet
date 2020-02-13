@@ -5,10 +5,9 @@ $maybe msg <- mmsg
             <center>#{msg}
 <div #container>
      <div #title>
-          <a href=@{RootR}>Pascal Wittmann
+          <a href=@{EntriesR}>Pascal Wittmann
      <div  #navigation>
-         $forall (label, url) <- categories
-            <a :isCurrent url:id=active href="@{url}">#{label}
+            <a href="/">Nav1
      <div #content>
           ^{widget}
      <div #footer>

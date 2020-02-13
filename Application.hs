@@ -34,7 +34,6 @@ import LoadEnv
 import           Handler.Entries
 import           Handler.Impressum
 import           Handler.News
-import           Handler.Root
 import           Handler.Sitemap
 
 -- This line actually creates our YesodDispatch instance. It is the second half
