@@ -11,7 +11,7 @@ $maybe msg <- mmsg
     <nav>
         <ul>
             <li>
-                <a href="$@{EntriesR}">Blog
+                <a href="@{EntriesR}">Blog
             <li>
                 <a href="/about-me.html">About Me
             <li>
