@@ -44,7 +44,7 @@ a
     justify-content: center
     align-items: center
 
-#dummy
+#netcup
     flex: 1
     display: flex
     justify-content: flex-start
@@ -94,7 +94,3 @@ footer
 
 footer a 
     text-decoration: underline
-
-#netcup
-    padding-top: 1em
-    text-align: center

@@ -3,7 +3,8 @@ $maybe msg <- mmsg
             <center>#{msg}
 
 <div .head>
-    <div #dummy>
+    <div #netcup>
+        <a href="https://www.netcup.de"><img src="@{StaticR netcup_oekostrom}" alt="netcup green electricity" />
     <header>
         <img src="@{StaticR profile_picture}" alt="Profile"/>
 
@@ -23,8 +24,5 @@ $maybe msg <- mmsg
     #{preEscapedText $ appCopyright $ appSettings master}
     <br>
     <a href="privacy.html">Privacy</a> | <a href="contact.html">Contact
-
-<div #netcup>
-     <a href="https://www.netcup.de"><img src="@{StaticR netcup_oekostrom}" alt="netcup Ökostrom" /></a>
 
 
