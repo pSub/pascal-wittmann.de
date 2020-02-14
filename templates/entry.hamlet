@@ -11,41 +11,43 @@
     <section>
         #{either (const "Error") id $ markdownToHtml $ entryContent $ entityVal entry}
 
-$if not $ null atts
-  <h2>_{MsgAttachments}
-  $forall Entity _ att <- atts
-       <a href="@{StaticR $ createStaticRoute $ attachmentFile att}">#{attachmentDescr att}
-       <br>
+    <section>
+        $if not $ null atts
+          <h2>_{MsgAttachments}
+          $forall Entity _ att <- atts
+               <a href="@{StaticR $ createStaticRoute $ attachmentFile att}">#{attachmentDescr att}
+               <br>
 
-<h2>_{MsgComments}
-Kommentare für diesen Eintrag als <a href=@{CommentFeedR (entityKey entry)}>RSS Feed</a>
-<br>
-$if not (null comments)
- $forall (indention, _comment) <- comments
-  $with Entity cid comment <- _comment
-   $with indentClass <- computeIndentionClass indention
-    <div *{indentClass}>
-      am #{commentDate comment} schrieb #
-      $maybe author' <- commentAuthor comment
-             <b>#{author'}
-      $nothing
-             <b>_{MsgAnonymous}
-      \
-      <a href="@{EntryCommentR curIdent cid}">_{MsgReply}
-      <blockquote>
-         #{either (const "Error") id $ markdownToHtml $ commentContent comment}
-      $maybe parent' <- mparent
-        $if (==) parent' cid
-          <form enctype=#{enctype} method=post>
-            ^{formEdit}
-            <p>
-              <input type=submit value="_{MsgSubmit}"> #
-              <a href=@{EntryR curIdent}>_{MsgCancel}
-$else
-  _{MsgNoComments}
+    <section>
+        <h2>_{MsgComments}
+        Kommentare für diesen Eintrag als <a href=@{CommentFeedR (entityKey entry)}>RSS Feed</a>
+        <br>
+        $if not (null comments)
+         $forall (indention, _comment) <- comments
+          $with Entity cid comment <- _comment
+           $with indentClass <- computeIndentionClass indention
+            <div *{indentClass}>
+              am #{commentDate comment} schrieb #
+              $maybe author' <- commentAuthor comment
+                     <b>#{author'}
+              $nothing
+                     <b>_{MsgAnonymous}
+              \
+              <a href="@{EntryCommentR curIdent cid}">_{MsgReply}
+              <blockquote>
+                 #{either (const "Error") id $ markdownToHtml $ commentContent comment}
+              $maybe parent' <- mparent
+                $if (==) parent' cid
+                  <form enctype=#{enctype} method=post>
+                    ^{formEdit}
+                    <p>
+                      <input type=submit value="_{MsgSubmit}"> #
+                      <a href=@{EntryR curIdent}>_{MsgCancel}
+        $else
+          _{MsgNoComments}
 
-<h2>_{MsgNewComment}
-<form enctype="#{enctype}" method="post">
-      ^{formNew}
-      <p>
-        <input type="submit" value="_{MsgSubmit}">
+        <h2>_{MsgNewComment}
+        <form enctype="#{enctype}" method="post">
+              ^{formNew}
+              <p>
+                <input type="submit" value="_{MsgSubmit}">
