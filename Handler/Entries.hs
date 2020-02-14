@@ -52,12 +52,12 @@ getEntriesByTagR tagNames = do
                      orderBy [asc (t ^. TagName)]
                      return (t, s)
 
-  tags <- runDB $ select $ from $ \tag -> return tag
-  comments <- map (\(Value e, Value c) -> (e, c)) <$> runDB (select $ from $ \(e `InnerJoin` c) -> do
-                      on $ e ^. EntryId ==. c ^. CommentEntry
-                      where_ (c ^. CommentDeleted ==. val False)
-                      groupBy $ e ^. EntryId
-                      return (e ^. EntryId, countRows))
+--  tags <- runDB $ select $ from $ \tag -> return tag
+--  comments <- map (\(Value e, Value c) -> (e, c)) <$> runDB (select $ from $ \(e `InnerJoin` c) -> do
+--                      on $ e ^. EntryId ==. c ^. CommentEntry
+--                      where_ (c ^. CommentDeleted ==. val False)
+--                      groupBy $ e ^. EntryId
+--                      return (e ^. EntryId, countRows))
 
   entries <- if null tagNames
                 then runDB $ select $ from $ \e -> do
@@ -67,24 +67,26 @@ getEntriesByTagR tagNames = do
                              on $ e ^. EntryId ==. t ^. TaggedEntry
                              mapM_ (where_ . (t ^. TaggedTag ==.) . val) currentTags
                              return e
+
+  let tag_symbol = StaticRoute ["tag.svg"] []
+
   defaultLayout $ do
     if null tagNames
        then setTitle $ toHtml ("Blog" :: Text)
        else setTitle $ toHtml $ T.concat (L.intersperse ", " tagNames) <> " :: "
     $(widgetFile "entries")
 
--- | If the element is not contained in the list it is added,
--- otherwise deleted from the list.
-toggleTag :: Eq a => a -> [a] -> [a]
-toggleTag t ts
-  | t `elem` ts = L.delete t ts
-  | otherwise = t:ts
-
 -- | This handler is responsible for building pages showing an
 -- entry in full length including attachments and comments.
 entryHandler :: Text -> Maybe CommentId -> Handler Html
 entryHandler curIdent mparent = do
   entry <- runDB $ getBy404 $ UniqueEntry curIdent
+  tagging <- runDB $ select $ from $ \(t `InnerJoin` s) -> do
+                       on $ t ^. TagId ==. s ^. TaggedTag
+                       orderBy [asc (t ^. TagName)]
+                       return (t, s)
+
+
   atts <- runDB $ select $ from $ \a -> do
                   where_ (a ^. AttachmentEntry ==. val (entityKey entry))
                   orderBy [asc (a ^. AttachmentDescr)]

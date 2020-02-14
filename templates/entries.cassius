@@ -1,73 +1,16 @@
-#new-entry
-    float: left
-    margin-left: 2em
-    font-size: 0.9em
-    padding-top: 0em
-    margin-top: -0.8em
+#title-box h1
+    margin-block-start: 0
+    margin-block-end: 0
 
-#tag-list
-    float: right
-    min-width: 50%
-    margin-top: -0.8em
-    padding-left: 0em
-    padding-top: 0em
-    font-size: 0.9em
-    list-style: none
+#tag-img-container
+    flex: 0.3 1 0%
 
-#tag-list li
-    display: inline
-    padding-right: 0.3em
+#tag-txt-container
+    flex: 1 1 0%
+    margin-block-start: 1rem
 
-.active
-    color: #ff9940 !important
+.right img
+    height: 5rem
 
-#tag-list a:link, #tag-list a:visited, #tag-list a:active
-    color: #000
-
-#tag-list a:hover
-    text-decoration: underline
-
-#content
-    padding-left: 0 !important
-    padding-right: 0 !important
-
-.entries
-    clear: both
-
-.entry
-    display: block
-    padding-top: 0.25em
-    padding-bottom: 0.25em
-    padding-left: 1em
-    padding-right: 1em
-
-.entry:hover
-    background-color: #F2F5A9
-
-.entry:nth-child(even)
-    background-color: #eeeeee
-
-.entry:nth-child(even):hover
-    background-color: #F2F5A9
-
-.entry .right
-    float: right
-    min-width: 13em
-
-.entry .right .date
-    font-size: 0.8em
-    color: #808080
-
-.entry .right .comment-count
-    font-size: 0.8em
-    color: #808080
-
-.entry .right .tags
-    font-size: 0.8em
-
-.entry .left .title
-    font-size: 1.2em
-
-.entry .left .recap
-    font-size: 0.9em
-    color: #000000
+#title-box
+    flex: 2 1 0%

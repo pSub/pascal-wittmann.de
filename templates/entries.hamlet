@@ -1,35 +1,16 @@
-<ul #tag-list>
-   <li>_{MsgTags}: #
-  $forall Entity _ tag' <- tags
-    <li>
-     $with activeTags <- sort $ toggleTag (tagName tag') tagNames
-       $if null activeTags
-          <a :elem (tagName tag') tagNames:class=active href="@{EntriesR}">#{tagName tag'}
-       $else
-          <a :elem (tagName tag') tagNames:class=active href="@{EntriesByTagR activeTags}">#{tagName tag'}
+$forall Entity eid entry <- entries
+    <article>
+        <header .head>
+            <div .left #title-box>
+                <h1>
+                    <a href=@{EntryR (entryIdent entry)}>#{entryTitle entry}
+                <section>_{MsgPublishedOn (entryDate entry)}
 
-<div .entries>
-  $forall Entity eid entry <- entries
-      <a .entry href=@{EntryR (entryIdent entry)}>
-        <span .right>
-               <span .date>_{MsgPublishedOn (entryDate entry)}
-               <br>
-               <span .comment-count>
-                 $with mcount <- lookup eid comments
-                  $maybe count' <- mcount
-                    _{MsgCommentCount count'}
-                  $nothing
-                    _{MsgNoComments}
-                \ / #
-               <span .tags>
-                   _{MsgTags}: #
-                   $forall Entity _ tag <- tagsForEntry eid tagging
-                      #{tagName tag} #
-        <span .left>
-             <span .title>#{entryTitle entry}
-             <br>
-             <span .recap>#{entryRecap entry}
-
-
-
+            <div .right>
+                <section .head>
+                    <div .left #tag-img-container>
+                        <img src=@{StaticR tag_symbol} alt="_{MsgTags}"/>
+                    <div .right #tag-text-container>
+                        $forall Entity _ tag <- tagsForEntry eid tagging
+                            #{tagName tag} #
 

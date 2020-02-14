@@ -25,5 +25,5 @@ database:
   database: "_env:PGDATABASE:homepage"
   poolsize: "_env:PGPOOLSIZE:10"
 
-copyright: Dieser Inhalt steht unter einer <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/de/" title="Lizenz">Creative Commons Lizenz</a>
+copyright: All work licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0">CC-BY-SA</a> unless otherwise stated.
 #analytics: UA-YOURCODE

@@ -1,5 +1,13 @@
-<h2>#{entryTitle $ entityVal entry}
-#{either (const "Error") id $ markdownToHtml $ entryContent $ entityVal entry}
+<article>
+    <section .header>
+        <h1>#{entryTitle $ entityVal entry}
+        _{MsgPublishedOn $ entryDate $ entityVal entry}
+        <kbd>
+            $forall Entity _ tag <- tagsForEntry (entityKey entry) tagging
+                #{tagName tag} #
+
+    <section>
+        #{either (const "Error") id $ markdownToHtml $ entryContent $ entityVal entry}
 
 $if not $ null atts
   <h2>_{MsgAttachments}

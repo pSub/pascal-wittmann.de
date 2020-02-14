@@ -75,10 +75,8 @@ instance Yesod App where
         mmsg <- getMessage
 
         -- static links to images
-        let powered_by_logo = StaticRoute ["powered_by_yesod.png"] []
-        let rss_logo = StaticRoute ["rss_logo.png"] []
-	let netcup_oekostrom = StaticRoute ["netcup-oekostrom.png"] []
-    
+        let profile_picture = StaticRoute ["profile.png"] []
+        let netcup_oekostrom = StaticRoute ["netcup-oekostrom.png"] []
         let approotText = fromMaybe "" $ appRoot $ appSettings master
 
 

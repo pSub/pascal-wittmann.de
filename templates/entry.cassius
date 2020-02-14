@@ -1,6 +1,3 @@
-.right
-        float: right
-
 .comment blockquote
         padding: 0.5em
         margin-left: 0

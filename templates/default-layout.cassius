@@ -1,31 +1,23 @@
+html
+  font-size: 62.5%
+
 body
-    background-color: #393939
-    font-size: 1em
-    font-family: serif font-style: normal font-weight: normal
+  font-size: 1.6rem
+  font-family: sans-serif
+  color: #000
+  max-width: 80rem
+  margin: 0 auto
+  padding: 0
 
-#powered-by
-    position: absolute
-    top: 0
-    left: 0
-    border: 0
+main
+    margin-block-start: 1em
+    margin-block-end: 1em
+    padding-inline-start: 40px
+    padding-inline-end: 40px
 
-#newsfeed
-    position: absolute
-    top: 3em
-    right: 10%
-    border: 0
-
-img
-    border: 0px
-
-hr
-    background-color: #aaaaaa
-    color: #aaaaaa
-    border: 0 none
-    height: 1px
-
-textarea
-    height: 5em
+a 
+    color: #555
+    text-decoration: none
 
 #message-box
     border-radius: 5px
@@ -35,167 +27,73 @@ textarea
     margin-top: 2em
     max-width: 60em
 
-#container
-    width:66%
-    margin:0 auto
-    padding-top: 3em
-    padding-bottom: 3em
-    max-width: 60em
+.head 
+    display: flex
 
-.xtop, .xbottom
-    clear:both
-    display:block
-    background:transparent
+.left 
+    flex: 1
+    justify-content: flex-start
 
-.xb1, .xb2, .xb3, .xb4
-    display:block
-    overflow:hidden
+.right
+    flex: 1
+    justify-content: flex-end
 
-.xb1, .xb2, .xb3
-    height:1px
+.head header
+    flex: 1
+    display: flex
+    justify-content: center
+    align-items: center
 
-.xb2, .xb3, .xb4
-    background: #fff
-    border-left:1px solid #fff
-    border-right:1px solid #fff
+#dummy
+    flex: 1
+    display: flex
+    justify-content: flex-start
+    align-items: center
 
-.xb1
-    margin:0 5px
-        background:#fff
-
-.xb2
-    margin:0 3px
-        border-width:0 2px
-
-.xb3
-    margin:0 2px
-
-.xb4
-    height:2px
-        margin:0 1px
-
-#title
-    font-size: 1.5em
-    text-align: center
-    float:left
-    width:50%
-
-#title a:link, #title a:visited, #title a:active, #title a:hover
-    text-decoration: none
-    color: #fff
-
-#navigation
-    font-size:1.5em
-    list-style: none
-    text-align: left
-    float:left
-    margin-top: 0
-    margin-right: 0
-    margin-left: 0
-    margin-bottom: 0
-    padding: 0
-    border-bottom: 0.1em solid #393939
-
-#navigation a:link, #navigation a:visited, #navigation a:active, #navigation a:hover
-    text-decoration: none
-    color: #0099ff
-
-#navigation a
-    display: inline
-    background-color: #fff
-    margin-left: 0.3em
-    padding: 0.1em 0.1em 0em 0.1em
-    border-top: 0.1em solid #fff
-    border-left: 0.1em solid #fff
-    border-right: 0.1em solid #fff
-
-#navigation #active
-    border-bottom: 0.2em solid #fff
-
-#content
-    clear: both
-    background-color: #fff
-    padding: 1em
-    -moz-border-radius: 10px
-    -webkit-border-radius: 10px
-    -khtml-border-radius: 10px
-    border-radius: 10px
-    behavior: url("border-radius.htc")
-
-#content h2
-    display: block
-    font-size: 1.2em
-    color: #000
-    margin-bottom: 0em
-    padding-bottom: 0em
-
-#content p
-    margin-top: 0.5em
-
-#content pre
-    padding-left: 3em
-
-#content sup
-    font-size: 0.7em
-
-#content a
-    color: #0099ff
-    text-decoration: none
-
-#content a:after
-    content: '🌎'
-
-#content a:hover, #content a:active
-    text-decoration: none
-
-#content a.nodecoration
-    color: #000
-    text-decoration: none
-    border-bottom: 0px
-
-#content a[href^="@{EntriesR}"]:after
-    content: ''
-
-#content a[href^="#{approotText}"]:after
-    content: ''
-
-#content .margin
-    padding-left: 1em
-    padding-right: 1em
-
-label
-    display: block
-    width: 10em
-    float: left
-
-.multi-column
-    padding-left: 3em
-
-.multi-column ul
+nav 
+    justify-content: flex-end
+    display: flex
+    align-items: center
+    flex: 1
     margin: 0
-    padding: 0
-    width: 40em
 
-.multi-column br
-    clear: left
+nav ul
+    list-style-type: none
 
-.multi-column li
-    float: left
-    width: 20em
+nav li  
+   align-items: center
 
-#footer
-    color: #fff
-    font-size: 0.8em
-    padding-top: 0.5em
+nav a
+  font-size: 1.8rem
+  color: black
+  text-decoration: none
 
-#footer a
-    color: #fff
+footer 
+  margin-top: 3rem
+  padding: 1.2rem 0
+  border-top: 0.2rem solid #777
+  font-size: 1.2rem
+  color: #555
 
-#footer #left
-    float: left
+h1
+  font-size: 2.4rem
 
-#footer #right
-    float: right
+h2
+  font-size: 2rem
+
+article .header
+  font-size: 1.4rem
+  font-style: italic
+  color: #555
+
+header
+    padding: 1.2rem 0
+
+footer 
+    text-align: center
+
+footer a 
+    text-decoration: underline
 
 #netcup
     padding-top: 1em

@@ -1,22 +1,29 @@
-<a href=@{NewsFeedR}>
-   <img #newsfeed src=@{StaticR rss_logo} alt="Newsfeed">
 $maybe msg <- mmsg
        <div #message-box>
             <center>#{msg}
-<div #container>
-     <div #title>
-          <a href=@{EntriesR}>Pascal Wittmann
-     <div  #navigation>
-            <a href="/">Nav1
-     <div #content>
-          ^{widget}
-     <div #footer>
-          <div #left>
-            <a href=@{ImpressumR} title="Impressum">Impressum
-            \ | #
-            <a href=@{DatenschutzR} title="_{MsgPrivacyPolicy}">_{MsgPrivacyPolicy}
-          <div #right>
-            #{preEscapedText $ appCopyright $ appSettings master}
+
+<div .head>
+    <div #dummy>
+    <header>
+        <img src="@{StaticR profile_picture}" alt="Profile"/>
+
+    <nav>
+        <ul>
+            <li>
+                <a href="$@{EntriesR}">Blog
+            <li>
+                <a href="/about-me.html">About Me
+            <li>
+                <a href="@{NewsFeedR}">Subscribe
+
+<main role="main">
+  ^{widget}
+
+<footer>
+    #{preEscapedText $ appCopyright $ appSettings master}
+    <br>
+    <a href="privacy.html">Privacy</a> | <a href="contact.html">Contact
+
 <div #netcup>
      <a href="https://www.netcup.de"><img src="@{StaticR netcup_oekostrom}" alt="netcup Ökostrom" /></a>
 
