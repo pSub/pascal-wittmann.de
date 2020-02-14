@@ -38,15 +38,18 @@ commentForm loggedin author comment now parentKey entryKey = renderDivs $ Commen
 -- | Calls the central entries handler ('getEntriesByTag') without a restriction
 -- on tags.
 getEntriesR :: Handler Html
-getEntriesR = getEntriesByTagR []
+getEntriesR = entriesHandler Nothing
+
+getEntriesByTagR :: Text -> Handler Html
+getEntriesByTagR tagname = entriesHandler $ Just tagname
 
 -- | Central handler for showing a list of entries.
 -- Optionally filtered by tags.
 -- The first argument a list of tags. If this list is not empty, every entry which is assigned
 -- to at least one tag from the list is shown
-getEntriesByTagR :: [Text] -> Handler Html
-getEntriesByTagR tagNames = do
-  currentTags <- mapMaybe (entityKey <$>) <$> mapM (\ n -> runDB $ getBy $ UniqueTag n) tagNames
+entriesHandler :: Maybe Text -> Handler Html
+entriesHandler maybeTagname = do
+  currentTags <- map (entityKey <$>) <$> mapM (\ n -> runDB $ getBy $ UniqueTag n) maybeTagname
   tagging <- runDB $ select $ from $ \(t `InnerJoin` s) -> do
                      on $ t ^. TagId ==. s ^. TaggedTag
                      orderBy [asc (t ^. TagName)]
@@ -59,21 +62,21 @@ getEntriesByTagR tagNames = do
 --                      groupBy $ e ^. EntryId
 --                      return (e ^. EntryId, countRows))
 
-  entries <- if null tagNames
+  entries <- if isNothing currentTags
                 then runDB $ select $ from $ \e -> do
                              orderBy [desc (e ^. EntryDate)]
                              return e
                 else runDB $ select $ from $ \(e `InnerJoin` t) -> do
                              on $ e ^. EntryId ==. t ^. TaggedEntry
-                             mapM_ (where_ . (t ^. TaggedTag ==.) . val) currentTags
+                             mapM_ (where_ . (t ^. TaggedTag ==.) . val) $ fromJust currentTags
                              return e
 
   let tag_symbol = StaticRoute ["tag.svg"] []
 
   defaultLayout $ do
-    if null tagNames
+    if isNothing maybeTagname
        then setTitle $ toHtml ("Blog" :: Text)
-       else setTitle $ toHtml $ T.concat (L.intersperse ", " tagNames) <> " :: "
+       else setTitle $ toHtml $ (fromJust maybeTagname) <> " :: "
     $(widgetFile "entries")
 
 -- | This handler is responsible for building pages showing an

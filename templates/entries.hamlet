@@ -9,8 +9,8 @@ $forall Entity eid entry <- entries
             <div .right>
                 <section .head>
                     <div .left #tag-img-container>
-                        <img src=@{StaticR tag_symbol} alt="_{MsgTags}"/>
+                        <img src=@{StaticR tag_symbol} alt="_{MsgPublishedIn}"/>
                     <div .right #tag-text-container>
                         $forall Entity _ tag <- tagsForEntry eid tagging
-                            #{tagName tag} #
+                            <a href=@{EntriesByTagR $ tagName tag}>#{tagName tag} #
 

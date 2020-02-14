@@ -8,6 +8,7 @@ Add: Add
 DeleteCategories: Delete categories
 AddNewEntry: Add new entry
 PublishedOn date@UTCTime: Published on #{date}
+PublishedIn: Published in
 CommentCount n@Int: #{show n} #{plural n "comment" "comments"}
 Comments: Comments
 Attachments: Attachments
@@ -18,7 +19,6 @@ Name: Name (optional)
 Comment: Comment
 Title: Title
 Ident: Ident
-Tags: Tags
 Summary: Summary
 Text: Text
 Category: Category

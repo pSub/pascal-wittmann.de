@@ -8,7 +8,7 @@
 
 /impressum                                              ImpressumR GET
 /datenschutz                                            DatenschutzR GET
-/tags/*Texts                                            EntriesByTagR GET
+/tag/#Text                                              EntriesByTagR GET
 /entry/#Text                                            EntryR GET POST
 /entry/#Text/reply-to/#CommentId                        EntryCommentR GET POST
 /news                                                   NewsFeedR GET

@@ -8,6 +8,7 @@ Add: Hinzufügen
 DeleteCategories: Kategorien löschen
 AddNewEntry: Neuen Eintrag hinzufügen
 PublishedOn date: Veröffentlicht am #{date}
+PublishedIn: Veröffentlich in
 CommentCount n@Int: #{show n} #{plural n "Kommentar" "Kommentare"}
 Comments: Kommentare
 Attachments: Anhänge
@@ -18,7 +19,6 @@ Name: Name (optional)
 Comment: Kommentar
 Title: Titel
 Ident: Ident
-Tags: Tags
 Summary: Zusammenfassung
 Text: Text
 Category: Category

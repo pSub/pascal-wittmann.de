@@ -2,9 +2,11 @@
     <section .header>
         <h1>#{entryTitle $ entityVal entry}
         _{MsgPublishedOn $ entryDate $ entityVal entry}
+        <br>
+        _{MsgPublishedIn}
         <kbd>
             $forall Entity _ tag <- tagsForEntry (entityKey entry) tagging
-                #{tagName tag} #
+                <a href=@{EntriesByTagR $ tagName tag}>#{tagName tag} #
 
     <section>
         #{either (const "Error") id $ markdownToHtml $ entryContent $ entityVal entry}
