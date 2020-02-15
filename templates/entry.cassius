@@ -28,3 +28,8 @@ section h2
   padding-left: 6em
 .indent-8
   padding-left: 8em
+
+label
+    display: block
+    width: 10em
+    float: left
