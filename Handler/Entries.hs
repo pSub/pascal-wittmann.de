@@ -112,7 +112,7 @@ entryHandler curIdent mparent = do
     $(widgetFile "entry")
 
 computeIndentionClass :: Integer -> [(String, String)]
-computeIndentionClass indention = [("class", "indent-" ++ (show $ (2 * indention) `mod` 10) ++ " comment")]
+computeIndentionClass indention = [("class", "indent-" ++ (show $ (2 * indention) `min` 8) ++ " comment")]
 
 getEntryCommentR :: Text -> CommentId -> Handler Html
 getEntryCommentR curIdent curParent = entryHandler curIdent (Just curParent)
