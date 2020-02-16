@@ -27,12 +27,12 @@
           $with Entity cid comment <- _comment
            $with indentClass <- computeIndentionClass indention
             <div *{indentClass}>
-              am #{commentDate comment} schrieb #
-              $maybe author' <- commentAuthor comment
+             $maybe author' <- commentAuthor comment
                      <b>#{author'}
-              $nothing
+             $nothing
                      <b>_{MsgAnonymous}
               \
+              _{MsgAtDateWrote $ commentDate comment} #
               <a href="@{EntryCommentR curIdent cid}">_{MsgReply}
               <blockquote>
                  #{either (const "Error") id $ markdownToHtml $ commentContent comment}

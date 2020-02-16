@@ -2,7 +2,6 @@ NoComments: Keine Kommentare
 Submit: Veröffentlichen
 NewComment: Neuer Kommentar
 Cancel: Abbrechen
-Reply: Reply
 Anonymous: Anonymous
 Add: Hinzufügen
 DeleteCategories: Kategorien löschen
@@ -17,6 +16,8 @@ Delete': Löschen
 Edit: Bearbeiten
 Name: Name (optional)
 Comment: Kommentar
+AtDateWrote date@UTCTime: am #{show date} schrieb
+Reply: Antworten
 Title: Titel
 Ident: Ident
 Summary: Zusammenfassung
