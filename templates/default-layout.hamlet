@@ -3,11 +3,6 @@ $maybe msg <- mmsg
             <center>#{msg}
 
 <div .head>
-    <div #netcup>
-        <a href="https://www.netcup.de"><img src="@{StaticR netcup_oekostrom}" alt="netcup green electricity" />
-    <header>
-        <img src="@{StaticR profile_picture}" alt="Profile"/>
-
     <nav>
         <ul>
             <li>
@@ -16,6 +11,12 @@ $maybe msg <- mmsg
                 <a href="/about-me.html">About Me
             <li>
                 <a href="@{NewsFeedR}">Subscribe
+
+    <header>
+        <img src="@{StaticR profile_picture}" alt="Profile"/>
+
+    <div #netcup>
+        <a href="https://www.netcup.de"><img src="@{StaticR netcup_oekostrom}" alt="netcup green electricity" />
 
 <main role="main">
   ^{widget}
