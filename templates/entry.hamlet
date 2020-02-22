@@ -19,6 +19,12 @@
                <br>
 
     <section>
+        <h2>_{MsgNewComment}
+        <form enctype="#{enctype}" method="post">
+              ^{formNew}
+              <p>
+                <input type="submit" value="_{MsgSubmit}">
+
         <h2>_{MsgComments}
         Kommentare für diesen Eintrag als <a href=@{CommentFeedR (entityKey entry)}>RSS Feed</a>
         <br>
@@ -45,9 +51,3 @@
                       <a href=@{EntryR curIdent}>_{MsgCancel}
         $else
           _{MsgNoComments}
-
-        <h2>_{MsgNewComment}
-        <form enctype="#{enctype}" method="post">
-              ^{formNew}
-              <p>
-                <input type="submit" value="_{MsgSubmit}">
