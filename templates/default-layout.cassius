@@ -83,7 +83,6 @@ h2
 
 article .header
   font-size: 1.4rem
-  font-style: italic
   color: #555
 
 header
