@@ -6,7 +6,7 @@
         _{MsgPublishedIn}
         <kbd>
             $forall Entity _ tag <- tagsForEntry (entityKey entry) tagging
-                <a href=@{EntriesByTagR $ tagName tag}>#{tagName tag} #
+                <a .tag-box href=@{EntriesByTagR $ tagName tag}>#{tagName tag} #
 
     <section>
         #{either (const "Error") id $ markdownToHtml $ entryContent $ entityVal entry}
