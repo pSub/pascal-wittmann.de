@@ -6,8 +6,9 @@
 
 /                                                       EntriesR GET
 
-/impressum                                              ImpressumR GET
-/datenschutz                                            DatenschutzR GET
+/privacy                                                PrivacyR GET
+/contact                                                ContactR GET
+/about                                                  AboutR GET
 /tag/#Text                                              EntriesByTagR GET
 /entry/#Text                                            EntryR GET POST
 /entry/#Text/reply-to/#CommentId                        EntryCommentR GET POST

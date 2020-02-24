@@ -1,0 +1,23 @@
+<h1>Privacy
+
+This website takes care of your privacy and adheres to the <a href="https://gdpr-info.eu/">GDPR</a>.
+
+<h2>HTTPS
+
+This website always uses HTTPS. If you connect to this website using HTTP you will be redirected to HTTPS. It also
+protects you against protocol downgrade attacks by implementing HSTS. This means that after your first
+visit to this website your browser will transform any HTTP link to this website into a HTTPS link *before*
+it tries to connect.
+
+<h2>No Cookies
+
+This website does not use cookies. In other words it will not store little files on your computer with
+content that could be used to track you.
+
+<h2>No Thrird-Party Services
+This website does not use any third party services. Every request will
+
+<h2>Server Logs
+When you visit this website the computer serving it to you will log that you have visited and which files your
+web browser requested. Your IP address will be recorded anonymized. The real address <kbd>2.205.6.240</kbd> will be
+logged as <kbd>2.205.0.0</kbd>.

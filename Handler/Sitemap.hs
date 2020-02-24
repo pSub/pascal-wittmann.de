@@ -23,6 +23,8 @@ getSitemapR = do
             })
     sitemapList $ [ SitemapUrl EntriesR (lastChange entries) (Just Monthly) (Just 1.0)
                 -- TODO: This approximation is still rather bad
-              , SitemapUrl ImpressumR (lastChange entries) (Just Yearly) (Just 0.2)
+              , SitemapUrl PrivacyR (lastChange entries) (Just Yearly) (Just 0.2)
+              , SitemapUrl AboutR (lastChange entries) (Just Yearly) (Just 0.2)
+              , SitemapUrl ContactR (lastChange entries) (Just Yearly) (Just 0.2)
               ] ++ entries_urls ++ statics
    where lastChange = Just . L.maximum . map (entryLastMod . entityVal)

@@ -30,7 +30,7 @@ library
                      Settings
                      Settings.StaticFiles
                      ILoveFS
-                     Handler.Impressum
+                     Handler.StaticPages
                      Handler.Entries
                      Handler.News
                      Handler.Sitemap

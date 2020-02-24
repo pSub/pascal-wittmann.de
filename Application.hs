@@ -32,7 +32,7 @@ import LoadEnv
 
 -- Import all relevant handler modules here.
 import           Handler.Entries
-import           Handler.Impressum
+import           Handler.StaticPages
 import           Handler.News
 import           Handler.Sitemap
 
