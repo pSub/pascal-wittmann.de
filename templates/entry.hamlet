@@ -37,17 +37,17 @@
                      <b>#{author'}
              $nothing
                      <b>_{MsgAnonymous}
-              \
-              _{MsgAtDateWrote $ commentDate comment} #
-              <a href="@{EntryCommentR curIdent cid}">_{MsgReply}
-              <blockquote>
-                 #{either (const "Error") id $ markdownToHtml $ commentContent comment}
-              $maybe parent' <- mparent
-                $if (==) parent' cid
-                  <form enctype=#{enctype} method=post>
-                    ^{formEdit}
-                    <p>
-                      <input type=submit value="_{MsgSubmit}"> #
-                      <a href=@{EntryR curIdent}>_{MsgCancel}
+             \
+             _{MsgAtDateWrote $ commentDate comment} #
+             <a href="@{EntryCommentR curIdent cid}">_{MsgReply}
+             <blockquote>
+                #{either (const "Error") id $ markdownToHtml $ commentContent comment}
+             $maybe parent' <- mparent
+               $if (==) parent' cid
+                 <form enctype=#{enctype} method=post>
+                   ^{formEdit}
+                   <p>
+                     <input type=submit value="_{MsgSubmit}"> #
+                     <a href=@{EntryR curIdent}>_{MsgCancel}
         $else
           _{MsgNoComments}
