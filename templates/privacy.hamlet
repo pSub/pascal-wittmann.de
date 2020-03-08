@@ -20,4 +20,4 @@ This website does not use any third party services. Every request will
 <h2>Server Logs
 When you visit this website the computer serving it to you will log that you have visited and which files your
 web browser requested. Your IP address will be recorded anonymized. The real address <kbd>2.205.6.240</kbd> will be
-logged as <kbd>2.205.0.0</kbd>.
+logged as <kbd>2.205.0.0</kbd>. The log files are deleted after 30 days.
