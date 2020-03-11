@@ -19,6 +19,12 @@ a
     color: #555
     text-decoration: none
 
+a[href^="http://"]:before
+    content: '⚠️'
+
+a[href^="http://"]:after
+    content: '⚠️'
+
 #message-box
     border-radius: 5px
     background-color: #ffffff

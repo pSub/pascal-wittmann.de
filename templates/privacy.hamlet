@@ -9,6 +9,9 @@ protects you against protocol downgrade attacks by implementing HSTS. This means
 visit to this website your browser will transform any HTTP link to this website into a HTTPS link *before*
 it tries to connect.
 
+Usually links to other websites use HTTPS as well. However, sometimes I might want to link to a website that does not
+support HTTPS. In those cases the link is surrounded by ⚠ signs.
+
 <h2>No Cookies
 
 This website does not use cookies. In other words it will not store little files on your computer with
