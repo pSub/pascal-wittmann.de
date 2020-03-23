@@ -20,9 +20,11 @@ a
     text-decoration: none
 
 a[href^="http://"]:before
+    font-size: 0.6em
     content: '⚠️'
 
 a[href^="http://"]:after
+    font-size: 0.6em
     content: '⚠️'
 
 #message-box
