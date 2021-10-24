@@ -3,7 +3,7 @@ module Import.NoFoundation
     ) where
 
 -- FIXME: Is there some non-hacky way to fix conflicts between ClassyPrelude.Yesod and Esqueleto?
-import ClassyPrelude.Yesod   as Import hiding (Value, delete, isNothing, on, (!=.), (*=.), (+=.), (-=.), (/=.), (<.), (<=.), (>.), (>=.), (==.), (=.), (||.), (<&>), selectSource, groupBy, count, update)
+import ClassyPrelude.Yesod   as Import hiding (Value, delete, isNothing, on, (!=.), (*=.), (+=.), (-=.), (/=.), (<.), (<=.), (>.), (>=.), (==.), (=.), (||.), (<&>), selectSource, groupBy, count, update, exists)
 import Model                 as Import
 import Settings              as Import
 import Settings.StaticFiles  as Import
