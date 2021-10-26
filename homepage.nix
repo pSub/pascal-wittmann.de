@@ -4,7 +4,7 @@
 , esqueleto, fast-logger, file-embed, filepath, hjsmin, hspec
 , http-conduit, monad-control, monad-logger, old-locale, persistent
 , persistent-postgresql, persistent-template, regex-compat
-, resourcet, safe, shakespeare, stdenv, template-haskell, text
+, resourcet, safe, shakespeare, lib, template-haskell, text
 , time, transformers, unordered-containers, vector, wai-extra
 , wai-logger, warp, yaml, yesod, yesod-auth, yesod-core, yesod-form
 , yesod-markdown, yesod-newsfeed, yesod-persistent, yesod-sitemap
@@ -39,5 +39,5 @@ mkDerivation {
   ];
   homepage = "https://www.pascal-wittmann.de";
   description = "Personal website";
-  license = stdenv.lib.licenses.bsd3;
+  license = lib.licenses.bsd3;
 }
