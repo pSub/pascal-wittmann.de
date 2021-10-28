@@ -1,3 +1,0 @@
-sudo: required
-install: ./exec.sh nix
-script: ./exec.sh build nixos-21.05
