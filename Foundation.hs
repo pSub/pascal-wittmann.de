@@ -77,8 +77,6 @@ instance Yesod App where
         -- static links to images
         let profile_picture = StaticRoute ["profile.png"] []
         let netcup_oekostrom = StaticRoute ["netcup-oekostrom.png"] []
-        let approotText = fromMaybe "" $ appRoot $ appSettings master
-
 
         -- We break up the default layout into two components:
         -- default-layout is the contents of the body tag, and

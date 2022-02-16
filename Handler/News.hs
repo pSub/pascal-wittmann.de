@@ -20,6 +20,7 @@ getNewsFeedR = do
                    , feedEntryTitle = entryTitle e
                    , feedEntryContent = either (const "Error") id $ markdownToHtml $ entryContent e
                    , feedEntryEnclosure = Nothing
+                   , feedEntryCategories = []
                    }) entries
     newsFeed Feed
        { feedTitle = "pascal-wittmann.de"
@@ -45,6 +46,7 @@ getCommentFeedR key = do
              , feedEntryTitle = (entryTitle e) `mappend` " -- " `mappend` (fromMaybe "anonymous" (commentAuthor c))
              , feedEntryContent = either (const "Error") id $ markdownToHtml $ commentContent c
              , feedEntryEnclosure = Nothing
+             , feedEntryCategories = []
              })
     newsFeed Feed
        { feedTitle = "Comments for entry '" `mappend` (entryTitle e) `mappend` "' on pascal-wittmann.de"

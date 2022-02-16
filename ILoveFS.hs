@@ -5,7 +5,7 @@ import           Data.Time.LocalTime
        
 class YesodILoveFS master where
       
---ilovefs :: ToWidget site Html
+ilovefs :: (MonadWidget m, HandlerSite m ~ App) => m ()
 ilovefs = do
   zonedTime <- liftIO getZonedTime
 

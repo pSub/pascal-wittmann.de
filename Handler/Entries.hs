@@ -7,7 +7,6 @@ module Handler.Entries
        , postEntryCommentR
        ) where
 
-import qualified Data.List             as L (delete, intersperse)
 import           Data.Maybe
 import qualified Data.Text             as T
 import           Data.Time

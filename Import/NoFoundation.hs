@@ -12,4 +12,5 @@ import Yesod.Core.Types      as Import (loggerSet)
 import Yesod.Default.Config2 as Import
 
 -- Custom imports
-import Database.Esqueleto as Import -- conflicts with ClassPrelude.Yesod
+-- TODO Update to Database.Esqueleto.Experimental.
+import Database.Esqueleto.Legacy as Import -- conflicts with ClassPrelude.Yesod
