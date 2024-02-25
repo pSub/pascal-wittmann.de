@@ -10,15 +10,15 @@ visit to this website your browser will transform any HTTP link to this website 
 it tries to connect.
 
 Usually links to other websites use HTTPS as well. However, sometimes I might want to link to a website that does not
-support HTTPS. In those cases the link is surrounded by ⚠ signs.
+support HTTPS. In those cases, the link is surrounded by ⚠ signs.
 
 <h2>No Cookies
 
-This website does not use cookies. In other words it will not store little files on your computer with
+This website does not use cookies. In other words, it will not store little files on your computer with
 content that could be used to track you.
 
-<h2>No Thrird-Party Services
-This website does not use any third party services. Every request will
+<h2>No Third-Party Services
+This website does not use any third-party services.
 
 <h2>Server Logs
 When you visit this website the computer serving it to you will log that you have visited and which files your
