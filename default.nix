@@ -1,4 +1,4 @@
-{ compiler ? "ghc94", nixpkgs ? import <nixpkgs> {} }:
+{ compiler ? "ghc96", nixpkgs ? import <nixpkgs> {} }:
 let
   # Use my fork as long as github.com/bobjflong/yesod-csp/issues/8 is
   # not fixed.
