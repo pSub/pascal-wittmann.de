@@ -31,6 +31,7 @@ import Yesod.Default.Handlers
 import LoadEnv
 
 -- Import all relevant handler modules here.
+import           Handler.CachedFavicon
 import           Handler.Entries
 import           Handler.StaticPages
 import           Handler.News

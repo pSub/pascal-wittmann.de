@@ -1,6 +1,5 @@
 /static                                                 StaticR Static appStatic
-
-/favicon.ico                                            FaviconR GET
+/favicon.ico                                            CachedFaviconR GET
 /robots.txt                                             RobotsR GET
 /sitemap.xml                                            SitemapR GET
 
