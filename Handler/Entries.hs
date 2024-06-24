@@ -48,6 +48,7 @@ getEntriesByTagR tagname = entriesHandler $ Just tagname
 -- to at least one tag from the list is shown
 entriesHandler :: Maybe Text -> Handler Html
 entriesHandler maybeTagname = do
+  cacheSeconds 691200
   currentTags <- map (entityKey <$>) <$> mapM (\ n -> runDB $ getBy $ UniqueTag n) maybeTagname
   tagging <- runDB $ select $ from $ \(t `InnerJoin` s) -> do
                      on $ t ^. TagId ==. s ^. TaggedTag
@@ -82,6 +83,7 @@ entriesHandler maybeTagname = do
 -- entry in full length including attachments and comments.
 entryHandler :: Text -> Maybe CommentId -> Handler Html
 entryHandler curIdent mparent = do
+  cacheSeconds 691200
   entry <- runDB $ getBy404 $ UniqueEntry curIdent
   tagging <- runDB $ select $ from $ \(t `InnerJoin` s) -> do
                        on $ t ^. TagId ==. s ^. TaggedTag
