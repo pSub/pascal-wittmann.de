@@ -70,7 +70,7 @@ instance Yesod App where
     makeSessionBackend _ = return Nothing
 
     defaultLayout widget = do
-        cspPolicy [csp|img-src 'self'; script-src 'none'; style-src 'self'; default-src 'none'|]
+        cspPolicy [csp|img-src 'self'; script-src 'none'; style-src 'self'; frame-ancestors 'none'|]
         master <- getYesod
         mmsg <- getMessage
 
