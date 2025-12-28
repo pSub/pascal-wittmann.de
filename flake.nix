@@ -20,7 +20,7 @@
         pkgs = import nixpkgs { inherit system; };
       in
       {
-        packages.homepage = nixpkgs.pkgs.haskell.packages.ghc910.callPackage ./homepage.nix {
+        packages.homepage = pkgs.haskell.packages.ghc910.callPackage ./homepage.nix {
           yesod-csp = yesod-csp-nix.packages.${system}.yesod-csp;
         };
       }
